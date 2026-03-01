@@ -13,14 +13,35 @@ const STORAGE_KEY = 'gymApp_v1_data';
 const SESSION_KEY = 'gymApp_v1_activeSession';
 
 const REST_TARGETS = {
-  compound:  { normal: 150, hurry: 90  }, // seconds
-  isolation: { normal: 90,  hurry: 60  },
+  compound:  { normal: 90, hurry: 60 }, // seconds
+  isolation: { normal: 60, hurry: 45 },
 };
 
 const TIME_GOALS = {
   '30-45': { min: 30, max: 45 },
   '40-60': { min: 40, max: 60 },
   '60-90': { min: 60, max: 90 },
+};
+
+// Starting weights seeded from user's Google Keep history (last logged weight per machine)
+// Used as fallback when no previous session data exists for a machine
+const SEED_WEIGHTS = {
+  chest_press:               40,   // 2/25: 40 ×3×10
+  incline_press:             20,   // 2/19: 20 ×3×12
+  shoulder_press:            30,   // 2/28: 30 ×3×9
+  pec_fly:                   55,   // 2/25: 55 ×3×13
+  rear_delt:                 45,   // 2/25: 45 ×3×12
+  triceps_pushdown:          90,   // 2/25: 90 ×3×12
+  triceps_extension_machine: 40,   // 2/14: 40 ×3×13
+  lat_pulldown:              70,   // last logged 75 but note says drop to 70 for form
+  seated_row:                75,   // 2/17: 75 ×3×10
+  biceps_curl_machine:       25,   // 2/17: 25 ×3×12
+  assisted_chin:             70,   // 2/17: 70 lb assist ×3×12 (higher = more assistance = easier)
+  seated_leg_press:         180,   // 2/19: 180 ×3×13
+  seated_leg_curl:           70,   // 2/19: 70 ×3×13
+  leg_extension:             65,   // 2/23: 65 ×3×12
+  hip_abduction:            110,   // 2/19: 110 ×3×20
+  hip_adduction:            120,   // 2/23: 120 ×3×20
 };
 
 // ============================================================
@@ -151,7 +172,7 @@ function updatePillRow() {
   // Warmup status
   if (s.warmup) {
     const parts = [];
-    if (s.warmup.stretchDone) parts.push('Stretch');
+    if (s.warmup.stretchMinutes) parts.push(`Stretch ${s.warmup.stretchMinutes}m`);
     if (s.warmup.bikeLog) parts.push(`Bike ${s.warmup.bikeLog.minutes}m`);
     if (parts.length) {
       html += `<span class="pill">${parts.join(' + ')}</span>`;
@@ -295,24 +316,25 @@ function selectDayType(dayType) {
     dayType,
     timeGoal: null,
     templateId: `${dayType}_default`,
-    warmup: { stretchDone: false, bikeLog: null, durationSec: 0 },
+    warmup: { stretchMinutes: null, bikeLog: null, durationSec: 0 },
     sets: [],
     bikeLogs: [],
     absLogs: [],
     nextTimeNotes: {},
-    _ui: { expandedBlock: null, bikeChoice: 'now', absReminder: true }
+    _ui: {
+      expandedBlock: null,
+      absReminder: App.data.profile.preferences.absReminder !== false,
+    }
   };
   showView('time-select');
 }
 
 function selectTimeGoal(timeGoal) {
+  // Issue #3: skip warmup page — go directly into the workout
   App.session.timeGoal = timeGoal;
   App.restMode = App.data.profile.preferences.restModeDefault || 'normal';
-
-  // Pre-fill warmup abs reminder from preferences
-  $('warmup-abs').checked = App.data.profile.preferences.absReminder !== false;
-
-  showView('warmup');
+  saveActiveSession();
+  enterWorkout();
 }
 
 function handleStartWorkout() {
@@ -376,13 +398,14 @@ function renderWorkout() {
     if (isExpanded) card.classList.add('block-expanded');
     if (isDone) card.classList.add('block-done');
 
-    // Header
+    // Header — "abs" block displays as "Other"
+    const displayName = block.id === 'abs' ? 'Other' : block.name;
     const header = document.createElement('div');
     header.className = 'block-header';
     header.innerHTML = `
       <div class="block-header-left">
         ${isDone ? '<span class="block-check">&#10003;</span>' : ''}
-        <span>${block.name}</span>
+        <span>${displayName}</span>
         <span class="pill pill-sm">${blockSets.length} sets</span>
       </div>
       <span class="block-chevron">&#9654;</span>
@@ -410,28 +433,63 @@ function renderWorkout() {
 
 function renderWarmupBlock(body, block) {
   const s = App.session;
-  if (s.warmup.bikeLog) {
-    const bl = s.warmup.bikeLog;
-    body.innerHTML = `
-      <div class="set-row">
-        <span class="set-row-detail">Bike: ${bl.minutes} min${bl.rpe ? ` RPE ${bl.rpe}` : ''}${bl.maxHR ? ` HR ${bl.maxHR}` : ''}</span>
+  body.innerHTML = '';
+
+  // --- Stretch section ---
+  const stretchSection = document.createElement('div');
+  stretchSection.className = 'warmup-section';
+
+  if (s.warmup.stretchMinutes) {
+    // Already logged
+    stretchSection.innerHTML = `
+      <div class="stretch-logged">
+        <span>🧘 Stretch: ${s.warmup.stretchMinutes} min</span>
+        <button class="btn btn-sm btn-ghost" onclick="window._appClearStretch()">✕</button>
       </div>
     `;
   } else {
-    body.innerHTML = `
-      <div class="machine-row" onclick="window._appBikeQuick()">
-        <span class="machine-row-name">🚴 Log Bike</span>
-        <span class="block-chevron">&#9654;</span>
+    // Inline log form
+    const stretchId = 'warmup-stretch-mins';
+    stretchSection.innerHTML = `
+      <div class="warmup-label">🧘 Stretch</div>
+      <div class="stretch-log-row">
+        <input type="number" id="${stretchId}" class="input-sm" inputmode="numeric"
+               min="1" max="60" placeholder="min">
+        <button class="btn btn-sm btn-ghost" onclick="window._appLogStretch()">Log</button>
       </div>
     `;
   }
+  body.appendChild(stretchSection);
 
-  // Also show any additional bike logs
+  // --- Bike section ---
+  const bikeSection = document.createElement('div');
+  bikeSection.className = 'warmup-section';
+
+  if (s.warmup.bikeLog) {
+    const bl = s.warmup.bikeLog;
+    bikeSection.innerHTML = `
+      <div class="set-row">
+        <span class="set-row-detail">🚴 Bike: ${bl.minutes} min${bl.rpe ? ` · RPE ${bl.rpe}` : ''}${bl.maxHR ? ` · HR ${bl.maxHR}` : ''}</span>
+      </div>
+    `;
+  } else {
+    const bikeRow = document.createElement('div');
+    bikeRow.className = 'machine-row';
+    bikeRow.onclick = window._appBikeQuick;
+    bikeRow.innerHTML = `
+      <span class="machine-row-name">🚴 Log Bike</span>
+      <span class="block-chevron">&#9654;</span>
+    `;
+    bikeSection.appendChild(bikeRow);
+  }
+  body.appendChild(bikeSection);
+
+  // Additional bike logs
   if (s.bikeLogs && s.bikeLogs.length > 0) {
     s.bikeLogs.forEach((bl, i) => {
       const row = document.createElement('div');
       row.className = 'set-row';
-      row.innerHTML = `<span class="set-row-detail">Bike #${i+2}: ${bl.minutes} min${bl.rpe ? ` RPE ${bl.rpe}` : ''}</span>`;
+      row.innerHTML = `<span class="set-row-detail">🚴 Bike #${i+2}: ${bl.minutes} min${bl.rpe ? ` · RPE ${bl.rpe}` : ''}</span>`;
       body.appendChild(row);
     });
   }
@@ -439,8 +497,32 @@ function renderWarmupBlock(body, block) {
 
 function renderAbsBlock(body, block) {
   const s = App.session;
+
+  // Session-added machines for the Other block
+  const otherMachines = s._ui.otherMachines || [];
+  otherMachines.forEach(machineId => {
+    const machine = App.data.machines[machineId];
+    if (!machine) return;
+    const setsForMachine = getMachineSets(machineId);
+    const row = document.createElement('div');
+    row.className = 'machine-row';
+    row.onclick = () => openMachine(machineId, block.id);
+    row.innerHTML = `
+      <div>
+        <span class="machine-row-name">${machine.name}</span>
+        <span class="machine-row-sets">${setsForMachine.length > 0 ? `${setsForMachine.length} sets` : ''}</span>
+      </div>
+      <div>
+        ${setsForMachine.length > 0 ? '<span class="machine-row-check">&#10003;</span>' : ''}
+        <span class="block-chevron">&#9654;</span>
+      </div>
+    `;
+    body.appendChild(row);
+  });
+
+  // Logged abs entries
   if (s.absLogs && s.absLogs.length > 0) {
-    s.absLogs.forEach((al, i) => {
+    s.absLogs.forEach(al => {
       const row = document.createElement('div');
       row.className = 'set-row';
       row.innerHTML = `<span class="set-row-detail">Abs: ${al.type}${al.note ? ` — ${al.note}` : ''}</span>`;
@@ -448,14 +530,77 @@ function renderAbsBlock(body, block) {
     });
   }
 
-  const addRow = document.createElement('div');
-  addRow.className = 'machine-row';
-  addRow.onclick = () => { App.absReturnView = 'workout'; showView('abs-log'); };
-  addRow.innerHTML = `
+  // Quick Add Abs row
+  const absRow = document.createElement('div');
+  absRow.className = 'machine-row';
+  absRow.onclick = () => { App.absReturnView = 'workout'; showView('abs-log'); };
+  absRow.innerHTML = `
     <span class="machine-row-name">💪 Quick Add Abs</span>
     <span class="block-chevron">&#9654;</span>
   `;
+  body.appendChild(absRow);
+
+  // Add Machine row
+  const addRow = document.createElement('div');
+  addRow.className = 'machine-row';
+  addRow.onclick = () => showAddMachineToOtherModal();
+  addRow.innerHTML = `
+    <span class="machine-row-name">➕ Add Machine</span>
+    <span class="block-chevron">&#9654;</span>
+  `;
   body.appendChild(addRow);
+}
+
+function showAddMachineToOtherModal() {
+  // Collect all machine IDs already in this workout's template blocks
+  const template = App.data.templates[App.session.templateId];
+  const usedIds = new Set();
+  template.blocks.forEach(b => {
+    (b.suggestions || []).forEach(m => usedIds.add(m));
+  });
+  // Also exclude already-added other machines
+  (App.session._ui.otherMachines || []).forEach(m => usedIds.add(m));
+
+  const available = Object.values(App.data.machines)
+    .filter(m => m.type !== 'conditioning' && !usedIds.has(m.id))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  if (available.length === 0) {
+    showToast('All machines already in workout');
+    return;
+  }
+
+  const overlay = $('modal-overlay');
+  const bodyEl = $('modal-body');
+  const actionsEl = $('modal-actions');
+
+  bodyEl.innerHTML = '<h3>Add Machine to Other</h3>';
+  const list = document.createElement('div');
+  list.style.cssText = 'max-height:50vh; overflow-y:auto; margin-top:12px;';
+  available.forEach(machine => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-ghost';
+    btn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px;';
+    btn.textContent = machine.name;
+    btn.onclick = () => {
+      if (!App.session._ui.otherMachines) App.session._ui.otherMachines = [];
+      App.session._ui.otherMachines.push(machine.id);
+      saveActiveSession();
+      overlay.classList.add('hidden');
+      renderWorkout();
+    };
+    list.appendChild(btn);
+  });
+  bodyEl.appendChild(list);
+
+  actionsEl.innerHTML = '';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn btn-ghost';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.onclick = () => overlay.classList.add('hidden');
+  actionsEl.appendChild(cancelBtn);
+
+  overlay.classList.remove('hidden');
 }
 
 function renderMachineBlock(body, block) {
@@ -489,14 +634,24 @@ function renderMachineBlock(body, block) {
 }
 
 function getBlockSets(block) {
-  if (!App.session || !block.suggestions) return [];
-  return App.session.sets.filter(s => block.suggestions.includes(s.machineId));
+  if (!App.session) return [];
+  const ids = [...(block.suggestions || [])];
+  // For the Other block, also include session-added machines
+  if (block.id === 'abs' && App.session._ui.otherMachines) {
+    App.session._ui.otherMachines.forEach(m => ids.push(m));
+  }
+  return App.session.sets.filter(s => ids.includes(s.machineId));
 }
 
 function isBlockComplete(block) {
   if (!block.suggestions || block.suggestions.length === 0) return true;
-  if (block.id === 'warmup') return !!App.session.warmup.bikeLog;
-  if (block.id === 'abs') return App.session.absLogs && App.session.absLogs.length > 0;
+  if (block.id === 'warmup') return !!(App.session.warmup.bikeLog || App.session.warmup.stretchMinutes);
+  if (block.id === 'abs') {
+    const hasAbs = App.session.absLogs && App.session.absLogs.length > 0;
+    const otherMachines = App.session._ui.otherMachines || [];
+    const hasOtherSets = otherMachines.some(mid => getMachineSets(mid).length > 0);
+    return hasAbs || hasOtherSets;
+  }
   // A block is "complete" if every machine has at least one set
   return block.suggestions.every(mid => getMachineSets(mid).length > 0);
 }
@@ -532,12 +687,22 @@ function renderMachineView(machineId) {
 
   $('machine-name').textContent = machine.name;
 
-  // Rep range pill
-  if (machine.repRange && machine.repRange.max > 0) {
-    $('machine-rep-range').textContent = `${machine.repRange.min}–${machine.repRange.max} reps`;
-    $('machine-rep-range').classList.remove('hidden');
+  // Hide top rep range pill — it's now shown inline in the set logger (issue #5)
+  $('machine-rep-range').classList.add('hidden');
+
+  // Assisted chin inversion note (issue #4)
+  let inversionNote = $('machine-inversion-note');
+  if (!inversionNote) {
+    inversionNote = document.createElement('div');
+    inversionNote.id = 'machine-inversion-note';
+    inversionNote.className = 'machine-inversion-note hidden';
+    $('machine-name').parentElement.insertBefore(inversionNote, $('machine-rep-range').nextSibling);
+  }
+  if (machineId === 'assisted_chin') {
+    inversionNote.textContent = '⚠️ Higher weight = more assistance = easier';
+    inversionNote.classList.remove('hidden');
   } else {
-    $('machine-rep-range').classList.add('hidden');
+    inversionNote.classList.add('hidden');
   }
 
   // Setup tab
@@ -587,6 +752,14 @@ function renderMachineView(machineId) {
 function renderSetupFields(machine) {
   const container = $('setup-fields');
   container.innerHTML = '';
+
+  // Show setup tips text above fields (issue #1)
+  if (machine.tips?.setup) {
+    const notes = document.createElement('div');
+    notes.className = 'setup-notes-text';
+    notes.textContent = machine.tips.setup;
+    container.appendChild(notes);
+  }
 
   if (!machine.setupFields) return;
 
@@ -724,6 +897,15 @@ function renderSetLogger(machineId) {
   $('current-set-label').textContent = `Set ${setNum}`;
   $('target-rir-label').textContent = `Target: RIR ${targetRir}`;
 
+  // Show rep range inline near the reps input (issue #5)
+  const repRangePill = $('set-rep-range');
+  if (machine.repRange && machine.repRange.max > 0) {
+    repRangePill.textContent = `${machine.repRange.min}–${machine.repRange.max}`;
+    repRangePill.classList.remove('hidden');
+  } else {
+    repRangePill.classList.add('hidden');
+  }
+
   // Pre-fill weight from last set or last session
   const lastSet = sets.length > 0 ? sets[sets.length - 1] : null;
   if (lastSet) {
@@ -751,7 +933,8 @@ function getLastSessionWeight(machineId) {
     const set = s.sets?.find(st => st.machineId === machineId);
     if (set) return set.weight;
   }
-  return null;
+  // Fall back to seeded starting weights from Google Keep history (issue #4)
+  return SEED_WEIGHTS[machineId] ?? null;
 }
 
 function showNextTimeSuggestion(machineId) {
@@ -765,15 +948,17 @@ function showNextTimeSuggestion(machineId) {
   const shouldSuggestWeightUp = checkWeightUpCondition(machine, sets);
   $('weight-up-prompt').classList.toggle('hidden', !shouldSuggestWeightUp);
 
-  // Reset chips
-  $$('#next-time-chips .chip').forEach(c => c.classList.remove('chip-active'));
+  // Pre-select "Again" by default so save works without tapping (issue #7)
+  $$('#next-time-chips .chip').forEach(c => {
+    c.classList.toggle('chip-active', c.dataset.next === 'again');
+  });
   $('next-time-custom').value = '';
 
-  // Check if there's already a saved note
+  // Override with previously saved note if one exists
   if (App.session.nextTimeNotes[machineId]) {
     const saved = App.session.nextTimeNotes[machineId];
     $$('#next-time-chips .chip').forEach(c => {
-      if (c.dataset.next === saved) c.classList.add('chip-active');
+      c.classList.toggle('chip-active', c.dataset.next === saved);
     });
   }
 }
@@ -839,17 +1024,13 @@ function logSet() {
   saveData();
   saveActiveSession();
 
-  // Show backdate prompt, then start rest timer
-  showBackdatePrompt(setData);
-
   // Re-render
   renderLoggedSets(machineId);
   renderSetLogger(machineId);
   updatePillRow();
 
-  // Toast with undo
-  showToast(`Set ${setNumber} saved`, () => {
-    // Undo: remove last set
+  // Undo callback — passed to backdate, toast fires only after offset selection (issue #6)
+  const undoFn = () => {
     const idx = App.session.sets.indexOf(setData);
     if (idx > -1) {
       App.session.sets.splice(idx, 1);
@@ -859,14 +1040,17 @@ function logSet() {
       updatePillRow();
       hideRestTimer();
     }
-  });
+  };
+
+  // Show backdate prompt — toast fires after user picks offset
+  showBackdatePrompt(setData, setNumber, undoFn);
 }
 
 // ============================================================
 // BACKDATE PROMPT
 // ============================================================
-function showBackdatePrompt(setData) {
-  const prompt = $('backdate-prompt');
+function showBackdatePrompt(setData, setNumber, undoFn) {
+  const overlay = $('backdate-overlay');
   const chipsContainer = $('backdate-chips');
   const offsets = App.data.profile.preferences.finishedSetOffsetOptionsSec || [0, 5, 10, 20, 30, 60];
 
@@ -875,35 +1059,26 @@ function showBackdatePrompt(setData) {
   offsets.forEach((offset, i) => {
     const chip = document.createElement('button');
     chip.className = `chip ${i === 0 ? 'chip-active' : ''}`;
-    chip.textContent = offset === 0 ? 'Now' : `${offset}s`;
+    chip.textContent = offset === 0 ? 'Now' : `-${offset}s`;
     chip.onclick = () => {
       setData.finishedOffsetSec = offset;
       saveActiveSession();
-      prompt.classList.add('hidden');
-      clearTimeout(App.backdateTimeout);
+      overlay.classList.add('hidden');
 
       // Start rest timer with offset
       const machine = App.data.machines[setData.machineId];
       if (machine && machine.type !== 'conditioning') {
         startRestTimer(machine.type, offset);
       }
+
+      // Toast fires here — after user picks offset (issue #6)
+      showToast(`Set ${setNumber} saved`, undoFn);
     };
     chipsContainer.appendChild(chip);
   });
 
-  prompt.classList.remove('hidden');
-
-  // Auto-select "Now" after 3 seconds
-  App.backdateTimeout = setTimeout(() => {
-    setData.finishedOffsetSec = 0;
-    saveActiveSession();
-    prompt.classList.add('hidden');
-
-    const machine = App.data.machines[setData.machineId];
-    if (machine && machine.type !== 'conditioning') {
-      startRestTimer(machine.type, 0);
-    }
-  }, 3000);
+  overlay.classList.remove('hidden');
+  // No auto-dismiss — stays until user taps a chip (issue #5)
 }
 
 // ============================================================
@@ -1250,7 +1425,7 @@ function endSession() {
   hideRestTimer();
   hideAbsReminder();
   clearActiveSession();
-  $('backdate-prompt').classList.add('hidden');
+  $('backdate-overlay').classList.add('hidden');
 
   // Show summary
   renderSessionSummary(sessionToSave);
@@ -1264,7 +1439,7 @@ function discardSession() {
   clearActiveSession();
   App.session = null;
   App.absReminderShown = false;
-  $('backdate-prompt').classList.add('hidden');
+  $('backdate-overlay').classList.add('hidden');
   showView('home');
   renderHome();
 }
@@ -1709,8 +1884,7 @@ function setupEventListeners() {
   // Machine view
   $('btn-back-machine').onclick = () => {
     hideRestTimer();
-    $('backdate-prompt').classList.add('hidden');
-    clearTimeout(App.backdateTimeout);
+    $('backdate-overlay').classList.add('hidden');
     renderWorkout();
     showView('workout');
   };
@@ -1806,6 +1980,26 @@ function setupEventListeners() {
     App.bikeReturnView = 'workout-return';
     clearBikeForm();
     showView('bike-log');
+  };
+
+  // Inline warmup stretch callbacks (issue #3)
+  window._appLogStretch = () => {
+    const input = document.getElementById('warmup-stretch-mins');
+    const mins = input ? parseInt(input.value) : NaN;
+    if (isNaN(mins) || mins <= 0) {
+      showToast('Enter stretch minutes');
+      return;
+    }
+    App.session.warmup.stretchMinutes = mins;
+    saveActiveSession();
+    renderWorkout();
+    updatePillRow();
+  };
+  window._appClearStretch = () => {
+    App.session.warmup.stretchMinutes = null;
+    saveActiveSession();
+    renderWorkout();
+    updatePillRow();
   };
 }
 
