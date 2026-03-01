@@ -4,7 +4,7 @@
     {
       "name": "gym-app",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8080"],
+      "runtimeArgs": ["server.py"],
       "port": 8080
     }
   ]

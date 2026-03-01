@@ -202,6 +202,14 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 }
 .btn-danger:active { background: #dc2626; }
 
+.btn-warning {
+  background: var(--warning);
+  color: #000;
+  min-height: 48px;
+  padding: 12px 24px;
+}
+.btn-warning:active { background: #d97706; }
+
 .btn-back {
   background: none;
   border: none;
