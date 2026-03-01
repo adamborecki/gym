@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f0f0f5" media="(prefers-color-scheme: light)">
+  <title>Gym</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+  <!-- Session Progress Bar (visible during active session) -->
+  <div id="progress-bar" class="hidden" aria-label="Session progress">
+    <div id="progress-fill"></div>
+    <div id="progress-pace-label"></div>
+  </div>
+
+  <!-- Sticky Pill Row (breadcrumb during session) -->
+  <div id="pill-row" class="hidden"></div>
+
+  <!-- Main App Container -->
+  <main id="app">
+
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <div class="view-content center-content">
+        <h1 class="app-title">Gym</h1>
+        <p class="app-subtitle" id="home-greeting"></p>
+        <button class="btn btn-primary btn-xl" id="btn-start-session">Start Session</button>
+        <div class="home-links">
+          <button class="btn btn-ghost" id="btn-analytics">Analytics</button>
+          <button class="btn btn-ghost" id="btn-settings">Settings</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- DAY TYPE SELECT -->
+    <section id="view-day-select" class="view">
+      <div class="view-content">
+        <button class="btn-back" id="btn-back-day">&larr;</button>
+        <h2>Choose Day Type</h2>
+        <div class="choice-grid">
+          <button class="btn btn-choice" data-day="push">
+            <span class="choice-emoji">💪</span>
+            <span class="choice-label">Push</span>
+          </button>
+          <button class="btn btn-choice" data-day="pull">
+            <span class="choice-emoji">🔗</span>
+            <span class="choice-label">Pull</span>
+          </button>
+          <button class="btn btn-choice" data-day="legs">
+            <span class="choice-emoji">🦵</span>
+            <span class="choice-label">Legs</span>
+          </button>
+          <button class="btn btn-choice" data-day="bonus">
+            <span class="choice-emoji">⭐</span>
+            <span class="choice-label">Bonus</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIME GOAL SELECT -->
+    <section id="view-time-select" class="view">
+      <div class="view-content">
+        <button class="btn-back" id="btn-back-time">&larr;</button>
+        <h2>Time Goal</h2>
+        <div class="choice-stack">
+          <button class="btn btn-choice-wide" data-time="30-45">
+            <span class="choice-label">30 &ndash; 45 min</span>
+            <span class="choice-sub">Quick session</span>
+          </button>
+          <button class="btn btn-choice-wide" data-time="40-60">
+            <span class="choice-label">40 &ndash; 60 min</span>
+            <span class="choice-sub">Standard</span>
+          </button>
+          <button class="btn btn-choice-wide" data-time="60-90">
+            <span class="choice-label">60 &ndash; 90 min</span>
+            <span class="choice-sub">Full session</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- WARMUP -->
+    <section id="view-warmup" class="view">
+      <div class="view-content">
+        <button class="btn-back" id="btn-back-warmup">&larr;</button>
+        <h2>Warmup</h2>
+        <div class="warmup-section">
+          <label class="toggle-row">
+            <span>Stretch</span>
+            <input type="checkbox" id="warmup-stretch" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="warmup-section">
+          <p class="warmup-label">Bike</p>
+          <div class="chip-row">
+            <button class="chip chip-active" data-bike="now">Now</button>
+            <button class="chip" data-bike="later">Later</button>
+            <button class="chip" data-bike="skip">Skip</button>
+          </div>
+        </div>
+        <div class="warmup-section">
+          <label class="toggle-row">
+            <span>Abs Reminder</span>
+            <input type="checkbox" id="warmup-abs" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <button class="btn btn-primary btn-lg" id="btn-start-workout">Start Workout</button>
+      </div>
+    </section>
+
+    <!-- BIKE LOG -->
+    <section id="view-bike-log" class="view">
+      <div class="view-content">
+        <button class="btn-back" id="btn-back-bike">&larr;</button>
+        <h2>Bike</h2>
+        <div class="mantra-sticky">
+          <span>🚴 steady or ⚡ intervals</span>
+          <span>📈 RPE / max HR</span>
+        </div>
+        <div class="form-group">
+          <label for="bike-minutes">Minutes *</label>
+          <input type="number" id="bike-minutes" class="input-lg" inputmode="numeric" min="1" max="120" placeholder="10">
+        </div>
+        <div class="form-group">
+          <label for="bike-rpe">RPE (1-10)</label>
+          <input type="number" id="bike-rpe" class="input-lg" inputmode="numeric" min="1" max="10" placeholder="—">
+        </div>
+        <div class="form-group">
+          <label for="bike-hr">Max HR</label>
+          <input type="number" id="bike-hr" class="input-lg" inputmode="numeric" min="40" max="250" placeholder="—">
+        </div>
+        <div class="form-group">
+          <label for="bike-notes">Notes</label>
+          <input type="text" id="bike-notes" class="input-lg" placeholder="e.g. intervals: 30s on/30s off">
+        </div>
+        <button class="btn btn-primary btn-lg" id="btn-save-bike">Save Bike</button>
+      </div>
+    </section>
+
+    <!-- ABS LOG -->
+    <section id="view-abs-log" class="view">
+      <div class="view-content">
+        <button class="btn-back" id="btn-back-abs">&larr;</button>
+        <h2>Abs</h2>
+        <div class="mantra-sticky">
+          <span>💨 exhale</span>
+          <span>🧊 pause</span>
+          <span>🚫 no neck yank</span>
+        </div>
+        <p class="form-label">Type</p>
+        <div class="chip-row" id="abs-type-chips">
+          <button class="chip chip-active" data-abs-type="crunch">Crunch</button>
+          <button class="chip" data-abs-type="rotation">Rotation</button>
+          <button class="chip" data-abs-type="other">Other</button>
+        </div>
+        <div class="form-group">
+          <label for="abs-note">Note (optional)</label>
+          <input type="text" id="abs-note" class="input-lg" placeholder="e.g. cable crunch 3x15">
+        </div>
+        <button class="btn btn-primary btn-lg" id="btn-save-abs">Log Abs</button>
+      </div>
+    </section>
+
+    <!-- MAIN WORKOUT -->
+    <section id="view-workout" class="view">
+      <div class="view-content">
+        <div id="workout-header">
+          <h2 id="workout-title"></h2>
+          <div class="workout-actions">
+            <button class="btn btn-sm btn-ghost" id="btn-quick-bike">🚴 Bike</button>
+            <button class="btn btn-sm btn-ghost" id="btn-quick-abs">💪 Abs</button>
+          </div>
+        </div>
+        <div id="blocks-container"></div>
+        <button class="btn btn-danger btn-lg" id="btn-end-session">End Session</button>
+      </div>
+    </section>
+
+    <!-- MACHINE VIEW -->
+    <section id="view-machine" class="view">
+      <div class="view-content">
+        <button class="btn-back" id="btn-back-machine">&larr;</button>
+        <h2 id="machine-name"></h2>
+        <div id="machine-rep-range" class="pill"></div>
+
+        <!-- Tabs -->
+        <div class="tab-bar">
+          <button class="tab active" data-tab="setup">Setup</button>
+          <button class="tab" data-tab="form">Form</button>
+          <button class="tab" data-tab="mantra">Mantra</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content-setup" class="tab-content active">
+          <div id="setup-fields"></div>
+          <div id="tts-setup-row" class="tts-row hidden">
+            <button class="btn btn-sm btn-ghost" id="btn-tts-setup">🔊 Read Setup</button>
+          </div>
+        </div>
+        <div id="tab-content-form" class="tab-content">
+          <div id="form-text"></div>
+          <div id="tts-form-row" class="tts-row hidden">
+            <button class="btn btn-sm btn-ghost" id="btn-tts-form">🔊 Read Form</button>
+          </div>
+        </div>
+        <div id="tab-content-mantra" class="tab-content">
+          <div id="mantra-lines"></div>
+        </div>
+
+        <button class="btn btn-sm btn-ghost" id="btn-toggle-familiar"></button>
+
+        <!-- Mantra Sticky (always visible during set logging) -->
+        <div id="machine-mantra-sticky" class="mantra-sticky"></div>
+
+        <!-- Logged Sets -->
+        <div id="logged-sets"></div>
+
+        <!-- Set Logger -->
+        <div id="set-logger">
+          <div id="set-logger-header">
+            <span id="current-set-label"></span>
+            <span id="target-rir-label" class="pill pill-sm"></span>
+          </div>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="set-weight">Weight</label>
+              <input type="number" id="set-weight" class="input-lg" inputmode="decimal" min="0" step="2.5" placeholder="0">
+            </div>
+            <div class="form-group flex-1">
+              <label for="set-reps">Reps</label>
+              <input type="number" id="set-reps" class="input-lg" inputmode="numeric" min="0" max="100" placeholder="0">
+            </div>
+          </div>
+          <p class="form-label">RIR</p>
+          <div class="chip-row" id="rir-chips">
+            <button class="chip" data-rir="0">0</button>
+            <button class="chip" data-rir="1">1</button>
+            <button class="chip" data-rir="2">2</button>
+            <button class="chip" data-rir="3">3+</button>
+          </div>
+          <p class="form-label">Quick Notes</p>
+          <div class="chip-row" id="note-chips">
+            <button class="chip" data-note="Form">Form</button>
+            <button class="chip" data-note="Pain">Pain</button>
+            <button class="chip" data-note="Machine">Machine</button>
+            <button class="chip" data-note="Grip">Grip</button>
+          </div>
+          <input type="text" id="set-custom-note" class="input-sm" placeholder="Custom note...">
+          <button class="btn btn-primary btn-lg" id="btn-log-set">Log Set</button>
+        </div>
+
+        <!-- Next Time Suggestion (shown after all working sets) -->
+        <div id="next-time-suggestion" class="hidden">
+          <div id="weight-up-prompt" class="hidden">
+            <p>Weight up next time? 💪</p>
+          </div>
+          <p class="form-label">Next time:</p>
+          <div class="chip-row" id="next-time-chips">
+            <button class="chip" data-next="again">Again</button>
+            <button class="chip" data-next="weight_up">Weight Up</button>
+            <button class="chip" data-next="focus_form">Focus Form</button>
+          </div>
+          <input type="text" id="next-time-custom" class="input-sm" placeholder="Custom note...">
+          <button class="btn btn-primary" id="btn-save-next-time">Save & Continue</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section id="view-analytics" class="view">
+      <div class="view-content">
+        <button class="btn-back" id="btn-back-analytics">&larr;</button>
+        <h2>Analytics</h2>
+        <div id="heatmap-container">
+          <h3>Workout Calendar</h3>
+          <div id="heatmap"></div>
+          <div id="heatmap-legend"></div>
+        </div>
+        <div id="charts-container">
+          <h3>Weekly Sets</h3>
+          <div id="chart-sets"></div>
+          <h3>Weekly Bike (min)</h3>
+          <div id="chart-bike"></div>
+        </div>
+        <div id="day-summary" class="hidden"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="view-settings" class="view">
+      <div class="view-content">
+        <button class="btn-back" id="btn-back-settings">&larr;</button>
+        <h2>Settings</h2>
+        <div class="settings-group">
+          <label class="toggle-row">
+            <span>Text-to-Speech</span>
+            <input type="checkbox" id="setting-tts" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+          <label class="toggle-row">
+            <span>Abs Reminder</span>
+            <input type="checkbox" id="setting-abs-reminder" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+          <div class="setting-row">
+            <span>Default Rest Mode</span>
+            <div class="chip-row">
+              <button class="chip" data-rest-mode="normal" id="setting-rest-normal">Normal</button>
+              <button class="chip" data-rest-mode="hurry" id="setting-rest-hurry">Hurry</button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-danger">
+          <p class="settings-danger-label">Danger Zone</p>
+          <button class="btn btn-danger btn-sm" id="btn-reset-data">Hold to Reset All Data</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SESSION SUMMARY -->
+    <section id="view-session-summary" class="view">
+      <div class="view-content">
+        <h2>Session Complete</h2>
+        <div id="summary-content"></div>
+        <button class="btn btn-primary btn-lg" id="btn-summary-done">Done</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Rest Timer Panel (floating) -->
+  <div id="rest-timer" class="hidden">
+    <div id="rest-timer-inner">
+      <div id="rest-countdown"></div>
+      <div id="rest-overtime" class="hidden"></div>
+      <div id="rest-total"></div>
+      <div id="rest-bar-container">
+        <div id="rest-bar-fill"></div>
+        <div id="rest-bar-hurry-marker"></div>
+        <div id="rest-bar-rec-marker"></div>
+      </div>
+      <div class="chip-row">
+        <button class="chip" id="rest-mode-toggle"></button>
+      </div>
+      <button class="btn btn-sm btn-ghost" id="btn-dismiss-rest">Ready →</button>
+    </div>
+  </div>
+
+  <!-- Backdate Prompt -->
+  <div id="backdate-prompt" class="hidden">
+    <span>Finished set:</span>
+    <div class="chip-row" id="backdate-chips"></div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast-container"></div>
+
+  <!-- Modal Overlay -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-box">
+      <div id="modal-body"></div>
+      <div id="modal-actions"></div>
+    </div>
+  </div>
+
+  <!-- Resume Session Prompt -->
+  <div id="resume-overlay" class="hidden">
+    <div id="resume-box">
+      <h3>Resume Session?</h3>
+      <p id="resume-info"></p>
+      <div class="modal-btn-row">
+        <button class="btn btn-ghost" id="btn-discard-session">Discard</button>
+        <button class="btn btn-primary" id="btn-resume-session">Resume</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Abs Reminder -->
+  <div id="abs-reminder" class="hidden">
+    <span>Don't forget abs! 💪</span>
+    <button class="btn btn-sm btn-ghost" id="btn-abs-remind-go">Go</button>
+    <button class="btn btn-sm btn-ghost" id="btn-abs-remind-dismiss">Later</button>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
