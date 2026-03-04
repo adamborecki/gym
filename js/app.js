@@ -11,6 +11,7 @@ import { DEFAULT_DATA } from './data-defaults.js';
 // ============================================================
 const STORAGE_KEY = 'gymApp_v1_data';
 const SESSION_KEY = 'gymApp_v1_activeSession';
+const APP_VERSION = 'v1.4';
 
 const REST_TARGETS = {
   compound:  { normal: 90, hurry: 60 }, // seconds
@@ -436,6 +437,17 @@ function renderWorkout() {
     if (isExpanded) card.classList.add('block-expanded');
     if (isDone) card.classList.add('block-done');
 
+    // Compute display count for the pill — warmup and abs store data differently
+    let setsCount;
+    if (block.id === 'warmup') {
+      const w = s.warmup;
+      setsCount = (w.bikeLog ? 1 : 0) + (w.stretchMinutes ? 1 : 0);
+    } else if (block.id === 'abs') {
+      setsCount = (s.absLogs || []).length + blockSets.length;
+    } else {
+      setsCount = blockSets.length;
+    }
+
     // Header — "abs" block displays as "Other"
     const displayName = block.id === 'abs' ? 'Other' : block.name;
     const header = document.createElement('div');
@@ -444,7 +456,7 @@ function renderWorkout() {
       <div class="block-header-left">
         ${isDone ? '<span class="block-check">&#10003;</span>' : ''}
         <span>${displayName}</span>
-        <span class="pill pill-sm">${blockSets.length} sets</span>
+        <span class="pill pill-sm">${setsCount} sets</span>
       </div>
       <span class="block-chevron">&#9654;</span>
     `;
@@ -821,6 +833,9 @@ function renderSetupFields(machine) {
     if (field.type === 'number') input.inputMode = 'numeric';
     input.value = value;
     input.placeholder = field.label;
+
+    // Select all on tap
+    input.addEventListener('focus', e => e.target.select());
 
     // Auto-save on change
     input.onchange = () => {
@@ -1398,21 +1413,21 @@ function hideAbsReminder() {
 // ============================================================
 function saveNextTimeNote() {
   const machineId = App.currentMachineId;
-  if (!machineId) return;
 
-  const chip = document.querySelector('#next-time-chips .chip-active');
-  const custom = $('next-time-custom').value.trim();
+  if (machineId) {
+    const chip = document.querySelector('#next-time-chips .chip-active');
+    const custom = $('next-time-custom').value.trim();
 
-  let note = chip ? chip.dataset.next : null;
-  if (custom) note = custom;
-  if (!note) note = 'again';
+    let note = chip ? chip.dataset.next : null;
+    if (custom) note = custom;
+    if (!note) note = 'again';
 
-  App.session.nextTimeNotes[machineId] = note;
-  saveActiveSession();
+    App.session.nextTimeNotes[machineId] = note;
+    saveActiveSession();
+    showToast('Note saved');
+  }
 
-  showToast('Note saved');
-
-  // Go back to workout
+  // Always go back to workout
   renderWorkout();
   showView('workout');
 }
@@ -2097,6 +2112,9 @@ function init() {
   // Setup event listeners
   setupEventListeners();
   setupSettingsListeners();
+
+  // Version label
+  $('app-version').textContent = APP_VERSION;
 
   // Render home
   renderHome();

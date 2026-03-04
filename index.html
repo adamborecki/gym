@@ -232,11 +232,11 @@
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="set-weight">Weight</label>
-              <input type="number" id="set-weight" class="input-lg" inputmode="decimal" min="0" step="2.5" placeholder="0">
+              <input type="number" id="set-weight" class="input-lg" inputmode="decimal" min="0" step="2.5" placeholder="0" onfocus="this.select()">
             </div>
             <div class="form-group flex-1">
               <label for="set-reps">Reps <span id="set-rep-range" class="pill pill-sm hidden"></span></label>
-              <input type="number" id="set-reps" class="input-lg" inputmode="numeric" min="0" max="100" placeholder="0">
+              <input type="number" id="set-reps" class="input-lg" inputmode="numeric" min="0" max="100" placeholder="0" onfocus="this.select()">
             </div>
           </div>
           <p class="form-label">RIR</p>
@@ -333,6 +333,7 @@
           <button class="btn btn-warning btn-sm" id="btn-reset-prefs">Hold to Reset App (Keep Data)</button>
           <button class="btn btn-danger btn-sm" id="btn-reset-data">Hold to Reset All Data</button>
         </div>
+        <p id="app-version" class="app-version-label"></p>
       </div>
     </section>
 
