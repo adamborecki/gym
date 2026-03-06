@@ -4,7 +4,8 @@
 
 export const STORAGE_KEY = 'gymApp_v1_data';
 export const SESSION_KEY = 'gymApp_v1_activeSession';
-export const APP_VERSION = 'v1.4';
+// Version: date-based (YYYY.MM.DD). Update this whenever code changes are made.
+export const APP_VERSION = 'v2026.03.06';
 
 export const REST_TARGETS = {
   compound:  { normal: 90, hurry: 60 }, // seconds
