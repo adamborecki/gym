@@ -80,11 +80,20 @@ function setupEventListeners() {
   $('btn-back-bike').onclick = () => {
     if (App.bikeReturnView === 'workout') {
       enterWorkout();
+    } else if (App.bikeReturnView === 'machine') {
+      showView('machine');
     } else {
       showView('workout');
     }
   };
   $('btn-save-bike').onclick = saveBikeLog;
+
+  // Log Bike Session button in machine detail view
+  $('btn-log-bike-session').onclick = () => {
+    App.bikeReturnView = 'machine';
+    clearBikeForm();
+    showView('bike-log');
+  };
 
   // Abs log
   $('btn-back-abs').onclick = () => { showView('workout'); };

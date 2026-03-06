@@ -6,7 +6,7 @@ export const STORAGE_KEY = 'gymApp_v1_data';
 export const SESSION_KEY = 'gymApp_v1_activeSession';
 // Version: date-based (YYYY.MM.DD + build letter). Update on every code change.
 // Same day: increment letter (a→b→c). New day: reset to 'a'.
-export const APP_VERSION = 'v2026.03.06b';
+export const APP_VERSION = 'v2026.03.06c';
 
 export const REST_TARGETS = {
   compound:  { normal: 90, hurry: 60 }, // seconds

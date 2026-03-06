@@ -553,11 +553,9 @@ export function renderMachineView(machineId) {
   if (machine.type === 'conditioning') {
     $('set-logger').classList.add('hidden');
     $('next-time-suggestion').classList.add('hidden');
-    // Redirect to bike log
-    App.bikeReturnView = 'machine';
-    clearBikeForm();
-    showView('bike-log');
-    return;
+    $('btn-log-bike-session').classList.remove('hidden');
+  } else {
+    $('btn-log-bike-session').classList.add('hidden');
   }
 }
 

@@ -1386,3 +1386,51 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   #backdate-prompt { padding-bottom: env(safe-area-inset-bottom); }
   body { padding-bottom: env(safe-area-inset-bottom); }
 }
+
+/* ---------- Bike RPE Guide ---------- */
+.rpe-guide {
+  background: var(--bg-card-alt);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+  margin: 4px 0 14px;
+  font-size: 0.85rem;
+}
+.rpe-guide summary {
+  cursor: pointer;
+  padding: 8px 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  list-style: none;
+  user-select: none;
+}
+.rpe-guide summary::-webkit-details-marker { display: none; }
+.rpe-guide-content {
+  padding: 4px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rpe-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.rpe-badge {
+  display: inline-block;
+  min-width: 36px;
+  text-align: center;
+  border-radius: var(--radius-pill);
+  padding: 2px 7px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+.rpe-low   { background: #22c55e; }
+.rpe-easy  { background: #84cc16; }
+.rpe-mod   { background: #f59e0b; }
+.rpe-hard  { background: #f97316; }
+.rpe-vhard { background: #ef4444; }
+.rpe-max   { background: #dc2626; }
