@@ -2,9 +2,11 @@
 
 ## Versioning
 
-- **Format**: Date-based — `vYYYY.MM.DD` (e.g. `v2026.03.06`)
+- **Format**: Date-based with build letter — `vYYYY.MM.DDx` (e.g. `v2026.03.06a`)
 - **Location**: `js/config.js` → `APP_VERSION` constant
-- **Rule**: Always update `APP_VERSION` to today's date when making code changes. If multiple changes happen on the same day, the version stays the same date.
+- **Rule**: Always update `APP_VERSION` when making code changes.
+  - Same day: increment the build letter (`a` → `b` → `c` → ...)
+  - New day: use today's date and reset to `a`
 
 ## Project Structure
 
