@@ -57,12 +57,7 @@ export function setupSettingsListeners() {
         { label: 'Reset Everything', class: 'btn-danger', action: () => {
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(SESSION_KEY);
-          App.data = deepClone(DEFAULT_DATA);
-          App.session = null;
-          saveData();
-          showView('home');
-          renderHome();
-          showToast('All data reset');
+          window.location.reload();
         }},
       ]);
       resetBtn.textContent = 'Hold to Reset All Data';
@@ -83,12 +78,7 @@ export function setupSettingsListeners() {
         { label: 'Reset Everything', class: 'btn-danger', action: () => {
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(SESSION_KEY);
-          App.data = deepClone(DEFAULT_DATA);
-          App.session = null;
-          saveData();
-          showView('home');
-          renderHome();
-          showToast('All data reset');
+          window.location.reload();
         }},
       ]);
       resetBtn.textContent = 'Hold to Reset All Data';
@@ -122,8 +112,7 @@ export function setupSettingsListeners() {
           App.data = deepClone(DEFAULT_DATA);
           App.data.sessions = savedSessions;
           saveData();
-          renderSettings();
-          showToast('App reset — workout history preserved');
+          window.location.reload();
         }},
       ]);
       resetPrefsBtn.textContent = 'Hold to Reset App (Keep Data)';
