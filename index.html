@@ -141,6 +141,15 @@
           <span>🚴 steady or ⚡ intervals</span>
           <span>📈 RPE / max HR</span>
         </div>
+        <details class="rpe-guide">
+          <summary>Setup tips ▾</summary>
+          <div class="rpe-guide-content" style="color:var(--text-secondary);font-size:0.85rem;line-height:1.6;">
+            <strong>Seat height</strong> — slight bend in knee at bottom stroke; not locked, not cramped.<br>
+            <strong>Handlebar</strong> — upright = easier on back; lower = more core.<br>
+            <strong>Foot</strong> — ball of foot over pedal axle; heel slightly dropped.<br>
+            <strong>Start easy</strong> — warm up legs before adding resistance.
+          </div>
+        </details>
         <div class="form-group">
           <label for="bike-minutes">Minutes *</label>
           <input type="number" id="bike-minutes" class="input-lg" inputmode="numeric" min="1" max="120" placeholder="10">
@@ -149,6 +158,17 @@
           <label for="bike-rpe">RPE (1-10)</label>
           <input type="number" id="bike-rpe" class="input-lg" inputmode="numeric" min="1" max="10" placeholder="—">
         </div>
+        <details class="rpe-guide">
+          <summary>RPE scale for cycling ▾</summary>
+          <div class="rpe-guide-content">
+            <div class="rpe-row"><span class="rpe-badge rpe-low">1–2</span><span>Super easy — warm-up / recovery spin</span></div>
+            <div class="rpe-row"><span class="rpe-badge rpe-easy">3–4</span><span>Easy — full sentences, Zone 2 pace</span></div>
+            <div class="rpe-row"><span class="rpe-badge rpe-mod">5–6</span><span>Comfortably hard — short phrases only</span></div>
+            <div class="rpe-row"><span class="rpe-badge rpe-hard">7</span><span>Hard — broken speech, legs burning</span></div>
+            <div class="rpe-row"><span class="rpe-badge rpe-vhard">8</span><span>Very hard — a few words only</span></div>
+            <div class="rpe-row"><span class="rpe-badge rpe-max">9–10</span><span>All-out — sprint / interval territory</span></div>
+          </div>
+        </details>
         <div class="form-group">
           <label for="bike-hr">Max HR</label>
           <input type="number" id="bike-hr" class="input-lg" inputmode="numeric" min="40" max="250" placeholder="—">
@@ -272,6 +292,9 @@
           <input type="text" id="set-custom-note" class="input-sm" placeholder="Custom note...">
           <button class="btn btn-primary btn-lg" id="btn-log-set">Log Set</button>
         </div>
+
+        <!-- Log Bike Session (shown for conditioning machines) -->
+        <button class="btn btn-primary btn-lg hidden" id="btn-log-bike-session">🚴 Log Bike Session</button>
 
         <!-- Next Time Suggestion (shown after all working sets) -->
         <div id="next-time-suggestion" class="hidden">

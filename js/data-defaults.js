@@ -782,11 +782,13 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "Seat/handle numbers optional. Track minutes; RPE/maxHR optional.",
-        "form": "Log minutes. Optional: overall RPE and max HR. Notes can describe intervals.",
+        "setup": "Seat height\n- Slight bend in knee at bottom of pedal stroke (not locked out, not cramped).\n- Too low = knee pain; too high = hip rocking.\n\nHandlebar\n- Upright position = more comfortable, less back stress.\n- Lower position = more aerodynamic, more core engagement.\n\nFoot position\n- Ball of foot over pedal axle.\n- Keep heel slightly dropped or level — don't point toes down.\n\nResistance\n- Start easy to warm up legs before adding load.",
+        "form": "Cycling RPE Scale\n\nRPE 1–2 · Super easy\n  Warm-up / recovery spin. No effort.\n\nRPE 3–4 · Easy (Zone 2)\n  Full sentences, sustainable for a long time.\n  Good for pre-lift warm-up or post-lift cool-down.\n\nRPE 5–6 · Comfortably hard\n  Short phrases only. Steady effort.\n  Good cardio work without wrecking your lifts.\n\nRPE 7 · Hard\n  Talking is broken. Legs burning. You're working.\n  Near-threshold — use after lifting, not before.\n\nRPE 8 · Very hard\n  A few words only. Near-max sustainable for a short time.\n\nRPE 9–10 · All-out\n  Sprint / interval territory. Full effort.\n\n─────────────────────────────\nCardio + Lifting Guidelines\n─────────────────────────────\nBefore heavy compound lifts\n  Keep cycling ≤ RPE 4 and short (5–10 min).\n  Heavy leg day? → RPE 2–4 only.\n\nAfter lifting\n  10–25 min at RPE 3–5 (easy to moderate).\n  Want real cardio? → RPE 4–6, not a death march.\n\nIntervals (RPE 7–9)\n  Best on separate days or after lifting.\n  Avoid right before squats / deadlifts / leg press.",
         "mantra": [
           "🚴 steady or ⚡ intervals",
-          "📈 RPE / max HR"
+          "📈 RPE / max HR",
+          "💬 can you talk? → RPE 3–4",
+          "🔥 legs burning → RPE 7+"
         ],
         "phasedCues": {}
       },
