@@ -14,12 +14,15 @@
 
   <!-- Session Progress Bar (visible during active session) -->
   <div id="progress-bar" class="hidden" aria-label="Session progress">
-    <div id="progress-fill"></div>
-    <div id="progress-pace-label"></div>
+    <div class="progress-track"><div id="progress-fill"></div></div>
+    <div id="progress-time-readout"></div>
   </div>
 
   <!-- Sticky Pill Row (breadcrumb during session) -->
   <div id="pill-row" class="hidden"></div>
+
+  <!-- Workout Segment Bar (block completion) -->
+  <div id="segment-bar" class="hidden"></div>
 
   <!-- Main App Container -->
   <main id="app">
@@ -63,24 +66,37 @@
       </div>
     </section>
 
-    <!-- TIME GOAL SELECT -->
+    <!-- TIME MODE SELECT -->
     <section id="view-time-select" class="view">
       <div class="view-content">
         <button class="btn-back" id="btn-back-time">&larr;</button>
-        <h2>Time Goal</h2>
+        <h2>Timer</h2>
         <div class="choice-stack">
-          <button class="btn btn-choice-wide" data-time="30-45">
-            <span class="choice-label">30 &ndash; 45 min</span>
-            <span class="choice-sub">Quick session</span>
-          </button>
-          <button class="btn btn-choice-wide" data-time="40-60">
-            <span class="choice-label">40 &ndash; 60 min</span>
-            <span class="choice-sub">Standard</span>
-          </button>
-          <button class="btn btn-choice-wide" data-time="60-90">
-            <span class="choice-label">60 &ndash; 90 min</span>
-            <span class="choice-sub">Full session</span>
-          </button>
+
+          <!-- Count Down Card -->
+          <div class="btn btn-choice-wide time-mode-card" id="time-mode-countdown">
+            <span class="choice-label">Count Down</span>
+            <span class="choice-sub">I need to leave by a set time</span>
+            <div class="countdown-config" id="countdown-config">
+              <div class="countdown-input-row">
+                <label for="countdown-end-time" class="countdown-label">Leave at</label>
+                <input type="time" id="countdown-end-time" class="input-time">
+              </div>
+              <div class="countdown-duration-row">
+                <button class="btn btn-sm btn-ghost countdown-adj" id="countdown-minus">&minus;5</button>
+                <span class="countdown-duration" id="countdown-duration">45 min session</span>
+                <button class="btn btn-sm btn-ghost countdown-adj" id="countdown-plus">+5</button>
+              </div>
+              <button class="btn btn-primary btn-lg" id="btn-start-countdown">Start</button>
+            </div>
+          </div>
+
+          <!-- Count Up Card -->
+          <div class="btn btn-choice-wide time-mode-card" id="time-mode-countup">
+            <span class="choice-label">Count Up</span>
+            <span class="choice-sub">Open-ended, no deadline</span>
+          </div>
+
         </div>
       </div>
     </section>

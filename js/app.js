@@ -4,7 +4,7 @@
  * All data stored locally in localStorage
  */
 
-import { APP_VERSION } from './config.js';
+import { APP_VERSION, DEFAULT_COUNTDOWN_MIN } from './config.js';
 import { $, $$, deepClone } from './utils.js';
 import { App, loadData, saveData } from './state.js';
 import { showView, showToast, renderHome, speakText } from './ui.js';
@@ -39,11 +39,29 @@ function setupEventListeners() {
   });
   $('btn-back-day').onclick = () => { App.session = null; showView('home'); };
 
-  // Time select
-  $$('[data-time]').forEach(btn => {
-    btn.onclick = () => selectTimeGoal(btn.dataset.time);
-  });
-  $('btn-back-time').onclick = () => showView('day-select');
+  // Time mode select
+  $('time-mode-countdown').onclick = (e) => {
+    if (e.target.closest('.countdown-config')) return;
+    expandCountdownCard();
+  };
+  $('time-mode-countup').onclick = () => {
+    selectTimeGoal({ mode: 'countup' });
+  };
+  $('btn-start-countdown').onclick = () => {
+    const endTime = $('countdown-end-time').value;
+    if (!endTime) { showToast('Set a departure time'); return; }
+    const durationMin = calcCountdownDuration(endTime);
+    if (durationMin <= 0) { showToast('Departure time must be in the future'); return; }
+    selectTimeGoal({ mode: 'countdown', endTime, durationMin });
+  };
+  $('countdown-minus').onclick = (e) => { e.stopPropagation(); adjustCountdownTime(-5); };
+  $('countdown-plus').onclick = (e) => { e.stopPropagation(); adjustCountdownTime(5); };
+  $('countdown-end-time').oninput = () => updateCountdownDurationDisplay();
+  $('countdown-end-time').onclick = (e) => e.stopPropagation();
+  $('btn-back-time').onclick = () => {
+    $('countdown-config').classList.remove('countdown-config-visible');
+    showView('day-select');
+  };
 
   // Warmup
   $('btn-back-warmup').onclick = () => showView('time-select');
@@ -185,6 +203,47 @@ function setupEventListeners() {
     showView('abs-log');
   };
   $('btn-abs-remind-dismiss').onclick = hideAbsReminder;
+}
+
+// ============================================================
+// COUNTDOWN HELPERS
+// ============================================================
+function expandCountdownCard() {
+  const cfg = $('countdown-config');
+  cfg.classList.add('countdown-config-visible');
+  const input = $('countdown-end-time');
+  if (!input.value) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + DEFAULT_COUNTDOWN_MIN);
+    input.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  }
+  updateCountdownDurationDisplay();
+}
+
+function calcCountdownDuration(endTimeStr) {
+  const [h, m] = endTimeStr.split(':').map(Number);
+  const now = new Date();
+  const end = new Date();
+  end.setHours(h, m, 0, 0);
+  if (end <= now) end.setDate(end.getDate() + 1);
+  return Math.round((end - now) / 60000);
+}
+
+function updateCountdownDurationDisplay() {
+  const endTime = $('countdown-end-time').value;
+  if (!endTime) return;
+  const dur = calcCountdownDuration(endTime);
+  $('countdown-duration').textContent = dur > 0 ? `${dur} min session` : 'Time is in the past';
+}
+
+function adjustCountdownTime(deltaMin) {
+  const input = $('countdown-end-time');
+  if (!input.value) { expandCountdownCard(); return; }
+  const [h, m] = input.value.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m + deltaMin, 0, 0);
+  input.value = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  updateCountdownDurationDisplay();
 }
 
 // ============================================================

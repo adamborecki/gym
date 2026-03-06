@@ -2,7 +2,7 @@
  * Gym App — Workout View, Machine View, Set Logging, Progress
  */
 
-import { TIME_GOALS, SEED_WEIGHTS } from './config.js';
+import { TIME_GOALS, SEED_WEIGHTS, COUNTUP_SOFT_TARGET_MIN } from './config.js';
 import { $, $$, isoNow } from './utils.js';
 import { App, saveData, saveActiveSession } from './state.js';
 import { showView, showToast, showModal } from './ui.js';
@@ -23,7 +23,13 @@ export function updatePillRow() {
   html += `<span class="pill pill-${s.dayType}">${s.dayType.charAt(0).toUpperCase() + s.dayType.slice(1)}</span>`;
 
   // Time goal pill
-  html += `<span class="pill">${s.timeGoal} min</span>`;
+  if (typeof s.timeGoal === 'string') {
+    html += `<span class="pill">${s.timeGoal} min</span>`;
+  } else if (s.timeGoal && s.timeGoal.mode === 'countdown') {
+    html += `<span class="pill">Leave ${s.timeGoal.endTime}</span>`;
+  } else if (s.timeGoal && s.timeGoal.mode === 'countup') {
+    html += `<span class="pill">Open</span>`;
+  }
 
   // Warmup status
   if (s.warmup) {
@@ -62,35 +68,91 @@ export function stopProgressTracking() {
 
 function updateProgressBar() {
   if (!App.session) return;
-  const goal = TIME_GOALS[App.session.timeGoal];
-  if (!goal) return;
+  const tg = App.session.timeGoal;
+  if (!tg) return;
 
-  const elapsed = (Date.now() - App.sessionStartTime) / 1000 / 60; // minutes
-  const pct = Math.min(elapsed / goal.max * 100, 100);
-
+  const elapsed = (Date.now() - App.sessionStartTime) / 1000 / 60;
+  const cappedElapsed = Math.min(elapsed, 360); // cap at 6h for display
   const fill = $('progress-fill');
-  fill.style.width = `${pct}%`;
+  const readout = $('progress-time-readout');
 
-  // Pace classes
-  fill.className = '';
-  if (elapsed > goal.max) {
-    fill.classList.add('pace-over');
-  } else if (elapsed > goal.min) {
-    fill.classList.add('pace-on');
-  } else {
-    fill.classList.add('pace-ahead');
+  // Legacy string format (backward compat)
+  if (typeof tg === 'string') {
+    const goal = TIME_GOALS[tg];
+    if (!goal) return;
+    const pct = Math.min(elapsed / goal.max * 100, 100);
+    fill.style.width = `${pct}%`;
+    fill.className = '';
+    const elapsedStr = `${Math.floor(cappedElapsed)}m`;
+    if (elapsed > goal.max) {
+      fill.classList.add('pace-over');
+      readout.textContent = `${elapsedStr} — over`;
+    } else if (elapsed > goal.min) {
+      fill.classList.add('pace-on');
+      readout.textContent = `${elapsedStr}`;
+    } else {
+      fill.classList.add('pace-ahead');
+      readout.textContent = elapsedStr;
+    }
+    return;
   }
 
-  // Label
-  const label = $('progress-pace-label');
-  const elapsedStr = `${Math.floor(elapsed)}m`;
-  if (elapsed > goal.max) {
-    label.textContent = `${elapsedStr} — over time`;
-  } else if (elapsed > goal.min) {
-    label.textContent = `${elapsedStr} — finishing up`;
-  } else {
-    label.textContent = elapsedStr;
+  // Count Down mode
+  if (tg.mode === 'countdown') {
+    const [h, m] = tg.endTime.split(':').map(Number);
+    const endDate = new Date();
+    endDate.setHours(h, m, 0, 0);
+    if (endDate.getTime() < App.sessionStartTime) endDate.setDate(endDate.getDate() + 1);
+    const totalMin = (endDate.getTime() - App.sessionStartTime) / 60000;
+    const remainingMin = (endDate.getTime() - Date.now()) / 60000;
+    const pct = Math.min((elapsed / totalMin) * 100, 100);
+
+    fill.style.width = `${pct}%`;
+    fill.className = '';
+
+    if (remainingMin <= 0) {
+      const overMin = Math.min(Math.abs(Math.floor(remainingMin)), 999);
+      fill.classList.add('pace-over');
+      readout.textContent = `+${overMin}m over`;
+    } else if (remainingMin <= 10) {
+      fill.classList.add('pace-on');
+      readout.textContent = `${Math.ceil(remainingMin)}m left`;
+    } else {
+      fill.classList.add('pace-ahead');
+      readout.textContent = `${Math.ceil(remainingMin)}m left`;
+    }
+    return;
   }
+
+  // Count Up mode
+  if (tg.mode === 'countup') {
+    const pct = Math.min((cappedElapsed / COUNTUP_SOFT_TARGET_MIN) * 100, 100);
+    fill.style.width = `${pct}%`;
+    fill.className = 'pace-ahead';
+    readout.textContent = `${Math.floor(cappedElapsed)}m`;
+    return;
+  }
+}
+
+// ============================================================
+// SEGMENT BAR (block completion)
+// ============================================================
+export function updateSegmentBar() {
+  const bar = $('segment-bar');
+  if (!App.session) { bar.classList.add('hidden'); return; }
+
+  const template = App.data.templates[App.session.templateId];
+  if (!template || !template.blocks) { bar.classList.add('hidden'); return; }
+
+  bar.classList.remove('hidden');
+  bar.innerHTML = '';
+
+  template.blocks.forEach(block => {
+    const seg = document.createElement('div');
+    seg.className = 'segment-bar-item';
+    if (isBlockComplete(block)) seg.classList.add('segment-done');
+    bar.appendChild(seg);
+  });
 }
 
 // ============================================================
@@ -101,6 +163,7 @@ export function enterWorkout() {
   renderWorkout();
   showView('workout');
   updatePillRow();
+  updateSegmentBar();
   saveActiveSession();
 
   // Schedule abs reminder
@@ -780,6 +843,7 @@ export function logSet() {
   renderLoggedSets(machineId);
   renderSetLogger(machineId);
   updatePillRow();
+  updateSegmentBar();
 
   // Undo callback — passed to backdate, toast fires only after offset selection (issue #6)
   const undoFn = () => {
@@ -790,6 +854,7 @@ export function logSet() {
       renderLoggedSets(machineId);
       renderSetLogger(machineId);
       updatePillRow();
+      updateSegmentBar();
       hideRestTimer();
     }
   };
@@ -890,6 +955,7 @@ export function saveBikeLog() {
 
   saveActiveSession();
   updatePillRow();
+  updateSegmentBar();
 
   showToast(`Bike ${minutes}m saved`, () => {
     // Undo
@@ -901,6 +967,7 @@ export function saveBikeLog() {
     }
     saveActiveSession();
     updatePillRow();
+    updateSegmentBar();
   });
 
   // Return to appropriate view
@@ -924,6 +991,7 @@ export function saveAbsLog() {
   App.session.absLogs.push(absLog);
   saveActiveSession();
   updatePillRow();
+  updateSegmentBar();
 
   showToast(`Abs (${type}) saved`, () => {
     const idx = App.session.absLogs.indexOf(absLog);
@@ -978,6 +1046,7 @@ export function setupWorkoutGlobals() {
     saveActiveSession();
     renderWorkout();
     updatePillRow();
+    updateSegmentBar();
   };
 
   window._appClearStretch = () => {
@@ -985,5 +1054,6 @@ export function setupWorkoutGlobals() {
     saveActiveSession();
     renderWorkout();
     updatePillRow();
+    updateSegmentBar();
   };
 }

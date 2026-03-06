@@ -11,11 +11,15 @@ export const REST_TARGETS = {
   isolation: { normal: 60, hurry: 45 },
 };
 
+// Legacy: kept for backward compat with old saved sessions that have string timeGoal
 export const TIME_GOALS = {
   '30-45': { min: 30, max: 45 },
   '40-60': { min: 40, max: 60 },
   '60-90': { min: 60, max: 90 },
 };
+
+export const COUNTUP_SOFT_TARGET_MIN = 60;
+export const DEFAULT_COUNTDOWN_MIN = 45;
 
 // Starting weights seeded from user's Google Keep history (last logged weight per machine)
 // Used as fallback when no previous session data exists for a machine

@@ -20,6 +20,7 @@ export function showView(viewId) {
   const inSession = !!App.session;
   $('progress-bar').classList.toggle('hidden', !inSession);
   $('pill-row').classList.toggle('hidden', !inSession);
+  $('segment-bar').classList.toggle('hidden', !inSession);
 
   // Scroll to top
   window.scrollTo(0, 0);

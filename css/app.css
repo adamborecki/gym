@@ -285,6 +285,72 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   background: var(--bg-card-alt);
 }
 
+/* ---------- Time Mode Cards ---------- */
+.time-mode-card { cursor: pointer; }
+
+.countdown-config {
+  display: none;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.countdown-config.countdown-config-visible {
+  display: block;
+  animation: fadeIn 200ms ease;
+}
+
+.countdown-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.countdown-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.input-time {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-height: 48px;
+  text-align: center;
+  -webkit-appearance: none;
+}
+.input-time:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.countdown-duration-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.countdown-adj {
+  min-width: 48px;
+  min-height: 40px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.countdown-duration {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 110px;
+  text-align: center;
+}
+
 /* ---------- Pills ---------- */
 .pill {
   display: inline-flex;
@@ -326,32 +392,67 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   position: sticky;
   top: 0;
   z-index: 60;
-  height: 6px;
-  background: var(--rest-bar-bg);
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  padding: 0 10px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
-#progress-bar + #pill-row {
-  top: 6px;
+#progress-bar.hidden { display: none !important; }
+#progress-bar + #pill-row { top: 22px; }
+
+.progress-track {
+  flex: 1;
+  height: 5px;
+  background: var(--rest-bar-bg);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 #progress-fill {
   height: 100%;
-  background: var(--success);
-  transition: width 1s linear, background-color 0.5s ease;
   width: 0%;
+  border-radius: 3px;
+  transition: width 1s linear, background-color 0.5s ease;
 }
 #progress-fill.pace-ahead { background: var(--success); }
 #progress-fill.pace-on { background: var(--accent); }
 #progress-fill.pace-behind { background: var(--warning); }
 #progress-fill.pace-over { background: var(--danger); }
 
-#progress-pace-label {
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  font-size: 0.7rem;
+#progress-time-readout {
+  font-size: 0.65rem;
+  font-weight: 600;
   color: var(--text-muted);
-  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-width: 44px;
+  text-align: right;
+}
+
+/* ---------- Segment Bar (block completion) ---------- */
+#segment-bar {
+  position: sticky;
+  top: 58px; /* below progress-bar (22px) + pill-row (~36px) */
+  z-index: 49;
+  display: flex;
+  gap: 3px;
+  padding: 4px 10px 6px;
+  background: var(--bg);
+}
+#segment-bar.hidden { display: none !important; }
+
+.segment-bar-item {
+  flex: 1;
+  height: 4px;
+  background: var(--chip-bg);
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+.segment-bar-item.segment-done {
+  background: var(--success);
 }
 
 /* ---------- Chips ---------- */
