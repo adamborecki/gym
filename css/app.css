@@ -753,9 +753,28 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   line-height: 1.4;
 }
 
-#mantra-lines {
-  font-size: 1.1rem;
-  line-height: 1.8;
+#machine-history {
+  font-size: 0.9rem;
+}
+
+.history-session {
+  margin-bottom: 14px;
+}
+
+.history-session-date {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.history-set-row {
+  line-height: 1.7;
+}
+
+.history-rir {
+  color: var(--text-muted);
+  font-size: 0.82rem;
 }
 
 /* ---------- Logged Sets ---------- */
