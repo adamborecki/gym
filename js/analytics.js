@@ -15,37 +15,89 @@ export function renderAnalytics() {
 }
 
 function renderHeatmap() {
-  const container = $('heatmap');
-  container.innerHTML = '';
+  const heatmapEl = $('heatmap');
+  heatmapEl.innerHTML = '';
 
   const sessions = App.data.sessions || [];
   const now = new Date();
 
-  // Build a map of date => session
+  // Build a map of date => dayType
   const dateMap = {};
   sessions.forEach(s => {
     const date = s.startedAt.split('T')[0];
     dateMap[date] = s.dayType;
   });
 
-  // Show last ~52 weeks (364 days), organized by weeks
-  // Each column is a week, each row is a day of week (0=Sun, 1=Mon, ..., 6=Sat)
-  const totalDays = 371; // 53 weeks
+  // Show last ~52 weeks, each column = 1 week, each row = day of week (0=Sun…6=Sat)
+  const totalDays = 371; // ~53 weeks
   const endDate = new Date(now);
   endDate.setHours(0, 0, 0, 0);
 
-  // Find the start: go back totalDays, then back to the previous Sunday
+  // Start from the Sunday ~53 weeks ago
   const startDate = new Date(endDate);
   startDate.setDate(startDate.getDate() - totalDays);
-  // Back to Sunday
-  startDate.setDate(startDate.getDate() - startDate.getDay());
+  startDate.setDate(startDate.getDate() - startDate.getDay()); // back to Sunday
 
-  const current = new Date(startDate);
+  // Collect all dates in order
+  const dates = [];
+  const cur = new Date(startDate);
+  while (cur <= endDate) {
+    dates.push(new Date(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
 
-  while (current <= endDate) {
-    const dateStr = current.toISOString().split('T')[0];
+  // Determine where each month label should appear (column index, 1-based)
+  const monthLabels = [];
+  let lastMonth = -1;
+  dates.forEach((date, i) => {
+    if (date.getDay() === 0) { // Sunday = start of a week column
+      const m = date.getMonth();
+      if (m !== lastMonth) {
+        monthLabels.push({
+          col: Math.floor(i / 7) + 1,
+          label: date.toLocaleString('default', { month: 'short' }),
+        });
+        lastMonth = m;
+      }
+    }
+  });
+
+  // Remove any previously built wrapper so re-renders are idempotent
+  const existingWrapper = document.getElementById('heatmap-wrapper');
+  if (existingWrapper) existingWrapper.remove();
+
+  // Build wrapper: [day-labels] [month-labels + grid]
+  const wrapper = document.createElement('div');
+  wrapper.id = 'heatmap-wrapper';
+
+  // Day-of-week labels (Sun blank, Mon, Tue blank, Wed, Thu blank, Fri, Sat blank)
+  const dayLabelsEl = document.createElement('div');
+  dayLabelsEl.id = 'heatmap-day-labels';
+  ['', 'Mon', '', 'Wed', '', 'Fri', ''].forEach(name => {
+    const span = document.createElement('span');
+    span.textContent = name;
+    dayLabelsEl.appendChild(span);
+  });
+
+  // Main area holds month labels + heatmap cells
+  const mainEl = document.createElement('div');
+  mainEl.id = 'heatmap-main';
+
+  // Month label row — columns match the heatmap cell columns
+  const monthRowEl = document.createElement('div');
+  monthRowEl.id = 'heatmap-month-labels';
+  monthLabels.forEach(({ col, label }) => {
+    const span = document.createElement('span');
+    span.textContent = label;
+    span.style.gridColumnStart = col;
+    monthRowEl.appendChild(span);
+  });
+
+  // Heatmap cells (grid-auto-flow: column fills top→bottom per week column)
+  dates.forEach(date => {
+    const dateStr = date.toISOString().split('T')[0];
     const dayType = dateMap[dateStr] || null;
-    const isFuture = current > now;
+    const isFuture = date > now;
 
     const cell = document.createElement('div');
     cell.className = 'heatmap-cell';
@@ -60,12 +112,19 @@ function renderHeatmap() {
       cell.classList.add('hm-empty');
     }
 
-    container.appendChild(cell);
-    current.setDate(current.getDate() + 1);
-  }
+    heatmapEl.appendChild(cell);
+  });
+
+  mainEl.appendChild(monthRowEl);
+  mainEl.appendChild(heatmapEl);
+  wrapper.appendChild(dayLabelsEl);
+  wrapper.appendChild(mainEl);
+
+  // Insert wrapper before the legend
+  const legend = $('heatmap-legend');
+  legend.parentNode.insertBefore(wrapper, legend);
 
   // Legend
-  const legend = $('heatmap-legend');
   legend.innerHTML = `
     <div class="legend-item"><div class="legend-swatch" style="background:var(--push-color)"></div>Push</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--pull-color)"></div>Pull</div>
