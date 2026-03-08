@@ -5,7 +5,7 @@
  */
 
 import { APP_VERSION, DEFAULT_COUNTDOWN_MIN } from './config.js';
-import { $, $$, deepClone } from './utils.js';
+import { $, $$, deepClone, stripMarkdown } from './utils.js';
 import { App, loadData, saveData } from './state.js';
 import { showView, showToast, renderHome, speakText } from './ui.js';
 import { hideRestTimer, toggleRestMode } from './timer.js';
@@ -149,11 +149,11 @@ function setupEventListeners() {
   // TTS
   $('btn-tts-setup').onclick = () => {
     const machine = App.data.machines[App.currentMachineId];
-    if (machine?.tips?.setup) speakText(machine.tips.setup);
+    if (machine?.tips?.setup) speakText(stripMarkdown(machine.tips.setup));
   };
   $('btn-tts-form').onclick = () => {
     const machine = App.data.machines[App.currentMachineId];
-    if (machine?.tips?.form) speakText(machine.tips.form);
+    if (machine?.tips?.form) speakText(stripMarkdown(machine.tips.form));
   };
 
   // RIR chips

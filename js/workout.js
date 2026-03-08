@@ -3,7 +3,7 @@
  */
 
 import { TIME_GOALS, SEED_WEIGHTS, COUNTUP_SOFT_TARGET_MIN } from './config.js';
-import { $, $$, isoNow } from './utils.js';
+import { $, $$, isoNow, renderMarkdown } from './utils.js';
 import { App, saveData, saveActiveSession } from './state.js';
 import { showView, showToast, showModal } from './ui.js';
 import { startRestTimer, hideRestTimer } from './timer.js';
@@ -567,7 +567,7 @@ function renderSetupFields(machine) {
   if (machine.tips?.setup) {
     const notes = document.createElement('div');
     notes.className = 'setup-notes-text';
-    notes.textContent = machine.tips.setup;
+    notes.innerHTML = renderMarkdown(machine.tips.setup);
     container.appendChild(notes);
   }
 
@@ -613,7 +613,7 @@ function renderSetupFields(machine) {
 
 function renderFormTab(machine) {
   const formText = $('form-text');
-  formText.textContent = machine.tips?.form || 'No form tips available.';
+  formText.innerHTML = renderMarkdown(machine.tips?.form) || '<p class="tips-p">No form tips available.</p>';
 
   // If familiar, collapse by default
   if (machine.familiarity === 'familiar') {
