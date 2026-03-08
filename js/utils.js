@@ -49,7 +49,7 @@ export function renderMarkdown(text) {
   };
 
   for (const rawLine of lines) {
-    const line = rawLine.replace(/^\t/, '').trimEnd();
+    const line = rawLine.replace(/^\t+/, '').trimEnd();
 
     // Blank line → close list, add spacing
     if (line.trim() === '') {
@@ -76,13 +76,16 @@ export function renderMarkdown(text) {
 
     // Micro-cue line: starts with an emoji and contains a closing quote (smart or straight)
     const cueLine = line.trim();
-    if ((/^\p{Extended_Pictographic}/u.test(cueLine) && /[\u201c\u201d\u2019"']/.test(cueLine)) || /^Micro-cue/.test(cueLine)) {
+    const startsWithEmoji = /^\p{Extended_Pictographic}/u.test(cueLine);
+    const hasQuote = /[\u201c\u201d\u2019"']/.test(cueLine);
+    const isMicroCue = (startsWithEmoji && hasQuote) || /^Micro-cue/.test(cueLine);
+    if (isMicroCue) {
       closeList();
       html += `<div class="tips-cue">${escHtml(cueLine)}</div>`;
       continue;
     }
 
-    // Regular line → paragraph (or append to open paragraph)
+    // Regular line → paragraph
     closeList();
     html += `<p class="tips-p">${escHtml(cueLine)}</p>`;
   }
