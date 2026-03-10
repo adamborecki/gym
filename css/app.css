@@ -684,8 +684,9 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   margin-bottom: 14px;
 }
 
-/* ---------- Markdown-rendered tips (setup + form) ---------- */
-.tips-header {
+/* ---------- Markdown-rendered tips (setup + form via marked.js) ---------- */
+.setup-notes-text h3,
+#form-text h3 {
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -693,33 +694,24 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   color: var(--accent);
   margin: 14px 0 4px;
 }
-.tips-header:first-child {
+.setup-notes-text h3:first-child,
+#form-text h3:first-child {
   margin-top: 0;
 }
-.tips-list {
+.setup-notes-text ul,
+#form-text ul {
   margin: 0 0 4px 0;
   padding-left: 1.25em;
 }
-.tips-list li {
+.setup-notes-text li,
+#form-text li {
   margin-bottom: 4px;
   line-height: 1.5;
 }
-.tips-p {
+.setup-notes-text p,
+#form-text p {
   margin: 4px 0;
   line-height: 1.5;
-}
-.tips-cue {
-  display: inline-block;
-  font-weight: 600;
-  color: var(--text);
-  background: var(--bg-input);
-  border-radius: var(--radius-sm);
-  padding: 6px 10px;
-  margin: 6px 0 2px;
-  font-size: 0.9rem;
-}
-.tips-spacer {
-  height: 6px;
 }
 
 /* Assisted chin inversion note */

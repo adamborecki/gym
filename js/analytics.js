@@ -2,7 +2,7 @@
  * Gym App — Analytics (heatmap, weekly charts)
  */
 
-import { $, formatDuration } from './utils.js';
+import { $, formatDuration, localDateStr } from './utils.js';
 import { App } from './state.js';
 
 // ============================================================
@@ -21,10 +21,10 @@ function renderHeatmap() {
   const sessions = App.data.sessions || [];
   const now = new Date();
 
-  // Build a map of date => dayType
+  // Build a map of local date => dayType
   const dateMap = {};
   sessions.forEach(s => {
-    const date = s.startedAt.split('T')[0];
+    const date = localDateStr(new Date(s.startedAt));
     dateMap[date] = s.dayType;
   });
 
@@ -95,7 +95,7 @@ function renderHeatmap() {
 
   // Heatmap cells (grid-auto-flow: column fills top→bottom per week column)
   dates.forEach(date => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = localDateStr(date);
     const dayType = dateMap[dateStr] || null;
     const isFuture = date > now;
 
@@ -134,7 +134,7 @@ function renderHeatmap() {
 }
 
 function showDaySummary(dateStr) {
-  const sessions = App.data.sessions.filter(s => s.startedAt.startsWith(dateStr));
+  const sessions = (App.data.sessions || []).filter(s => localDateStr(new Date(s.startedAt)) === dateStr);
   if (sessions.length === 0) return;
 
   const container = $('day-summary');
@@ -170,7 +170,7 @@ function getWeeklyData(metric) {
     // Get week start (Sunday)
     const weekStart = new Date(date);
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-    const weekKey = weekStart.toISOString().split('T')[0];
+    const weekKey = localDateStr(weekStart);
 
     if (!weeks[weekKey]) weeks[weekKey] = 0;
 
@@ -188,7 +188,7 @@ function getWeeklyData(metric) {
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - d.getDay() - (i * 7));
-    const key = d.toISOString().split('T')[0];
+    const key = localDateStr(d);
     const month = d.getMonth() + 1;
     const day = d.getDate();
     result.push({
