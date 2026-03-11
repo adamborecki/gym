@@ -29,69 +29,31 @@ export function $$(sel) { return document.querySelectorAll(sel); }
 
 export function isoNow() { return new Date().toISOString(); }
 
+/** Return 'YYYY-MM-DD' in the user's local timezone */
+export function localDateStr(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 /**
- * Convert a markdown-like tips string to safe HTML.
- * Supported syntax:
- *   **Header**        → styled section header
- *   • text / - text   → list items (grouped into <ul>)
- *   🗣️ "..."          → micro-cue callout block
- *   blank line        → paragraph break / list separator
- *   everything else   → <p> paragraph
+ * Convert a markdown tips string to HTML using marked.js.
+ * Pre-processes legacy format (• bullets, **Header** lines) into standard markdown.
  */
 export function renderMarkdown(text) {
   if (!text) return '';
-  const lines = text.split('\n');
-  let html = '';
-  let inList = false;
 
-  const closeList = () => {
-    if (inList) { html += '</ul>'; inList = false; }
-  };
+  // Pre-process: convert legacy format to standard markdown
+  const processed = text
+    // **Header** on its own line → ### Header (so marked renders as <h3>)
+    .replace(/^\*\*(.+)\*\*$/gm, '### $1')
+    // Unicode bullets → standard markdown list items
+    .replace(/^[•✦]\s/gm, '- ')
+    // Strip leading tabs (from template literals)
+    .replace(/^\t+/gm, '');
 
-  for (const rawLine of lines) {
-    const line = rawLine.replace(/^\t+/, '').trimEnd();
-
-    // Blank line → close list, add spacing
-    if (line.trim() === '') {
-      closeList();
-      html += '<div class="tips-spacer"></div>';
-      continue;
-    }
-
-    // **Header** → section header
-    const headerMatch = line.match(/^\*\*(.+)\*\*$/);
-    if (headerMatch) {
-      closeList();
-      html += `<div class="tips-header">${escHtml(headerMatch[1])}</div>`;
-      continue;
-    }
-
-    // Bullet: leading •, -, or ✦ (optionally with leading whitespace/tab)
-    const bulletMatch = line.match(/^[\s]*[•\-✦]\s+(.*)/);
-    if (bulletMatch) {
-      if (!inList) { html += '<ul class="tips-list">'; inList = true; }
-      html += `<li>${escHtml(bulletMatch[1])}</li>`;
-      continue;
-    }
-
-    // Micro-cue line: starts with an emoji and contains a closing quote (smart or straight)
-    const cueLine = line.trim();
-    const startsWithEmoji = /^\p{Extended_Pictographic}/u.test(cueLine);
-    const hasQuote = /[\u201c\u201d\u2019"']/.test(cueLine);
-    const isMicroCue = (startsWithEmoji && hasQuote) || /^Micro-cue/.test(cueLine);
-    if (isMicroCue) {
-      closeList();
-      html += `<div class="tips-cue">${escHtml(cueLine)}</div>`;
-      continue;
-    }
-
-    // Regular line → paragraph
-    closeList();
-    html += `<p class="tips-p">${escHtml(cueLine)}</p>`;
-  }
-
-  closeList();
-  return html;
+  return window.marked.parse(processed);
 }
 
 /** Strip markdown formatting for TTS plain text */
@@ -104,11 +66,3 @@ export function stripMarkdown(text) {
     .trim();
 }
 
-/** HTML-escape a string */
-function escHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
