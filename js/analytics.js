@@ -2,7 +2,7 @@
  * Gym App — Analytics (heatmap, weekly charts)
  */
 
-import { $, formatDuration } from './utils.js';
+import { $, formatDuration, localDateStr } from './utils.js';
 import { App } from './state.js';
 
 // ============================================================
@@ -21,48 +21,111 @@ function renderHeatmap() {
   const sessions = App.data.sessions || [];
   const now = new Date();
 
-  // Build a map of date => session
+  // Build a map of date => dayType
   const dateMap = {};
   sessions.forEach(s => {
-    const date = s.startedAt.split('T')[0];
+    const date = localDateStr(new Date(s.startedAt));
     dateMap[date] = s.dayType;
   });
 
-  // Show last ~52 weeks (364 days), organized by weeks
-  // Each column is a week, each row is a day of week (0=Sun, 1=Mon, ..., 6=Sat)
-  const totalDays = 371; // 53 weeks
+  // Calculate date range: end at today, start 53 weeks back on a Sunday
   const endDate = new Date(now);
   endDate.setHours(0, 0, 0, 0);
-
-  // Find the start: go back totalDays, then back to the previous Sunday
   const startDate = new Date(endDate);
-  startDate.setDate(startDate.getDate() - totalDays);
-  // Back to Sunday
-  startDate.setDate(startDate.getDate() - startDate.getDay());
+  startDate.setDate(startDate.getDate() - 371);
+  startDate.setDate(startDate.getDate() - startDate.getDay()); // back to Sunday
 
+  // Build weeks array: each week is an array of 7 days (Sun=0 .. Sat=6)
+  const weeks = [];
   const current = new Date(startDate);
-
+  let week = [];
   while (current <= endDate) {
-    const dateStr = current.toISOString().split('T')[0];
-    const dayType = dateMap[dateStr] || null;
-    const isFuture = current > now;
-
-    const cell = document.createElement('div');
-    cell.className = 'heatmap-cell';
-
-    if (isFuture) {
-      cell.style.visibility = 'hidden';
-    } else if (dayType) {
-      cell.classList.add(`hm-${dayType}`);
-      cell.title = `${dateStr}: ${dayType}`;
-      cell.onclick = () => showDaySummary(dateStr);
-    } else {
-      cell.classList.add('hm-empty');
+    week.push(new Date(current));
+    if (week.length === 7) {
+      weeks.push(week);
+      week = [];
     }
-
-    container.appendChild(cell);
     current.setDate(current.getDate() + 1);
   }
+  if (week.length) weeks.push(week);
+
+  const numWeeks = weeks.length;
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dayLabels = ['', 'Mon', '', 'Wed', '', 'Fri', '']; // Sun,Mon,Tue,Wed,Thu,Fri,Sat
+
+  // — Month labels row —
+  const monthsRow = document.createElement('div');
+  monthsRow.className = 'heatmap-months';
+  monthsRow.style.gridTemplateColumns = `24px repeat(${numWeeks}, 1fr)`;
+  monthsRow.appendChild(document.createElement('div')); // spacer for day-label column
+
+  let lastMonth = -1;
+  weeks.forEach(w => {
+    const label = document.createElement('div');
+    label.className = 'heatmap-month-label';
+    // Use the first day of the week to determine month
+    const m = w[0].getMonth();
+    if (m !== lastMonth) {
+      label.textContent = monthNames[m];
+      lastMonth = m;
+    }
+    monthsRow.appendChild(label);
+  });
+  container.appendChild(monthsRow);
+
+  // — Grid wrapper (day labels + cell grid) —
+  const gridWrapper = document.createElement('div');
+  gridWrapper.className = 'heatmap-grid-wrapper';
+
+  // Day labels column
+  const daysCol = document.createElement('div');
+  daysCol.className = 'heatmap-days';
+  dayLabels.forEach(label => {
+    const el = document.createElement('div');
+    el.className = 'heatmap-day-label';
+    el.textContent = label;
+    daysCol.appendChild(el);
+  });
+  gridWrapper.appendChild(daysCol);
+
+  // Cell grid — uses grid-auto-flow: column so cells fill Sun→Sat per week
+  const grid = document.createElement('div');
+  grid.className = 'heatmap-grid';
+  grid.style.gridTemplateColumns = `repeat(${numWeeks}, 1fr)`;
+
+  weeks.forEach(w => {
+    // Pad incomplete weeks (first/last) to 7 cells
+    for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-cell';
+
+      if (dayIdx >= w.length) {
+        cell.style.visibility = 'hidden';
+        grid.appendChild(cell);
+        continue;
+      }
+
+      const d = w[dayIdx];
+      const dateStr = localDateStr(d);
+      const dayType = dateMap[dateStr] || null;
+      const isFuture = d > now;
+
+      if (isFuture) {
+        cell.style.visibility = 'hidden';
+      } else if (dayType) {
+        cell.classList.add(`hm-${dayType}`);
+        cell.title = `${dateStr}: ${dayType}`;
+        cell.onclick = () => showDaySummary(dateStr);
+      } else {
+        cell.classList.add('hm-empty');
+      }
+
+      grid.appendChild(cell);
+    }
+  });
+
+  gridWrapper.appendChild(grid);
+  container.appendChild(gridWrapper);
 
   // Legend
   const legend = $('heatmap-legend');
@@ -75,7 +138,7 @@ function renderHeatmap() {
 }
 
 function showDaySummary(dateStr) {
-  const sessions = App.data.sessions.filter(s => s.startedAt.startsWith(dateStr));
+  const sessions = App.data.sessions.filter(s => localDateStr(new Date(s.startedAt)) === dateStr);
   if (sessions.length === 0) return;
 
   const container = $('day-summary');
@@ -111,7 +174,7 @@ function getWeeklyData(metric) {
     // Get week start (Sunday)
     const weekStart = new Date(date);
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-    const weekKey = weekStart.toISOString().split('T')[0];
+    const weekKey = localDateStr(weekStart);
 
     if (!weeks[weekKey]) weeks[weekKey] = 0;
 
@@ -129,7 +192,7 @@ function getWeeklyData(metric) {
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - d.getDay() - (i * 7));
-    const key = d.toISOString().split('T')[0];
+    const key = localDateStr(d);
     const month = d.getMonth() + 1;
     const day = d.getDate();
     result.push({
