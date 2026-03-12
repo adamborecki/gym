@@ -56,8 +56,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Seat height: handles roughly mid-chest to nipple line at start.\n- Back stays against pad; feet flat, slight leg drive for stability (not to move weight).",
-        "form": "(1) CHEST PRESS (machine / MTS-style)\nSetup\n- Seat height: handles roughly mid-chest to nipple line at start.\n- Back stays against pad; feet flat, slight leg drive for stability (not to move weight).\nExecution cues\n- Think “drive elbows slightly down and in,” not flared straight out.\n- Shoulders: keep them “down and back” (avoid shrugging up).\n- Stop short of locking elbows; keep tension on pecs/triceps.\nCommon fixes\n- If you feel front/outer shoulders:\n  - lower seat a touch OR bring elbows a bit more tucked,\n  - reduce ROM at the deepest stretch if it pinches,\n  - prioritize scapula stability (don’t protract/round).\nRep range\n- 8–12 for main working sets; 10–12 if shoulders are sensitive.",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Seat height: handles at mid-chest to nipple line when seated.\n\u2022 \ud83e\uddb6 Feet flat, slight leg drive for stability (not to move weight).\n\u2022 Back stays firmly against pad throughout.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Seat height: handles at mid-chest to nipple line when seated.\n\u2022 \ud83e\uddb6 Feet flat, slight leg drive for stability (not to move weight).\n\u2022 Back stays firmly against pad throughout.\n\n**Execution**\n\u2022 \ud83c\udfaf Drive elbows slightly down and in \u2014 not flared straight out.\n\u2022 \ud83c\udf92 Shoulders stay down and back; avoid shrugging.\n\u2022 \ud83d\uded1 Stop short of locking elbows; keep tension on pecs and triceps.\n\n**Shoulder-safe posture**\n\u2022 \ud83e\uddf1 Keep chest lifted \u2014 don\u2019t let shoulders roll forward.\n\u2022 If you feel front/outer shoulder a lot \u2192 lower seat 1 notch or tuck elbows slightly.\n\n**Fix common issues**\n\u2022 Feeling triceps too much \u2192 focus on pec squeeze, elbows stay in.\n\u2022 One side weaker \u2192 match reps to the weaker side.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 2 sec lower, 1 sec press\n\u2022 \ud83d\udd01 8\u201312 reps; 10\u201312 if shoulders are sensitive\n\n\ud83d\udde3\ufe0f \u201cElbows in, chest up, press to squeeze.\u201d",
         "mantra": [
           "🧱 chest up",
           "💪 elbows 30–45°",
@@ -104,8 +104,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Seat typically slightly lower than you think so handles start upper-chest level.",
-        "form": "(2) INCLINE CHEST PRESS / MTS INCLINE\nSetup\n- Seat typically slightly lower than you think so handles start upper-chest level.\nExecution\n- Press “up and slightly back,” but don’t over-arch.\n- Keep wrists stacked (don’t let them bend back).\nIf clavicle area feels irritated\n- Decrease depth; keep elbows a little more tucked; consider neutral handles if available.\nRep range\n- 8–12, stop 1–3 RIR.",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Seat slightly lower than you\u2019d expect \u2014 handles start at upper-chest level.\n\u2022 \ud83e\uddb6 Feet flat; back on pad.\n\u2022 \ud83c\udfaf Neutral wrists \u2014 don\u2019t let them bend back.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Seat slightly lower than you\u2019d expect \u2014 handles start at upper-chest level.\n\u2022 \ud83e\uddb6 Feet flat; back stays on pad.\n\u2022 \ud83e\udd1d Wrists neutral \u2014 don\u2019t let them bend back.\n\n**Press path**\n\u2022 \u2197\ufe0f Press up and slightly back \u2014 don\u2019t over-arch to get range.\n\u2022 \ud83d\udccc Elbows stay a bit forward of your shoulders (scapular plane).\n\u2022 \ud83e\uddf1 Ribs down \u2014 this is incline, not a full overhead press.\n\n**If clavicle or front shoulder is irritated**\n\u2022 Decrease depth slightly.\n\u2022 Keep elbows a touch more tucked.\n\u2022 Use neutral handles if available.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 2 sec lower, 1 sec press\n\u2022 \ud83d\udd01 8\u201312, stop 1\u20133 RIR\n\n\ud83d\udde3\ufe0f \u201cPress up-back, wrists neutral, no over-arch.\u201d",
         "mantra": [
           "📐 upper-chest path",
           "🧱 ribs quiet",
@@ -152,8 +152,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Seat height so handles start around chin/ear level, elbows under wrists.",
-        "form": "(3) SHOULDER PRESS (MTS shoulder press)\nSetup\n- Seat height so handles start around chin/ear level, elbows under wrists.\nExecution\n- Press up without shrugging.\n- Keep ribs down (don’t turn it into a standing incline press).\nCommon mistakes\n- Flaring elbows too wide and shrugging → neck/upper trap takeover.\n- Letting elbows drift behind the body too much at the bottom → shoulder stress.\nRep range\n- 8–12 (or 10–12 if shoulder history).",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Seat height: handles start at chin/ear level, elbows under wrists.\n\u2022 \ud83e\uddb6 Feet planted; back against pad.\n\u2022 \ud83e\uddf1 Ribs down \u2014 this is a shoulder press, not an incline press.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Seat height: handles start at chin/ear level, elbows under wrists.\n\u2022 \ud83e\uddb6 Feet planted; back against pad.\n\u2022 \ud83e\uddf1 Ribs down \u2014 don\u2019t over-arch.\n\n**Execution**\n\u2022 \u2b06\ufe0f Press straight up without shrugging.\n\u2022 \ud83c\udf92 Shoulders stay heavy \u2014 don\u2019t let them rise throughout the set.\n\u2022 \ud83d\uded1 Stop just short of full lockout; keep shoulders loaded.\n\n**Common mistakes**\n\u2022 Flaring elbows too wide \u2192 neck/upper trap takeover.\n\u2022 Elbows drifting behind your body at the bottom \u2192 shoulder stress.\n\u2022 Over-arching lower back \u2192 turns it into an incline press.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 2 sec lower, 1 sec press\n\u2022 \ud83d\udd01 8\u201312 (10\u201312 if shoulder history)\n\n\ud83d\udde3\ufe0f \u201cRibs down, press up, no shrug.\u201d",
         "mantra": [
           "🧱 ribs down",
           "🧘 no shrug",
@@ -197,8 +197,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Seat height: handles align with mid-chest; arms roughly horizontal.\n- Adjust start position so you feel a stretch but not a shoulder pinch.",
-        "form": "(4) PEC FLY (machine)\nGoal sensation\n- Pecs stretch across chest, not front delts.\nSetup\n- Seat height: handles align with mid-chest; arms roughly horizontal.\n- Adjust start position so you feel a stretch but not a shoulder pinch.\nExecution\n- Slight bend in elbows stays fixed.\n- “Hug a big barrel” — hands move inward; shoulders stay down.\n- Stop before hands slam together; control the last inch.\nCommon fixes\n- If shoulders dominate: reduce stretch depth, lower weight, slow eccentric.\nRep range\n- 10–15 (often 12–15 is sweet).",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Seat height: handles at mid-chest level; arms roughly horizontal.\n\u2022 Adjust ROM so you feel a chest stretch \u2014 not a shoulder pinch.\n\u2022 \ud83e\udd1d Slight elbow bend stays fixed throughout.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Seat height: handles at mid-chest level; arms roughly horizontal.\n\u2022 Adjust ROM so you feel a chest stretch \u2014 not a shoulder pinch.\n\u2022 \ud83e\udd1d Slight elbow bend stays fixed throughout.\n\n**Execution**\n\u2022 Think \u201chug a big barrel\u201d \u2014 hands move inward; shoulders stay down.\n\u2022 \ud83c\udf92 Shoulders packed \u2014 no shrugging or rolling forward.\n\u2022 \ud83d\uded1 Stop before hands slam together; control the last inch.\n\n**Goal sensation**\n\u2022 Feel it in mid-chest (pecs), not front shoulders.\n\u2022 If front delts dominate \u2192 reduce stretch depth and lighten load.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 2\u20133 sec open, 1 sec close + brief squeeze\n\u2022 \ud83d\udd01 10\u201315 reps (12\u201315 is the sweet spot)\n\n\ud83d\udde3\ufe0f \u201cShoulders down, hug the barrel, squeeze at center.\u201d",
         "mantra": [
           "🤗 hug barrel",
           "🧘 shoulders down",
@@ -242,8 +242,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Chest firmly against pad.\n- Handle height about shoulder height.",
-        "form": "(5) REAR DELT (reverse fly machine)\nGoal sensation\n- Rear delts/upper back, not neck/upper traps.\nSetup\n- Chest firmly against pad.\n- Handle height about shoulder height.\nExecution\n- Think “pull elbows out and slightly back,” not hands.\n- Avoid shrugging; keep neck long.\nRep range\n- 12–20 (rear delts respond well to higher reps).",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Chest firmly against pad; neck long.\n\u2022 Handle height at about shoulder height.\n\u2022 \ud83e\udd1d Use neutral/vertical handles if available (easiest on shoulders).",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Chest firmly against pad; neck long.\n\u2022 Handle height at about shoulder height.\n\u2022 \ud83e\udd1d Use neutral/vertical handles if available.\n\n**Rep cues**\n\u2022 \ud83c\udfaf Lead with elbows: \u201celbows out and back\u201d \u2014 hands are just hooks.\n\u2022 \ud83c\udf92 Shoulders stay down/heavy \u2014 no shrug.\n\u2022 \ud83e\udde0 Think \u201copen the arms,\u201d not \u201cpinch shoulder blades hard.\u201d\n\n**Range + control**\n\u2022 Stop when upper arms are in line with torso (or slightly behind) without arching back.\n\u2022 Return slow until you feel the stretch; don\u2019t let shoulders roll forward aggressively.\n\n**Fixes if it feels wrong**\n\u2022 \ud83d\udd3a Trap/neck takeover \u2192 lower weight, slow down, keep shoulders \u201cheavy.\u201d\n\u2022 \ud83e\uddf1 Too much mid-back \u2192 reduce \u201csqueeze blades\u201d cue; focus on elbows moving.\n\u2022 \ud83c\udf00 Swinging \u2192 pause 1 sec at open position and lighten load.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 2 sec out, 3 sec back + optional 1 sec squeeze\n\u2022 \ud83d\udd01 12\u201320 reps (rear delts love higher reps)\n\n\ud83c\udff9 \u201cChest tall. Elbows lead. No shrug.\u201d",
         "mantra": [
           "🧍 chest to pad",
           "🧘 neck long",
@@ -287,8 +287,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Elbows pinned to sides; shoulders relaxed.",
-        "form": "(6) TRICEPS PUSHDOWN (cable)\nSetup\n- Elbows pinned to sides; shoulders relaxed.\nExecution\n- Extend down; stop short of locking hard.\n- Control the return; don’t let elbows drift forward.\nCommon fixes\n- If forearms take over: focus on elbow staying still, wrists neutral.\nRep range\n- 10–15.",
+        "setup": "**Setup**\n\u2022 \ud83e\uddbe Elbows pinned to sides; shoulders relaxed and down.\n\u2022 Stand close enough that the cable pulls slightly upward at the top.\n\u2022 \ud83e\udd1d Thumbless or neutral grip \u2014 don\u2019t white-knuckle.",
+        "form": "**Setup**\n\u2022 \ud83e\uddbe Elbows pinned to sides; shoulders relaxed and down.\n\u2022 Stand close; cable should have slight upward pull at top.\n\n**Execution**\n\u2022 \u2b07\ufe0f Extend down smoothly; stop just short of a hard lockout.\n\u2022 \u2b06\ufe0f Control the return \u2014 don\u2019t let elbows flare or drift forward.\n\u2022 Upper arms stay fixed throughout.\n\n**Fix common issues**\n\u2022 Forearms taking over \u2192 focus on keeping elbows fixed; wrists neutral.\n\u2022 Shoulders rising \u2192 consciously drop them before each rep.\n\u2022 Feeling it in chest \u2192 step back, keep elbows tight to sides.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 1 sec down, 2 sec up\n\u2022 \ud83d\udd01 10\u201315 reps\n\n\ud83d\udde3\ufe0f \u201cElbows anchored, wrists neutral, extend smooth.\u201d",
         "mantra": [
           "📌 elbows pinned",
           "✋ wrists neutral",
@@ -332,8 +332,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Align elbow joint with machine pivot if possible.",
-        "form": "(7) TRICEPS EXTENSION MACHINE\nSetup\n- Align elbow joint with machine pivot if possible.\nExecution\n- Smooth extension; don’t slam lockout.\n- Keep upper arms still.\nRep range\n- 10–15.\n\n-----------------------------------------------------------------------\n5.2 PULL DAY MACHINES\n-----------------------------------------------------------------------",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Align elbow joint with machine pivot.\n\u2022 Upper arms rest firmly on pad; don\u2019t let shoulders hike.\n\u2022 \ud83e\udd1d Light grip \u2014 wrists neutral.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Align elbow joint with machine pivot.\n\u2022 Upper arms rest firmly on pad; don\u2019t let shoulders hike.\n\n**Execution**\n\u2022 \u2b07\ufe0f Smooth extension \u2014 don\u2019t slam lockout.\n\u2022 Keep upper arms still and pressed into pad.\n\u2022 \u2b06\ufe0f Control return; feel the stretch at the top.\n\n**Fix common issues**\n\u2022 Upper arms lifting off pad \u2192 reduce weight.\n\u2022 Shoulder involvement \u2192 press upper arms into pad; keep shoulders down.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 2 sec down, 2 sec up\n\u2022 \ud83d\udd01 10\u201315 reps\n\n\ud83d\udde3\ufe0f \u201cArms pinned, extend smooth, no slam.\u201d",
         "mantra": [
           "📌 upper arm still",
           "🐢 control",
@@ -377,8 +377,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Seat height so thighs are firmly under pads.\n- Chest up slightly; neutral spine; slight lean back (~10–20°), not a row.",
-        "form": "(1) LAT PULLDOWN (including “curved bar / flared ends” PF bars)\nThis was a recurring issue: “I feel arms, not lats.”\nSetup\n- Seat height so thighs are firmly under pads.\n- Chest up slightly; neutral spine; slight lean back (~10–20°), not a row.\nExecution cues to hit lats\n- Think: “Drive elbows DOWN toward your back pockets.”\n- Hands are hooks; don’t death-grip.\n- Pull bar to upper chest/clavicle area if comfortable.\nElbow path with flared bar\n- A slightly wider grip often increases arm involvement.\n- Try a grip where elbows track 30–45° in front of your torso (not straight out to sides).\n- If elbows flare too wide, biceps dominate.\nCommon fixes\n- Use straps if grip is limiting.\n- Start the pull by “depressing shoulder blades” (down), then elbows down.\nRep range\n- 8–12; sometimes 10–12 works well for mind-muscle.",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Thighs firmly under pads \u2014 adjust seat height.\n\u2022 Chest up slightly; neutral spine; slight lean back (~10\u201320\u00b0).\n\u2022 \ud83e\udd1d Hands are hooks \u2014 don\u2019t death-grip the bar.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Thighs firmly under pads \u2014 adjust seat height.\n\u2022 Chest up slightly; neutral spine; slight lean back (~10\u201320\u00b0).\n\u2022 \ud83e\udd1d Hands are hooks \u2014 don\u2019t death-grip.\n\n**Execution cues to hit lats**\n\u2022 \ud83c\udfaf Think: \u201cDrive elbows DOWN toward your back pockets.\u201d\n\u2022 Initiate by depressing shoulder blades (down), then elbows down.\n\u2022 Pull bar to upper chest/clavicle area.\n\n**Elbow path (flared bar)**\n\u2022 Try a grip where elbows track 30\u201345\u00b0 in front of your torso (not straight out).\n\u2022 If elbows flare too wide, biceps dominate over lats.\n\u2022 Use straps if grip is the limiting factor.\n\n**Fix common issues**\n\u2022 Feeling arms only \u2192 lighten, use straps, focus on \u201celbow to pocket.\u201d\n\u2022 Shrugging at top \u2192 depress shoulder blades before initiating pull.\n\u2022 Leaning too far back \u2192 keep ~10\u201320\u00b0 lean, not a full row.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 2 sec return, 1\u20132 sec pull\n\u2022 \ud83d\udd01 8\u201312; 10\u201312 for mind-muscle focus\n\n\ud83d\udde3\ufe0f \u201cShoulders down, elbows to pockets, chest up.\u201d",
         "mantra": [
           "🪝 hands hooks",
           "⬇️ elbows to pockets",
@@ -422,8 +422,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Chest tall; don’t round into the pull.\n- Feet stable; avoid rocking.",
-        "form": "(2) SEATED ROW (machine)\nSetup\n- Chest tall; don’t round into the pull.\n- Feet stable; avoid rocking.\nExecution\n- Pull toward lower ribs/upper abdomen depending on handle.\n- Think “elbows back, squeeze mid-back,” then control forward stretch.\nCommon fixes\n- If biceps dominate: use thumbless/looser grip and focus elbow drive.\nRep range\n- 8–12 for main row; 10–12 if you want more control.",
+        "setup": "**Setup**\n\u2022 \ud83e\uddcd\u200d\u2642\ufe0f Chest tall; don\u2019t round into the pull.\n\u2022 \ud83e\uddb6 Feet stable \u2014 avoid rocking or swinging.\n\u2022 \ud83e\udd1d Light grip \u2014 focus on elbows, not hands.",
+        "form": "**Setup**\n\u2022 \ud83e\uddcd\u200d\u2642\ufe0f Chest tall; don\u2019t round into the pull.\n\u2022 \ud83e\uddb6 Feet stable \u2014 avoid rocking or swinging.\n\u2022 \ud83e\udd1d Light grip \u2014 focus on elbows driving, not squeezing hands.\n\n**Execution**\n\u2022 \ud83c\udfaf Pull toward lower ribs/upper abdomen.\n\u2022 Think \u201celbows back, squeeze mid-back,\u201d then control the forward stretch.\n\u2022 Allow a slight torso lean forward on the stretch \u2014 not rounding.\n\n**Fix common issues**\n\u2022 Biceps dominating \u2192 thumbless grip; drive elbows, not hands.\n\u2022 Low back rounding \u2192 reduce weight; brace core; keep chest tall.\n\u2022 Swinging \u2192 control the eccentric; slow it down.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 2 sec pull, 3 sec return\n\u2022 \ud83d\udd01 8\u201312; 10\u201312 for more control\n\n\ud83d\udde3\ufe0f \u201cChest tall, elbows drive back, control the return.\u201d",
         "mantra": [
           "🧱 tall chest",
           "↩️ elbows back",
@@ -467,8 +467,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Seat so elbows align with pivot; upper arms stay planted.",
-        "form": "(3) BICEPS CURL MACHINE\nSetup\n- Seat so elbows align with pivot; upper arms stay planted.\nExecution\n- Curl without lifting shoulders.\n- Control down; don’t bounce off bottom.\nRep range\n- 10–15.",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Seat so elbows align with pivot \u2014 this is critical.\n\u2022 Upper arms pressed against pad; shoulders relaxed and down.\n\u2022 \ud83e\udd1d Light grip \u2014 don\u2019t white-knuckle.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Seat so elbows align with pivot \u2014 this is critical.\n\u2022 Upper arms pressed against pad; shoulders relaxed and down.\n\n**Execution**\n\u2022 \u2b06\ufe0f Curl smoothly; squeeze at the top briefly.\n\u2022 \ud83c\udf92 Don\u2019t lift shoulders \u2014 keep them down throughout.\n\u2022 \u2b07\ufe0f Control the descent; don\u2019t bounce off the bottom.\n\n**Fix common issues**\n\u2022 Shoulders rising \u2192 consciously drop them; reduce weight.\n\u2022 Bouncing at bottom \u2192 slow the eccentric; pause briefly.\n\u2022 Forearm fatigue before biceps \u2192 loosen grip.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 1 sec up, 2\u20133 sec down\n\u2022 \ud83d\udd01 10\u201315 reps\n\n\ud83d\udde3\ufe0f \u201cArms pinned, curl smooth, control down.\u201d",
         "mantra": [
           "📌 upper arm fixed",
           "✋ wrists neutral",
@@ -512,8 +512,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Choose assistance so you can get 6–12 clean reps.",
-        "form": "(4) ASSISTED CHIN / PULL-UP MACHINE\nGeneral guidance you asked: “Only assisted chin is available—do I do that?”\nYes—great substitute for lat pulldown / vertical pull.\nSetup\n- Choose assistance so you can get 6–12 clean reps.\nExecution\n- Full hang only if shoulders tolerate it; otherwise partial hang is okay.\n- Pull chest toward bar; avoid craning neck.\nRep range\n- 6–12 (harder movement).\n\n-----------------------------------------------------------------------\n5.3 LEG DAY MACHINES\n-----------------------------------------------------------------------",
+        "setup": "**Setup**\n\u2022 \u2696\ufe0f Assistance weight: enough to get 6\u201312 clean reps.\n\u2022 Full hang only if shoulders tolerate it; partial hang is fine.\n\u2022 Grip: shoulder-width or slightly wider; pronated or neutral.",
+        "form": "**Setup**\n\u2022 \u2696\ufe0f Assistance weight: enough for 6\u201312 clean reps.\n\u2022 Full hang only if shoulders tolerate it; partial hang is okay.\n\n**Execution**\n\u2022 \ud83c\udfaf Pull chest toward bar \u2014 don\u2019t just chin over.\n\u2022 \ud83c\udf92 Initiate with shoulder blades depressed (down), then elbows down.\n\u2022 Avoid craning or jutting your neck upward.\n\n**Why it\u2019s a great lat pulldown substitute**\n\u2022 Vertical pull works lats, biceps, and mid-back similarly.\n\u2022 Generally freer ROM than a machine.\n\n**Fix common issues**\n\u2022 Arms doing all the work \u2192 initiate with \u201cshoulders down\u201d before pulling.\n\u2022 Neck craning \u2192 keep chin slightly tucked; eyes forward.\n\u2022 Short range \u2192 aim for full elbow extension at the bottom.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 1\u20132 sec up, 2\u20133 sec down\n\u2022 \ud83d\udd01 6\u201312 reps (harder movement \u2014 lower end is fine)\n\n\ud83d\udde3\ufe0f \u201cShoulders down first, pull chest to bar, no neck crane.\u201d",
         "mantra": [
           "🧘 shoulders down",
           "⬆️ chest to bar",
@@ -557,8 +557,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "Your theme: “I feel more in knees than thighs” and “avoid shifting tension to joints at top.”\nSetup priorities\n- Seat back: a notch more reclined can reduce knee shear and help glutes.\n- Foot placement:\n  - Higher on platform = more glute/ham, less knee",
-        "form": "(1) SEATED LEG PRESS (your most-discussed: knees vs thighs)\nYour theme: “I feel more in knees than thighs” and “avoid shifting tension to joints at top.”\nSetup priorities\n- Seat back: a notch more reclined can reduce knee shear and help glutes.\n- Foot placement:\n  - Higher on platform = more glute/ham, less knee\n  - Lower on platform = more quad, more knee stress\n- Stance width: shoulder-width-ish; toes slightly out.\nExecution cues\n- Descend under control; don’t bottom out.\n- Keep knees tracking over toes (no cave-in).\n- Don’t lock out hard at top; stop just before the “joint hang.”\nDepth management (knee-friendly)\n- If knees complain: reduce depth slightly and/or move feet higher.\nRep range\n- 8–15 (you often target 3x12 style, which is solid).\nProgression notes\n- If 175 feels low but form is improving, it’s still a productive step.\n- Only increase load when you can keep the same knee-friendly ROM and avoid “joint shift.”",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Seat back: slightly more reclined reduces knee shear and helps glutes.\n\u2022 \ud83e\uddb6 Foot placement: shoulder-width, toes slightly out.\n\u2022 Higher on platform = more glute/ham; lower = more quad + more knee.\n\u2022 \ud83d\uded1 Don\u2019t lock out at the top \u2014 stop just before the \u201cjoint hang.\u201d",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Seat back: slightly more reclined reduces knee shear; helps glutes.\n\u2022 \ud83e\uddb6 Foot placement: shoulder-width, toes slightly out.\n\u2022 Higher on platform = more glute/ham; lower = more quad + knee stress.\n\n**Execution**\n\u2022 \u2b07\ufe0f Descend under control; don\u2019t bottom out (no butt lifting off seat).\n\u2022 Keep knees tracking over toes \u2014 no cave-in.\n\u2022 \ud83d\uded1 Stop just before \u201cjoint hang\u201d at top; don\u2019t lock out hard.\n\n**Knee-friendly adjustments**\n\u2022 Feeling more knees than thighs \u2192 feet higher + recline seat more.\n\u2022 Knees caving \u2192 push knees out to follow toes throughout.\n\u2022 Only increase load when knee-friendly ROM is consistent.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 3 sec down, 1\u20132 sec up\n\u2022 \ud83d\udd01 8\u201315 reps (3\u00d712 is solid)\n\n\ud83d\udde3\ufe0f \u201cFeet high, knees track out, no lockout.\u201d",
         "mantra": [
           "🦶 feet higher = knee friendly",
           "🧭 knees over toes",
@@ -602,8 +602,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Knee joint aligned with pivot.\n- Pad rests just above ankles.",
-        "form": "(2) SEATED LEG CURL\nGoal sensation\n- Hamstrings, not low back.\nSetup\n- Knee joint aligned with pivot.\n- Pad rests just above ankles.\nExecution\n- Curl smoothly; pause at contracted position briefly.\n- Control back up.\nRep range\n- 10–15.",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Knee joint aligned with pivot \u2014 adjust seat forward/back.\n\u2022 Pad rests just above ankles (not on calves).\n\u2022 \ud83e\uddcd\u200d\u2642\ufe0f Sit tall; avoid arching or rocking.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Knee joint aligned with pivot \u2014 adjust seat.\n\u2022 Pad rests just above ankles (not on calves).\n\u2022 \ud83e\uddcd\u200d\u2642\ufe0f Sit tall; avoid arching your back.\n\n**Execution**\n\u2022 \u2b07\ufe0f Curl smoothly \u2014 pause briefly at the contracted position.\n\u2022 \ud83c\udf92 Keep hips pressed into seat; don\u2019t rock.\n\u2022 \u2b06\ufe0f Control back up slowly.\n\n**Goal sensation**\n\u2022 Feel it in the hamstrings \u2014 not the low back or calves.\n\u2022 If you feel low back \u2192 brace core, sit taller, reduce weight.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 1 sec curl, 1 sec hold, 3 sec return\n\u2022 \ud83d\udd01 10\u201315 reps\n\n\ud83d\udde3\ufe0f \u201cHips down, curl smooth, hold and control back.\u201d",
         "mantra": [
           "🦵 squeeze ham",
           "🧊 pause",
@@ -647,8 +647,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Knee aligns with pivot; pad above ankle.",
-        "form": "(3) LEG EXTENSION (knee-sensitive for many)\nUse with care; stop if knee pain.\nSetup\n- Knee aligns with pivot; pad above ankle.\nExecution\n- Smooth extension; do not slam lockout.\n- Control eccentric; avoid heavy loads if knees feel cranky.\nRep range\n- 10–15 (or 12–20 lighter, very controlled).",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Knee aligns with pivot \u2014 adjust seat back.\n\u2022 Pad rests just above ankle (not on foot).\n\u2022 \u26a0\ufe0f Use with care \u2014 stop if you feel knee pain.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Knee aligns with pivot \u2014 adjust seat.\n\u2022 Pad rests just above ankle (not on foot).\n\u2022 \u26a0\ufe0f Use with care if knees are sensitive.\n\n**Execution**\n\u2022 \u2b06\ufe0f Smooth extension \u2014 do not slam lockout.\n\u2022 \ud83e\uddb5 Squeeze quad at the top briefly.\n\u2022 \u2b07\ufe0f Control the eccentric \u2014 don\u2019t let weight crash down.\n\n**Knee care**\n\u2022 Stop immediately if you feel sharp knee pain.\n\u2022 Lighter weight with more reps is often safer (12\u201320 vs heavy 8\u201310).\n\u2022 Avoid if you have an acute knee issue.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 1 sec up, 2\u20133 sec down\n\u2022 \ud83d\udd01 10\u201315 (12\u201320 lighter if knees are cranky)\n\n\ud83d\udde3\ufe0f \u201cExtend smooth, squeeze at top, control down.\u201d",
         "mantra": [
           "🐢 slow down",
           "🚫 no slam",
@@ -692,8 +692,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "- Sit tall; pelvis neutral.",
-        "form": "(4) HIP ABDUCTION (outer thighs)\nSetup\n- Sit tall; pelvis neutral.\nExecution\n- Drive knees outward; don’t rock torso.\n- Pause briefly at end range; slow return.\nRep range\n- 12–20.",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Sit tall; pelvis neutral (don\u2019t tilt forward or back).\n\u2022 Pad sits just above the knee on outer thigh.\n\u2022 \ud83e\uddb5 Feet flat; ankles relaxed.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Sit tall; pelvis neutral.\n\u2022 Pad sits just above knee on outer thigh.\n\n**Execution**\n\u2022 \ud83e\uddb5 Drive knees outward \u2014 don\u2019t rock torso to the side.\n\u2022 Pause briefly at end range; feel outer glute/hip.\n\u2022 \u2b05\ufe0f Slow, controlled return.\n\n**Goal sensation**\n\u2022 Outer glutes and hip abductors \u2014 not low back.\n\u2022 If you feel back \u2192 sit taller; reduce ROM slightly; lighten.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 1 sec out, 1 sec hold, 2 sec in\n\u2022 \ud83d\udd01 12\u201320 reps\n\n\ud83d\udde3\ufe0f \u201cSit tall, push knees out, pause and control.\u201d",
         "mantra": [
           "🧍 tall torso",
           "🚫 no rocking",
@@ -737,8 +737,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "Same principles as abduction.\nRep range\n- 12–20.",
-        "form": "(5) HIP ADDUCTION (inner thighs)\nSame principles as abduction.\nRep range\n- 12–20.",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Sit tall; pelvis neutral.\n\u2022 Pad sits just above knee on inner thigh.\n\u2022 \ud83e\uddb5 Feet flat; ankles relaxed.",
+        "form": "**Setup**\n\u2022 \ud83e\ude91 Sit tall; pelvis neutral.\n\u2022 Pad sits just above knee on inner thigh.\n\n**Execution**\n\u2022 \ud83e\uddb5 Squeeze knees inward smoothly \u2014 don\u2019t rock torso.\n\u2022 Pause briefly at closed position; feel inner thigh.\n\u2022 \u27a1\ufe0f Slow, controlled return to start.\n\n**Goal sensation**\n\u2022 Inner thighs (adductors) \u2014 not hip flexors or low back.\n\u2022 If you feel hip flexors \u2192 sit taller; reduce ROM.\n\n**Tempo + reps**\n\u2022 \u23f1\ufe0f 1 sec in, 1 sec hold, 2 sec out\n\u2022 \ud83d\udd01 12\u201320 reps\n\n\ud83d\udde3\ufe0f \u201cSit tall, squeeze inward, pause and control.\u201d",
         "mantra": [
           "🧍 tall torso",
           "🚫 no rocking",
@@ -782,8 +782,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "Seat height\n- Slight bend in knee at bottom of pedal stroke (not locked out, not cramped).\n- Too low = knee pain; too high = hip rocking.\n\nHandlebar\n- Upright position = more comfortable, less back stress.\n- Lower position = more aerodynamic, more core engagement.\n\nFoot position\n- Ball of foot over pedal axle.\n- Keep heel slightly dropped or level — don't point toes down.\n\nResistance\n- Start easy to warm up legs before adding load.",
-        "form": "Cycling RPE Scale\n\nRPE 1–2 · Super easy\n  Warm-up / recovery spin. No effort.\n\nRPE 3–4 · Easy (Zone 2)\n  Full sentences, sustainable for a long time.\n  Good for pre-lift warm-up or post-lift cool-down.\n\nRPE 5–6 · Comfortably hard\n  Short phrases only. Steady effort.\n  Good cardio work without wrecking your lifts.\n\nRPE 7 · Hard\n  Talking is broken. Legs burning. You're working.\n  Near-threshold — use after lifting, not before.\n\nRPE 8 · Very hard\n  A few words only. Near-max sustainable for a short time.\n\nRPE 9–10 · All-out\n  Sprint / interval territory. Full effort.\n\n─────────────────────────────\nCardio + Lifting Guidelines\n─────────────────────────────\nBefore heavy compound lifts\n  Keep cycling ≤ RPE 4 and short (5–10 min).\n  Heavy leg day? → RPE 2–4 only.\n\nAfter lifting\n  10–25 min at RPE 3–5 (easy to moderate).\n  Want real cardio? → RPE 4–6, not a death march.\n\nIntervals (RPE 7–9)\n  Best on separate days or after lifting.\n  Avoid right before squats / deadlifts / leg press.",
+        "setup": "**Seat height**\n\u2022 Slight bend in knee at bottom of pedal stroke (not locked, not cramped).\n\u2022 Too low = knee pain; too high = hip rocking.\n\n**Handlebar**\n\u2022 Upright = more comfortable, less back stress.\n\u2022 Lower = more aerodynamic, more core engagement.\n\n**Foot position**\n\u2022 Ball of foot over pedal axle.\n\u2022 Heel slightly dropped or level \u2014 don\u2019t point toes down.\n\n**Resistance**\n\u2022 Start easy to warm up legs before adding load.",
+        "form": "**Cycling RPE Scale**\n\u2022 RPE 1\u20132 \u00b7 Super easy: Warm-up/recovery spin. No effort.\n\u2022 RPE 3\u20134 \u00b7 Easy (Zone 2): Full sentences. Good pre- or post-lift.\n\u2022 RPE 5\u20136 \u00b7 Comfortably hard: Short phrases. Steady cardio work.\n\u2022 RPE 7 \u00b7 Hard: Talking is broken. Legs burning.\n\u2022 RPE 8 \u00b7 Very hard: A few words only. Near-max sustainable.\n\u2022 RPE 9\u201310 \u00b7 All-out: Sprint/interval territory.\n\n**Cardio + Lifting Guidelines**\n\u2022 Before heavy compound lifts: \u2264 RPE 4 and short (5\u201310 min).\n\u2022 Heavy leg day \u2192 RPE 2\u20134 only.\n\u2022 After lifting: 10\u201325 min at RPE 3\u20135.\n\u2022 Intervals (RPE 7\u20139): best on separate days or after lifting.",
         "mantra": [
           "🚴 steady or ⚡ intervals",
           "📈 RPE / max HR",
@@ -819,7 +819,7 @@ export const DEFAULT_DATA = {
       ],
       "tips": {
         "setup": "Quick add: Crunch / Rotation / Other.",
-        "form": "Controlled reps. Exhale on crunch. No neck yank.",
+        "form": "**Execution**\n• Controlled reps throughout — no momentum.\n• Exhale on the crunch/contraction.\n• No neck yanking — hands light behind head.\n• Keep tension on the abs, not hip flexors.",
         "mantra": [
           "💨 exhale",
           "🧊 pause",

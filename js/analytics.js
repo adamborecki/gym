@@ -21,7 +21,7 @@ function renderHeatmap() {
   const sessions = App.data.sessions || [];
   const now = new Date();
 
-  // Build a map of date => dayType
+  // Build a map of local date => dayType
   const dateMap = {};
   sessions.forEach(s => {
     const date = localDateStr(new Date(s.startedAt));
@@ -138,7 +138,7 @@ function renderHeatmap() {
 }
 
 function showDaySummary(dateStr) {
-  const sessions = App.data.sessions.filter(s => localDateStr(new Date(s.startedAt)) === dateStr);
+  const sessions = (App.data.sessions || []).filter(s => localDateStr(new Date(s.startedAt)) === dateStr);
   if (sessions.length === 0) return;
 
   const container = $('day-summary');

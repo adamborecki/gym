@@ -3,7 +3,7 @@
  */
 
 import { TIME_GOALS, SEED_WEIGHTS, COUNTUP_SOFT_TARGET_MIN } from './config.js';
-import { $, $$, isoNow } from './utils.js';
+import { $, $$, isoNow, renderMarkdown } from './utils.js';
 import { App, saveData, saveActiveSession } from './state.js';
 import { showView, showToast, showModal } from './ui.js';
 import { startRestTimer, hideRestTimer } from './timer.js';
@@ -523,8 +523,8 @@ export function renderMachineView(machineId) {
   // Form tab
   renderFormTab(machine);
 
-  // Mantra tab
-  renderMantraTab(machine);
+  // History tab
+  renderHistoryTab(machine.id);
 
   // Mantra sticky
   renderMantraSticky(machine);
@@ -567,7 +567,7 @@ function renderSetupFields(machine) {
   if (machine.tips?.setup) {
     const notes = document.createElement('div');
     notes.className = 'setup-notes-text';
-    notes.textContent = machine.tips.setup;
+    notes.innerHTML = renderMarkdown(machine.tips.setup);
     container.appendChild(notes);
   }
 
@@ -613,7 +613,7 @@ function renderSetupFields(machine) {
 
 function renderFormTab(machine) {
   const formText = $('form-text');
-  formText.textContent = machine.tips?.form || 'No form tips available.';
+  formText.innerHTML = renderMarkdown(machine.tips?.form) || '<p class="tips-p">No form tips available.</p>';
 
   // If familiar, collapse by default
   if (machine.familiarity === 'familiar') {
@@ -637,21 +637,36 @@ function renderFormTab(machine) {
   }
 }
 
-function renderMantraTab(machine) {
-  const container = $('mantra-lines');
-  const mantra = machine.tips?.mantra || [];
-  const phasedCues = machine.tips?.phasedCues || {};
+function renderHistoryTab(machineId) {
+  const container = $('machine-history');
+  const sessions = App.data.sessions || [];
 
-  let html = mantra.map(line => `<div>${line}</div>`).join('');
+  // Collect all sessions that include this machine, most recent first
+  const relevant = sessions
+    .filter(s => s.sets?.some(st => st.machineId === machineId))
+    .slice()
+    .reverse();
 
-  // Phased cues
-  if (Object.keys(phasedCues).length > 0) {
-    html += '<div style="margin-top:12px; border-top: 1px solid var(--border); padding-top:8px;">';
-    for (const [phase, cue] of Object.entries(phasedCues)) {
-      html += `<div><strong>${phase}:</strong> ${cue}</div>`;
-    }
-    html += '</div>';
+  if (relevant.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem;">No history yet.</p>';
+    return;
   }
+
+  let html = '';
+  relevant.forEach(s => {
+    const date = new Date(s.startedAt);
+    const label = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const machineSets = s.sets.filter(st => st.machineId === machineId);
+
+    html += `<div class="history-session">`;
+    html += `<div class="history-session-date">${label}</div>`;
+    machineSets.forEach(st => {
+      html += `<div class="history-set-row">Set ${st.setNumber}: ${st.weight} lbs &times; ${st.reps}`;
+      if (st.rir != null && st.rir !== '') html += ` <span class="history-rir">RIR ${st.rir}</span>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
 
   container.innerHTML = html;
 }

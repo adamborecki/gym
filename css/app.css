@@ -682,7 +682,36 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   margin-bottom: 14px;
-  white-space: pre-wrap;
+}
+
+/* ---------- Markdown-rendered tips (setup + form via marked.js) ---------- */
+.setup-notes-text h3,
+#form-text h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 14px 0 4px;
+}
+.setup-notes-text h3:first-child,
+#form-text h3:first-child {
+  margin-top: 0;
+}
+.setup-notes-text ul,
+#form-text ul {
+  margin: 0 0 4px 0;
+  padding-left: 1.25em;
+}
+.setup-notes-text li,
+#form-text li {
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+.setup-notes-text p,
+#form-text p {
+  margin: 4px 0;
+  line-height: 1.5;
 }
 
 /* Assisted chin inversion note */
@@ -706,7 +735,6 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 }
 
 #form-text {
-  white-space: pre-wrap;
   font-size: 0.9rem;
   line-height: 1.6;
   color: var(--text-secondary);
@@ -753,9 +781,28 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   line-height: 1.4;
 }
 
-#mantra-lines {
-  font-size: 1.1rem;
-  line-height: 1.8;
+#machine-history {
+  font-size: 0.9rem;
+}
+
+.history-session {
+  margin-bottom: 14px;
+}
+
+.history-session-date {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.history-set-row {
+  line-height: 1.7;
+}
+
+.history-rir {
+  color: var(--text-muted);
+  font-size: 0.82rem;
 }
 
 /* ---------- Logged Sets ---------- */
