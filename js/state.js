@@ -16,12 +16,9 @@ export const App = {
   progressInterval: null,
   sessionStartTime: null,
   backdateTimeout: null,
-  absReminderShown: false,
-  absReminderTimeout: null,
   currentMachineId: null,
   currentBlockId: null,
   bikeReturnView: null,  // where to go back after bike log
-  absReturnView: null,
   undoStack: [],
   audioCtx: null,
 };

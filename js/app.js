@@ -11,9 +11,9 @@ import { showView, showToast, renderHome, speakText } from './ui.js';
 import { hideRestTimer, toggleRestMode } from './timer.js';
 import {
   enterWorkout, renderWorkout, renderMachineView,
-  clearBikeForm, saveBikeLog, saveAbsLog,
+  clearBikeForm, saveBikeLog,
   logSet, saveNextTimeNote,
-  hideAbsReminder, setupWorkoutGlobals,
+  setupWorkoutGlobals,
 } from './workout.js';
 import {
   startNewSession, selectDayType, selectTimeGoal,
@@ -95,27 +95,11 @@ function setupEventListeners() {
     showView('bike-log');
   };
 
-  // Abs log
-  $('btn-back-abs').onclick = () => { showView('workout'); };
-  $('btn-save-abs').onclick = saveAbsLog;
-
-  // Abs type chips
-  $$('#abs-type-chips [data-abs-type]').forEach(chip => {
-    chip.onclick = () => {
-      $$('#abs-type-chips .chip').forEach(c => c.classList.remove('chip-active'));
-      chip.classList.add('chip-active');
-    };
-  });
-
   // Workout
   $('btn-quick-bike').onclick = () => {
     App.bikeReturnView = 'workout-return';
     clearBikeForm();
     showView('bike-log');
-  };
-  $('btn-quick-abs').onclick = () => {
-    App.absReturnView = 'workout';
-    showView('abs-log');
   };
   $('btn-end-session').onclick = promptEndSession;
 
@@ -200,7 +184,6 @@ function setupEventListeners() {
   // Session summary
   $('btn-summary-done').onclick = () => {
     App.session = null;
-    App.absReminderShown = false;
     showView('home');
     renderHome();
   };
@@ -208,14 +191,6 @@ function setupEventListeners() {
   // Resume session
   $('btn-resume-session').onclick = resumeSession;
   $('btn-discard-session').onclick = discardSavedSession;
-
-  // Abs reminder
-  $('btn-abs-remind-go').onclick = () => {
-    hideAbsReminder();
-    App.absReturnView = 'workout';
-    showView('abs-log');
-  };
-  $('btn-abs-remind-dismiss').onclick = hideAbsReminder;
 }
 
 // ============================================================

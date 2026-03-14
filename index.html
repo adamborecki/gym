@@ -122,13 +122,6 @@
             <button class="chip" data-bike="skip">Skip</button>
           </div>
         </div>
-        <div class="warmup-section">
-          <label class="toggle-row">
-            <span>Abs Reminder</span>
-            <input type="checkbox" id="warmup-abs" class="toggle-input" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
         <button class="btn btn-primary btn-lg" id="btn-start-workout">Start Workout</button>
       </div>
     </section>
@@ -182,30 +175,6 @@
       </div>
     </section>
 
-    <!-- ABS LOG -->
-    <section id="view-abs-log" class="view">
-      <div class="view-content">
-        <button class="btn-back" id="btn-back-abs">&larr;</button>
-        <h2>Abs</h2>
-        <div class="mantra-sticky">
-          <span>💨 exhale</span>
-          <span>🧊 pause</span>
-          <span>🚫 no neck yank</span>
-        </div>
-        <p class="form-label">Type</p>
-        <div class="chip-row" id="abs-type-chips">
-          <button class="chip chip-active" data-abs-type="crunch">Crunch</button>
-          <button class="chip" data-abs-type="rotation">Rotation</button>
-          <button class="chip" data-abs-type="other">Other</button>
-        </div>
-        <div class="form-group">
-          <label for="abs-note">Note (optional)</label>
-          <input type="text" id="abs-note" class="input-lg" placeholder="e.g. cable crunch 3x15">
-        </div>
-        <button class="btn btn-primary btn-lg" id="btn-save-abs">Log Abs</button>
-      </div>
-    </section>
-
     <!-- MAIN WORKOUT -->
     <section id="view-workout" class="view">
       <div class="view-content">
@@ -213,7 +182,6 @@
           <h2 id="workout-title"></h2>
           <div class="workout-actions">
             <button class="btn btn-sm btn-ghost" id="btn-quick-bike">🚴 Bike</button>
-            <button class="btn btn-sm btn-ghost" id="btn-quick-abs">💪 Abs</button>
           </div>
         </div>
         <div id="blocks-container"></div>
@@ -345,11 +313,6 @@
             <input type="checkbox" id="setting-tts" class="toggle-input">
             <span class="toggle-slider"></span>
           </label>
-          <label class="toggle-row">
-            <span>Abs Reminder</span>
-            <input type="checkbox" id="setting-abs-reminder" class="toggle-input">
-            <span class="toggle-slider"></span>
-          </label>
           <div class="setting-row">
             <span>Default Rest Mode</span>
             <div class="chip-row">
@@ -435,13 +398,6 @@
         <button class="btn btn-primary" id="btn-resume-session">Resume</button>
       </div>
     </div>
-  </div>
-
-  <!-- Abs Reminder -->
-  <div id="abs-reminder" class="hidden">
-    <span>Don't forget abs! 💪</span>
-    <button class="btn btn-sm btn-ghost" id="btn-abs-remind-go">Go</button>
-    <button class="btn btn-sm btn-ghost" id="btn-abs-remind-dismiss">Later</button>
   </div>
 
   <script type="module" src="js/app.js"></script>

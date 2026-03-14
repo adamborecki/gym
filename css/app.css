@@ -1239,32 +1239,6 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 }
 .modal-btn-row .btn { flex: 1; }
 
-/* ---------- Abs Reminder ---------- */
-#abs-reminder {
-  position: fixed;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 70;
-  background: var(--bg-card);
-  border: 2px solid var(--accent);
-  border-radius: var(--radius);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  animation: slideDown 300ms ease;
-}
-#abs-reminder.hidden { display: none !important; }
-
-@keyframes slideDown {
-  from { transform: translate(-50%, -100%); }
-  to   { transform: translate(-50%, 0); }
-}
-
 /* ---------- Analytics ---------- */
 #heatmap {
   margin: 8px 0;

@@ -8,7 +8,6 @@ import { showView, showToast, showModal, renderHome } from './ui.js';
 import { hideRestTimer } from './timer.js';
 import {
   enterWorkout, clearBikeForm, stopProgressTracking,
-  hideAbsReminder,
 } from './workout.js';
 
 // ============================================================
@@ -30,11 +29,9 @@ export function selectDayType(dayType) {
     warmup: { stretchMinutes: null, bikeLog: null, durationSec: 0 },
     sets: [],
     bikeLogs: [],
-    absLogs: [],
     nextTimeNotes: {},
     _ui: {
       expandedBlock: null,
-      absReminder: App.data.profile.preferences.absReminder !== false,
     }
   };
   showView('time-select');
@@ -51,8 +48,6 @@ export function selectTimeGoal(timeGoal) {
 export function handleStartWorkout() {
   const s = App.session;
   s.warmup.stretchDone = $('warmup-stretch').checked;
-  s._ui.absReminder = $('warmup-abs').checked;
-
   const bikeChoice = s._ui.bikeChoice || 'now';
 
   // Save session start
@@ -76,7 +71,7 @@ export function promptEndSession() {
   const setCount = s.sets.length;
   const elapsed = formatDuration(Date.now() - new Date(s.startedAt).getTime());
 
-  if (setCount === 0 && (!s.bikeLogs || s.bikeLogs.length === 0) && !s.warmup.bikeLog && (!s.absLogs || s.absLogs.length === 0)) {
+  if (setCount === 0 && (!s.bikeLogs || s.bikeLogs.length === 0) && !s.warmup.bikeLog) {
     // Empty session
     showModal('Discard Session?', 'You haven\'t logged anything yet.', [
       { label: 'Cancel', class: 'btn-ghost' },
@@ -112,7 +107,6 @@ function endSession() {
   // Cleanup
   stopProgressTracking();
   hideRestTimer();
-  hideAbsReminder();
   clearActiveSession();
   $('backdate-overlay').classList.add('hidden');
 
@@ -124,10 +118,8 @@ function endSession() {
 function discardSession() {
   stopProgressTracking();
   hideRestTimer();
-  hideAbsReminder();
   clearActiveSession();
   App.session = null;
-  App.absReminderShown = false;
   $('backdate-overlay').classList.add('hidden');
   showView('home');
   renderHome();
@@ -146,7 +138,6 @@ export function renderSessionSummary(session) {
   const machines = [...new Set(session.sets.map(s => s.machineId))];
   const totalBikeMin = (session.warmup.bikeLog?.minutes || 0) +
     (session.bikeLogs || []).reduce((sum, b) => sum + b.minutes, 0);
-  const absCount = (session.absLogs || []).length;
 
   let html = `
     <div class="summary-stat">
@@ -172,15 +163,6 @@ export function renderSessionSummary(session) {
       <div class="summary-stat">
         <span class="summary-stat-label">Bike</span>
         <span class="summary-stat-value">${totalBikeMin} min</span>
-      </div>
-    `;
-  }
-
-  if (absCount > 0) {
-    html += `
-      <div class="summary-stat">
-        <span class="summary-stat-label">Abs Sets</span>
-        <span class="summary-stat-value">${absCount}</span>
       </div>
     `;
   }
@@ -224,7 +206,6 @@ export function resumeSession() {
 
   App.session = saved;
   App.restMode = App.data.profile.preferences.restModeDefault || 'normal';
-  App.absReminderShown = false;
 
   $('resume-overlay').classList.add('hidden');
   enterWorkout();

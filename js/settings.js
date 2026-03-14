@@ -14,7 +14,6 @@ import { DEFAULT_DATA } from './data-defaults.js';
 export function renderSettings() {
   const prefs = App.data.profile.preferences;
   $('setting-tts').checked = prefs.ttsEnabled !== false;
-  $('setting-abs-reminder').checked = prefs.absReminder !== false;
 
   // Rest mode
   $('setting-rest-normal').classList.toggle('chip-active', prefs.restModeDefault !== 'hurry');
@@ -24,11 +23,6 @@ export function renderSettings() {
 export function setupSettingsListeners() {
   $('setting-tts').onchange = (e) => {
     App.data.profile.preferences.ttsEnabled = e.target.checked;
-    saveData();
-  };
-
-  $('setting-abs-reminder').onchange = (e) => {
-    App.data.profile.preferences.absReminder = e.target.checked;
     saveData();
   };
 

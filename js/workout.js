@@ -165,13 +165,6 @@ export function enterWorkout() {
   updatePillRow();
   updateSegmentBar();
   saveActiveSession();
-
-  // Schedule abs reminder
-  if (App.session._ui.absReminder && !App.absReminderShown) {
-    App.absReminderTimeout = setTimeout(() => {
-      showAbsReminder();
-    }, 10 * 60 * 1000); // 10 minutes into workout
-  }
 }
 
 // ============================================================
@@ -200,19 +193,16 @@ export function renderWorkout() {
     if (isExpanded) card.classList.add('block-expanded');
     if (isDone) card.classList.add('block-done');
 
-    // Compute display count for the pill — warmup and abs store data differently
+    // Compute display count for the pill
     let setsCount;
     if (block.id === 'warmup') {
       const w = s.warmup;
       setsCount = (w.bikeLog ? 1 : 0) + (w.stretchMinutes ? 1 : 0);
-    } else if (block.id === 'abs') {
-      setsCount = (s.absLogs || []).length + blockSets.length;
     } else {
       setsCount = blockSets.length;
     }
 
-    // Header — "abs" block displays as "Other"
-    const displayName = block.id === 'abs' ? 'Other' : block.name;
+    const displayName = block.name;
     const header = document.createElement('div');
     header.className = 'block-header';
     header.innerHTML = `
@@ -232,10 +222,41 @@ export function renderWorkout() {
 
     if (block.id === 'warmup') {
       renderWarmupBlock(body, block);
-    } else if (block.id === 'abs') {
-      renderAbsBlock(body, block);
     } else {
       renderMachineBlock(body, block);
+    }
+
+    // Abs/Core block: also render session-added machines + "Add Machine" row
+    if (block.id === 'abs') {
+      const otherMachines = s._ui.otherMachines || [];
+      otherMachines.forEach(machineId => {
+        const machine = App.data.machines[machineId];
+        if (!machine) return;
+        const setsForMachine = getMachineSets(machineId);
+        const row = document.createElement('div');
+        row.className = 'machine-row';
+        row.onclick = () => openMachine(machineId, block.id);
+        row.innerHTML = `
+          <div>
+            <span class="machine-row-name">${machine.name}</span>
+            <span class="machine-row-sets">${setsForMachine.length > 0 ? `${setsForMachine.length} sets` : ''}</span>
+          </div>
+          <div>
+            ${setsForMachine.length > 0 ? '<span class="machine-row-check">&#10003;</span>' : ''}
+            <span class="block-chevron">&#9654;</span>
+          </div>
+        `;
+        body.appendChild(row);
+      });
+
+      const addRow = document.createElement('div');
+      addRow.className = 'machine-row';
+      addRow.onclick = () => showAddMachineToOtherModal('abs');
+      addRow.innerHTML = `
+        <span class="machine-row-name">+ Add Machine</span>
+        <span class="block-chevron">&#9654;</span>
+      `;
+      body.appendChild(addRow);
     }
 
     card.appendChild(body);
@@ -307,63 +328,7 @@ function renderWarmupBlock(body, block) {
   }
 }
 
-function renderAbsBlock(body, block) {
-  const s = App.session;
-
-  // Session-added machines for the Other block
-  const otherMachines = s._ui.otherMachines || [];
-  otherMachines.forEach(machineId => {
-    const machine = App.data.machines[machineId];
-    if (!machine) return;
-    const setsForMachine = getMachineSets(machineId);
-    const row = document.createElement('div');
-    row.className = 'machine-row';
-    row.onclick = () => openMachine(machineId, block.id);
-    row.innerHTML = `
-      <div>
-        <span class="machine-row-name">${machine.name}</span>
-        <span class="machine-row-sets">${setsForMachine.length > 0 ? `${setsForMachine.length} sets` : ''}</span>
-      </div>
-      <div>
-        ${setsForMachine.length > 0 ? '<span class="machine-row-check">&#10003;</span>' : ''}
-        <span class="block-chevron">&#9654;</span>
-      </div>
-    `;
-    body.appendChild(row);
-  });
-
-  // Logged abs entries
-  if (s.absLogs && s.absLogs.length > 0) {
-    s.absLogs.forEach(al => {
-      const row = document.createElement('div');
-      row.className = 'set-row';
-      row.innerHTML = `<span class="set-row-detail">Abs: ${al.type}${al.note ? ` — ${al.note}` : ''}</span>`;
-      body.appendChild(row);
-    });
-  }
-
-  // Quick Add Abs row
-  const absRow = document.createElement('div');
-  absRow.className = 'machine-row';
-  absRow.onclick = () => { App.absReturnView = 'workout'; showView('abs-log'); };
-  absRow.innerHTML = `
-    <span class="machine-row-name">💪 Quick Add Abs</span>
-    <span class="block-chevron">&#9654;</span>
-  `;
-  body.appendChild(absRow);
-
-  // Add Machine row
-  const addRow = document.createElement('div');
-  addRow.className = 'machine-row';
-  addRow.onclick = () => showAddMachineToOtherModal();
-  addRow.innerHTML = `
-    <span class="machine-row-name">➕ Add Machine</span>
-    <span class="block-chevron">&#9654;</span>
-  `;
-  body.appendChild(addRow);
-}
-
-function showAddMachineToOtherModal() {
+function showAddMachineToOtherModal(blockId) {
   // Collect all machine IDs already in this workout's template blocks
   const template = App.data.templates[App.session.templateId];
   const usedIds = new Set();
@@ -373,36 +338,57 @@ function showAddMachineToOtherModal() {
   // Also exclude already-added other machines
   (App.session._ui.otherMachines || []).forEach(m => usedIds.add(m));
 
+  const isAbsBlock = blockId === 'abs';
   const available = Object.values(App.data.machines)
     .filter(m => m.type !== 'conditioning' && !usedIds.has(m.id))
-    .sort((a, b) => a.name.localeCompare(b.name));
-
-  if (available.length === 0) {
-    showToast('All machines already in workout');
-    return;
-  }
+    .sort((a, b) => {
+      // For abs block, show core machines first
+      if (isAbsBlock) {
+        const aCore = a.category === 'core' ? 0 : 1;
+        const bCore = b.category === 'core' ? 0 : 1;
+        if (aCore !== bCore) return aCore - bCore;
+      }
+      return a.name.localeCompare(b.name);
+    });
 
   const overlay = $('modal-overlay');
   const bodyEl = $('modal-body');
   const actionsEl = $('modal-actions');
 
-  bodyEl.innerHTML = '<h3>Add Machine to Other</h3>';
+  bodyEl.innerHTML = `<h3>Add Machine${isAbsBlock ? ' to Abs / Core' : ''}</h3>`;
   const list = document.createElement('div');
   list.style.cssText = 'max-height:50vh; overflow-y:auto; margin-top:12px;';
+
+  function addMachineAndClose(machineId) {
+    if (!App.session._ui.otherMachines) App.session._ui.otherMachines = [];
+    App.session._ui.otherMachines.push(machineId);
+    saveActiveSession();
+    overlay.classList.add('hidden');
+    renderWorkout();
+  }
+
   available.forEach(machine => {
     const btn = document.createElement('button');
     btn.className = 'btn btn-ghost';
     btn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px;';
     btn.textContent = machine.name;
-    btn.onclick = () => {
-      if (!App.session._ui.otherMachines) App.session._ui.otherMachines = [];
-      App.session._ui.otherMachines.push(machine.id);
-      saveActiveSession();
-      overlay.classList.add('hidden');
-      renderWorkout();
-    };
+    btn.onclick = () => addMachineAndClose(machine.id);
     list.appendChild(btn);
   });
+
+  // Custom machine creation for abs block
+  if (isAbsBlock) {
+    const customBtn = document.createElement('button');
+    customBtn.className = 'btn btn-ghost';
+    customBtn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px; font-style:italic;';
+    customBtn.textContent = '+ Create Custom...';
+    customBtn.onclick = () => {
+      overlay.classList.add('hidden');
+      showCreateCustomCoreModal();
+    };
+    list.appendChild(customBtn);
+  }
+
   bodyEl.appendChild(list);
 
   actionsEl.innerHTML = '';
@@ -413,6 +399,70 @@ function showAddMachineToOtherModal() {
   actionsEl.appendChild(cancelBtn);
 
   overlay.classList.remove('hidden');
+}
+
+function showCreateCustomCoreModal() {
+  const overlay = $('modal-overlay');
+  const bodyEl = $('modal-body');
+  const actionsEl = $('modal-actions');
+
+  bodyEl.innerHTML = `
+    <h3>Create Core Machine</h3>
+    <div class="form-group" style="margin-top:12px;">
+      <label for="custom-core-name">Machine Name</label>
+      <input type="text" id="custom-core-name" class="input-lg" placeholder="e.g. Ab Wheel" maxlength="40">
+    </div>
+  `;
+
+  actionsEl.innerHTML = '';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn btn-ghost';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.onclick = () => overlay.classList.add('hidden');
+
+  const createBtn = document.createElement('button');
+  createBtn.className = 'btn btn-primary';
+  createBtn.textContent = 'Create';
+  createBtn.onclick = () => {
+    const name = $('custom-core-name').value.trim();
+    if (!name) { showToast('Enter a name'); return; }
+
+    const id = 'custom_core_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    if (App.data.machines[id]) {
+      showToast('Machine already exists');
+      return;
+    }
+
+    App.data.machines[id] = {
+      id,
+      name,
+      category: 'core',
+      type: 'isolation',
+      variants: [],
+      repRange: { min: 10, max: 15 },
+      rirPattern: [2, 1, 1],
+      setupFields: [{ key: 'notes', label: 'Notes', type: 'text' }],
+      tips: { setup: '', form: '', mantra: [], phasedCues: {} },
+      familiarity: 'learning',
+      lastUsedAt: null,
+    };
+    saveData();
+
+    if (!App.session._ui.otherMachines) App.session._ui.otherMachines = [];
+    App.session._ui.otherMachines.push(id);
+    saveActiveSession();
+
+    overlay.classList.add('hidden');
+    renderWorkout();
+    showToast(`${name} created`);
+  };
+
+  actionsEl.appendChild(cancelBtn);
+  actionsEl.appendChild(createBtn);
+  overlay.classList.remove('hidden');
+
+  // Focus the input
+  setTimeout(() => $('custom-core-name').focus(), 100);
 }
 
 function renderMachineBlock(body, block) {
@@ -459,10 +509,9 @@ function isBlockComplete(block) {
   if (!block.suggestions || block.suggestions.length === 0) return true;
   if (block.id === 'warmup') return !!(App.session.warmup.bikeLog || App.session.warmup.stretchMinutes);
   if (block.id === 'abs') {
-    const hasAbs = App.session.absLogs && App.session.absLogs.length > 0;
-    const otherMachines = App.session._ui.otherMachines || [];
-    const hasOtherSets = otherMachines.some(mid => getMachineSets(mid).length > 0);
-    return hasAbs || hasOtherSets;
+    // Abs/Core is supplementary — "complete" if any machine has at least one set
+    const allMachines = [...(block.suggestions || []), ...(App.session._ui.otherMachines || [])];
+    return allMachines.some(mid => getMachineSets(mid).length > 0);
   }
   // A block is "complete" if every machine has at least one set
   return block.suggestions.every(mid => getMachineSets(mid).length > 0);
@@ -998,49 +1047,6 @@ export function saveBikeLog() {
 // ============================================================
 // ABS LOG
 // ============================================================
-export function saveAbsLog() {
-  const typeChip = document.querySelector('#abs-type-chips .chip-active');
-  const type = typeChip ? typeChip.dataset.absType : 'crunch';
-  const note = $('abs-note').value.trim() || null;
-
-  const absLog = { type, note, loggedAt: isoNow() };
-  App.session.absLogs.push(absLog);
-  saveActiveSession();
-  updatePillRow();
-  updateSegmentBar();
-
-  showToast(`Abs (${type}) saved`, () => {
-    const idx = App.session.absLogs.indexOf(absLog);
-    if (idx > -1) App.session.absLogs.splice(idx, 1);
-    saveActiveSession();
-  });
-
-  // Reset form
-  $('abs-note').value = '';
-
-  // Return
-  renderWorkout();
-  showView('workout');
-}
-
-// ============================================================
-// ABS REMINDER
-// ============================================================
-export function showAbsReminder() {
-  if (App.absReminderShown) return;
-  if (!App.session || !App.session._ui.absReminder) return;
-
-  // Only show if no abs have been logged yet
-  if (App.session.absLogs && App.session.absLogs.length > 0) return;
-
-  App.absReminderShown = true;
-  $('abs-reminder').classList.remove('hidden');
-}
-
-export function hideAbsReminder() {
-  $('abs-reminder').classList.add('hidden');
-}
-
 // ============================================================
 // WINDOW GLOBALS (for inline onclick handlers in rendered HTML)
 // ============================================================

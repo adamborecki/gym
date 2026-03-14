@@ -8,7 +8,6 @@ export const DEFAULT_DATA = {
     "preferences": {
       "ttsEnabled": true,
       "restModeDefault": "normal",
-      "absReminder": true,
       "finishedSetOffsetOptionsSec": [
         0,
         5,
@@ -795,36 +794,84 @@ export const DEFAULT_DATA = {
       "familiarity": "learning",
       "lastUsedAt": null
     },
-    "abs_quick": {
-      "id": "abs_quick",
-      "name": "Abs (Quick Add)",
+    "ab_crunch_machine": {
+      "id": "ab_crunch_machine",
+      "name": "Ab Crunch Machine",
+      "category": "core",
+      "type": "isolation",
+      "variants": ["Selectorized"],
+      "repRange": { "min": 10, "max": 15 },
+      "rirPattern": [2, 1, 1],
+      "setupFields": [
+        { "key": "seat", "label": "Seat", "type": "number" },
+        { "key": "weight", "label": "Weight", "type": "number" }
+      ],
+      "tips": {
+        "setup": "**Seat**: Adjust so the pad sits mid-chest. Feet flat on the floor or on the foot bar.",
+        "form": "**Execution**\n• Exhale and crunch forward — round the spine, don't just hinge at the hips.\n• Pause at peak contraction for 1 second.\n• Slow eccentric — 2-3 seconds back up.\n• Keep neck neutral — don't pull with your head.\n• Focus on ribs moving toward hips, not arms pulling.",
+        "mantra": ["💨 exhale", "🧊 pause", "🚫 no hip hinge"],
+        "phasedCues": {}
+      },
+      "familiarity": "learning",
+      "lastUsedAt": null
+    },
+    "rotary_torso": {
+      "id": "rotary_torso",
+      "name": "Rotary Torso",
+      "category": "core",
+      "type": "isolation",
+      "variants": ["Selectorized"],
+      "repRange": { "min": 12, "max": 15 },
+      "rirPattern": [2, 1, 1],
+      "setupFields": [
+        { "key": "seat", "label": "Seat", "type": "number" },
+        { "key": "range", "label": "Range", "type": "number" }
+      ],
+      "tips": {
+        "setup": "**Seat**: Adjust so the pads are snug against your chest. Set range of motion to a comfortable rotation.\n\n**Note**: Do one set each direction — log each direction as a separate set.",
+        "form": "**Execution**\n• Rotate from the core — don't push with your arms.\n• Controlled tempo throughout — no momentum or jerking.\n• Pause at end range for 1 second.\n• Return slowly — the eccentric matters.\n• Keep hips and legs still — only your torso moves.",
+        "mantra": ["🔄 core rotates", "🧊 pause", "🦵 hips still"],
+        "phasedCues": {}
+      },
+      "familiarity": "learning",
+      "lastUsedAt": null
+    },
+    "cable_crunch": {
+      "id": "cable_crunch",
+      "name": "Cable Crunch",
+      "category": "core",
+      "type": "isolation",
+      "variants": ["Cable"],
+      "repRange": { "min": 12, "max": 20 },
+      "rirPattern": [2, 1, 1],
+      "setupFields": [
+        { "key": "attachment", "label": "Attachment", "type": "text" },
+        { "key": "pulley", "label": "Pulley Height", "type": "text" }
+      ],
+      "tips": {
+        "setup": "**Attachment**: Rope attachment on high pulley. Kneel facing the machine, rope behind your head.",
+        "form": "**Execution**\n• Crunch down by rounding the spine — ribs toward hips.\n• Keep hips stationary — don't sit back.\n• Exhale hard at the bottom.\n• Slow eccentric — let the weight stretch you back up.\n• Arms stay fixed — the movement comes from your abs.",
+        "mantra": ["💨 exhale", "🧊 pause", "🦵 hips fixed"],
+        "phasedCues": {}
+      },
+      "familiarity": "learning",
+      "lastUsedAt": null
+    },
+    "hanging_leg_raise": {
+      "id": "hanging_leg_raise",
+      "name": "Hanging Leg Raise",
       "category": "core",
       "type": "isolation",
       "variants": [],
-      "repRange": {
-        "min": 10,
-        "max": 20
-      },
-      "rirPattern": [
-        2,
-        1,
-        1
-      ],
+      "repRange": { "min": 8, "max": 15 },
+      "rirPattern": [2, 1, 1],
       "setupFields": [
-        {
-          "key": "notes",
-          "label": "Notes",
-          "type": "text"
-        }
+        { "key": "notes", "label": "Notes", "type": "text" }
       ],
       "tips": {
-        "setup": "Quick add: Crunch / Rotation / Other.",
-        "form": "**Execution**\n• Controlled reps throughout — no momentum.\n• Exhale on the crunch/contraction.\n• No neck yanking — hands light behind head.\n• Keep tension on the abs, not hip flexors.",
-        "mantra": [
-          "💨 exhale",
-          "🧊 pause",
-          "🚫 no neck yank"
-        ],
+        "setup": "**Setup**: Hang from a pull-up bar or use captain's chair / arm slings. Bodyweight exercise — log weight as 0 or add weight if using a dumbbell between feet.",
+        "form": "**Execution**\n• Raise legs by curling the pelvis up — don't just lift legs with hip flexors.\n• Control the descent — no swinging.\n• Bent knees = easier; straight legs = harder.\n• Exhale as you raise, inhale as you lower.\n• Minimize body swing — brace your core throughout.",
+        "mantra": ["💨 exhale", "🚫 no swing", "🦴 curl pelvis"],
         "phasedCues": {}
       },
       "familiarity": "learning",
@@ -871,9 +918,10 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "abs",
-          "name": "Abs",
+          "name": "Abs / Core",
           "suggestions": [
-            "abs_quick"
+            "ab_crunch_machine",
+            "rotary_torso"
           ]
         }
       ]
@@ -915,9 +963,10 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "abs",
-          "name": "Abs",
+          "name": "Abs / Core",
           "suggestions": [
-            "abs_quick"
+            "ab_crunch_machine",
+            "rotary_torso"
           ]
         }
       ]
@@ -959,9 +1008,10 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "abs",
-          "name": "Abs",
+          "name": "Abs / Core",
           "suggestions": [
-            "abs_quick"
+            "ab_crunch_machine",
+            "rotary_torso"
           ]
         }
       ]
@@ -990,9 +1040,10 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "abs",
-          "name": "Abs",
+          "name": "Abs / Core",
           "suggestions": [
-            "abs_quick"
+            "ab_crunch_machine",
+            "rotary_torso"
           ]
         }
       ]
