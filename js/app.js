@@ -250,6 +250,13 @@ function init() {
     if (!m._setup) m._setup = {};
   });
 
+  // Always refresh machine tips from defaults (tips are static content, not user data)
+  Object.entries(DEFAULT_DATA.machines).forEach(([id, def]) => {
+    if (App.data.machines[id]) {
+      App.data.machines[id].tips = def.tips;
+    }
+  });
+
   // Setup event listeners
   setupEventListeners();
   setupSettingsListeners();
