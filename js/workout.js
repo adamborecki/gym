@@ -762,10 +762,10 @@ function renderSetLogger(machineId) {
     ? rirPattern[setNum - 1]
     : rirPattern[rirPattern.length - 1];
 
-  // Check if we've done all typical working sets (3)
+  // Check if we've done all typical working sets
   const typicalSets = rirPattern.length;
   if (setNum > typicalSets) {
-    // Show next-time suggestion
+    // Show next-time suggestion + option for more sets
     showNextTimeSuggestion(machineId);
     $('set-logger').classList.add('hidden');
     return;
@@ -797,6 +797,10 @@ function renderSetLogger(machineId) {
     $('set-weight').value = prevWeight || '';
     $('set-reps').value = '';
   }
+
+  // Reset to "Set Done" phase
+  $('set-done-phase').classList.remove('hidden');
+  $('set-entry-phase').classList.add('hidden');
 
   // Reset RIR chips
   $$('#rir-chips .chip').forEach(c => c.classList.remove('chip-active'));
@@ -855,7 +859,75 @@ function checkWeightUpCondition(machine, sets) {
 }
 
 // ============================================================
-// SET LOGGING
+// LOG ANOTHER SET (beyond RIR pattern)
+// ============================================================
+export function logAnotherSet() {
+  const machineId = App.currentMachineId;
+  if (!machineId) return;
+
+  const machine = App.data.machines[machineId];
+  if (!machine) return;
+
+  const sets = getMachineSets(machineId);
+  const setNum = sets.length + 1;
+  const rirPattern = machine.rirPattern || [2, 1, 1];
+  const targetRir = rirPattern[rirPattern.length - 1]; // use last RIR target
+
+  $('set-logger').classList.remove('hidden');
+  $('next-time-suggestion').classList.add('hidden');
+
+  $('current-set-label').textContent = `Set ${setNum}`;
+  $('target-rir-label').textContent = `Target: RIR ${targetRir}`;
+
+  // Show rep range
+  const repRangePill = $('set-rep-range');
+  if (machine.repRange && machine.repRange.max > 0) {
+    repRangePill.textContent = `${machine.repRange.min}–${machine.repRange.max}`;
+    repRangePill.classList.remove('hidden');
+  } else {
+    repRangePill.classList.add('hidden');
+  }
+
+  // Pre-fill weight from last set
+  const lastSet = sets.length > 0 ? sets[sets.length - 1] : null;
+  $('set-weight').value = lastSet ? lastSet.weight : '';
+  $('set-reps').value = '';
+
+  // Reset to Set Done phase
+  $('set-done-phase').classList.remove('hidden');
+  $('set-entry-phase').classList.add('hidden');
+
+  // Reset chips
+  $$('#rir-chips .chip').forEach(c => c.classList.remove('chip-active'));
+  $$('#note-chips .chip').forEach(c => c.classList.remove('chip-active'));
+  $('set-custom-note').value = '';
+}
+
+// ============================================================
+// SET DONE — Phase 1: start rest timer, switch to data entry
+// ============================================================
+const AUTO_OFFSET_SEC = 4; // approximate delay picking up phone after set
+
+export function setDone() {
+  const machineId = App.currentMachineId;
+  if (!machineId || !App.session) return;
+
+  // Record when the set was actually finished (with auto-offset)
+  App.setDoneAt = isoNow();
+
+  // Start rest timer immediately with auto-offset
+  const machine = App.data.machines[machineId];
+  if (machine && machine.type !== 'conditioning') {
+    startRestTimer(machine.type, AUTO_OFFSET_SEC);
+  }
+
+  // Switch to data entry phase
+  $('set-done-phase').classList.add('hidden');
+  $('set-entry-phase').classList.remove('hidden');
+}
+
+// ============================================================
+// SET LOGGING — Phase 2: save set data
 // ============================================================
 export function logSet() {
   const machineId = App.currentMachineId;
@@ -892,9 +964,8 @@ export function logSet() {
     weight,
     reps,
     rir,
-    finishedOffsetSec: 0,
     notes,
-    loggedAt: isoNow(),
+    loggedAt: App.setDoneAt || isoNow(),
   };
 
   App.session.sets.push(setData);
@@ -905,13 +976,16 @@ export function logSet() {
   saveData();
   saveActiveSession();
 
+  // Clear setDoneAt
+  App.setDoneAt = null;
+
   // Re-render
   renderLoggedSets(machineId);
   renderSetLogger(machineId);
   updatePillRow();
   updateSegmentBar();
 
-  // Undo callback — passed to backdate, toast fires only after offset selection (issue #6)
+  // Undo callback
   const undoFn = () => {
     const idx = App.session.sets.indexOf(setData);
     if (idx > -1) {
@@ -925,43 +999,7 @@ export function logSet() {
     }
   };
 
-  // Show backdate prompt — toast fires after user picks offset
-  showBackdatePrompt(setData, setNumber, undoFn);
-}
-
-// ============================================================
-// BACKDATE PROMPT
-// ============================================================
-function showBackdatePrompt(setData, setNumber, undoFn) {
-  const overlay = $('backdate-overlay');
-  const chipsContainer = $('backdate-chips');
-  const offsets = App.data.profile.preferences.finishedSetOffsetOptionsSec || [0, 5, 10, 20, 30, 60];
-
-  chipsContainer.innerHTML = '';
-
-  offsets.forEach((offset, i) => {
-    const chip = document.createElement('button');
-    chip.className = `chip ${i === 0 ? 'chip-active' : ''}`;
-    chip.textContent = offset === 0 ? 'Now' : `-${offset}s`;
-    chip.onclick = () => {
-      setData.finishedOffsetSec = offset;
-      saveActiveSession();
-      overlay.classList.add('hidden');
-
-      // Start rest timer with offset
-      const machine = App.data.machines[setData.machineId];
-      if (machine && machine.type !== 'conditioning') {
-        startRestTimer(machine.type, offset);
-      }
-
-      // Toast fires here — after user picks offset (issue #6)
-      showToast(`Set ${setNumber} saved`, undoFn);
-    };
-    chipsContainer.appendChild(chip);
-  });
-
-  overlay.classList.remove('hidden');
-  // No auto-dismiss — stays until user taps a chip (issue #5)
+  showToast(`Set ${setNumber} saved`, undoFn);
 }
 
 // ============================================================

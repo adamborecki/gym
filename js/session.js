@@ -120,7 +120,6 @@ function endSession() {
   stopProgressTracking();
   hideRestTimer();
   clearActiveSession();
-  $('backdate-overlay').classList.add('hidden');
 
   // Show summary
   renderSessionSummary(sessionToSave);
@@ -132,7 +131,6 @@ function discardSession() {
   hideRestTimer();
   clearActiveSession();
   App.session = null;
-  $('backdate-overlay').classList.add('hidden');
   showView('home');
   renderHome();
 }
