@@ -177,8 +177,12 @@ function setupEventListeners() {
   // Next time chips
   $$('#next-time-chips .chip').forEach(chip => {
     chip.onclick = () => {
-      $$('#next-time-chips .chip').forEach(c => c.classList.remove('chip-active'));
-      chip.classList.add('chip-active');
+      if (chip.classList.contains('chip-active')) {
+        chip.classList.remove('chip-active');
+      } else {
+        $$('#next-time-chips .chip').forEach(c => c.classList.remove('chip-active'));
+        chip.classList.add('chip-active');
+      }
     };
   });
   $('btn-save-next-time').onclick = saveNextTimeNote;

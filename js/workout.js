@@ -923,9 +923,12 @@ export function saveNextTimeNote() {
 
     let note = chip ? chip.dataset.next : null;
     if (custom) note = custom;
-    if (!note) note = 'again';
 
-    App.session.nextTimeNotes[machineId] = note;
+    if (note) {
+      App.session.nextTimeNotes[machineId] = note;
+    } else {
+      delete App.session.nextTimeNotes[machineId];
+    }
     saveActiveSession();
     showToast('Note saved');
   }
