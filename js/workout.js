@@ -7,6 +7,7 @@ import { $, $$, isoNow, renderMarkdown } from './utils.js';
 import { App, saveData, saveActiveSession } from './state.js';
 import { showView, showToast, showModal } from './ui.js';
 import { startRestTimer, hideRestTimer } from './timer.js';
+import { trackEvent } from './session.js';
 
 // ============================================================
 // PILL ROW
@@ -538,6 +539,8 @@ function toggleBlock(blockId) {
 function openMachine(machineId, blockId) {
   App.currentMachineId = machineId;
   App.currentBlockId = blockId;
+  trackEvent('machine_open', { machineId, blockId });
+  saveActiveSession();
   renderMachineView(machineId);
   showView('machine');
 }
@@ -895,6 +898,7 @@ export function logSet() {
   };
 
   App.session.sets.push(setData);
+  trackEvent('set_completed', { machineId, setNumber, weight, reps, rir });
 
   // Update machine lastUsedAt
   App.data.machines[machineId].lastUsedAt = isoNow();
@@ -978,6 +982,7 @@ export function saveNextTimeNote() {
     } else {
       delete App.session.nextTimeNotes[machineId];
     }
+    trackEvent('machine_done', { machineId });
     saveActiveSession();
     showToast('Note saved');
   }
@@ -1018,6 +1023,7 @@ export function saveBikeLog() {
     App.session.bikeLogs.push(bikeLog);
   }
 
+  trackEvent('bike_logged', { minutes, rpe });
   saveActiveSession();
   updatePillRow();
   updateSegmentBar();
