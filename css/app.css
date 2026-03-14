@@ -1432,6 +1432,7 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 .summary-stat:last-child { border-bottom: none; }
 .summary-stat-label { color: var(--text-secondary); }
 .summary-stat-value { font-weight: 700; }
+#summary-content h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* ---------- Responsive (larger phones) ---------- */
 @media (min-width: 420px) {

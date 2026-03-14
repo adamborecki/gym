@@ -11,6 +11,15 @@ import {
 } from './workout.js';
 
 // ============================================================
+// EVENT TRACKING — lightweight timestamps for session analytics
+// ============================================================
+export function trackEvent(type, detail) {
+  if (!App.session) return;
+  if (!App.session.events) App.session.events = [];
+  App.session.events.push({ type, detail: detail || null, at: isoNow() });
+}
+
+// ============================================================
 // SESSION FLOW: Day Select → Time Goal → Warmup → Workout
 // ============================================================
 export function startNewSession() {
@@ -29,6 +38,7 @@ export function selectDayType(dayType) {
     warmup: { stretchMinutes: null, bikeLog: null, durationSec: 0 },
     sets: [],
     bikeLogs: [],
+    events: [],
     nextTimeNotes: {},
     _ui: {
       expandedBlock: null,
@@ -41,6 +51,7 @@ export function selectTimeGoal(timeGoal) {
   // Issue #3: skip warmup page — go directly into the workout
   App.session.timeGoal = timeGoal;
   App.restMode = App.data.profile.preferences.restModeDefault || 'normal';
+  trackEvent('session_start', { dayType: App.session.dayType });
   saveActiveSession();
   enterWorkout();
 }
@@ -89,6 +100,7 @@ export function promptEndSession() {
 function endSession() {
   const s = App.session;
   s.endedAt = isoNow();
+  trackEvent('session_end');
 
   // Calculate warmup duration (approximate: time from session start to first set or 5 min)
   if (s.sets.length > 0) {
@@ -130,9 +142,10 @@ function discardSession() {
 // ============================================================
 export function renderSessionSummary(session) {
   const container = $('summary-content');
-  const duration = session.endedAt
-    ? formatDuration(new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime())
-    : '—';
+  const durationMs = session.endedAt
+    ? new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime()
+    : 0;
+  const duration = durationMs ? formatDuration(durationMs) : '—';
 
   const totalSets = session.sets.length;
   const machines = [...new Set(session.sets.map(s => s.machineId))];
@@ -167,6 +180,32 @@ export function renderSessionSummary(session) {
     `;
   }
 
+  // Setup/prep time (time before first set)
+  if (session.warmup.durationSec > 0) {
+    html += `
+      <div class="summary-stat">
+        <span class="summary-stat-label">Setup / Prep</span>
+        <span class="summary-stat-value">${formatDuration(session.warmup.durationSec * 1000)}</span>
+      </div>
+    `;
+  }
+
+  // Per-machine timing breakdown from events
+  const machineTimings = deriveMachineTimings(session);
+  if (machineTimings.length > 0) {
+    html += '<h3 style="margin-top:16px">Time per Machine</h3>';
+    machineTimings.forEach(({ machineId, durationMs: dur, setCount }) => {
+      const machine = App.data.machines[machineId];
+      const name = machine ? machine.name : machineId;
+      html += `
+        <div class="summary-stat">
+          <span class="summary-stat-label">${name}</span>
+          <span class="summary-stat-value">${formatDuration(dur)} · ${setCount} sets</span>
+        </div>
+      `;
+    });
+  }
+
   // Next time notes
   const notes = session.nextTimeNotes || {};
   const noteEntries = Object.entries(notes);
@@ -185,6 +224,72 @@ export function renderSessionSummary(session) {
   }
 
   container.innerHTML = html;
+}
+
+// ============================================================
+// DERIVE MACHINE TIMINGS from events
+// ============================================================
+function deriveMachineTimings(session) {
+  const events = session.events || [];
+  if (events.length === 0) return [];
+
+  // Walk events to compute time spent on each machine.
+  // machine_open starts the clock; machine_done or the next machine_open stops it.
+  const timings = {}; // machineId → total ms
+  let currentMachine = null;
+  let currentStart = null;
+
+  for (const ev of events) {
+    const t = new Date(ev.at).getTime();
+
+    if (ev.type === 'machine_open') {
+      // Close previous machine if still open
+      if (currentMachine && currentStart) {
+        if (!timings[currentMachine]) timings[currentMachine] = 0;
+        timings[currentMachine] += t - currentStart;
+      }
+      currentMachine = ev.detail?.machineId || null;
+      currentStart = t;
+    } else if (ev.type === 'machine_done') {
+      if (currentMachine && currentStart) {
+        if (!timings[currentMachine]) timings[currentMachine] = 0;
+        timings[currentMachine] += t - currentStart;
+      }
+      currentMachine = null;
+      currentStart = null;
+    } else if (ev.type === 'session_end') {
+      // Close any still-open machine
+      if (currentMachine && currentStart) {
+        if (!timings[currentMachine]) timings[currentMachine] = 0;
+        timings[currentMachine] += t - currentStart;
+      }
+      currentMachine = null;
+      currentStart = null;
+    }
+  }
+
+  // Build result array sorted by first appearance
+  const machineOrder = [];
+  for (const ev of events) {
+    if (ev.type === 'machine_open' && ev.detail?.machineId) {
+      if (!machineOrder.includes(ev.detail.machineId)) {
+        machineOrder.push(ev.detail.machineId);
+      }
+    }
+  }
+
+  const setsByMachine = {};
+  (session.sets || []).forEach(s => {
+    setsByMachine[s.machineId] = (setsByMachine[s.machineId] || 0) + 1;
+  });
+
+  return machineOrder
+    .filter(mid => timings[mid] && timings[mid] > 0)
+    .map(mid => ({
+      machineId: mid,
+      durationMs: timings[mid],
+      setCount: setsByMachine[mid] || 0,
+    }));
 }
 
 // ============================================================
