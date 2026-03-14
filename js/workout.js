@@ -355,7 +355,7 @@ function showAddMachineToOtherModal(blockId) {
   const bodyEl = $('modal-body');
   const actionsEl = $('modal-actions');
 
-  bodyEl.innerHTML = `<h3>Add Machine${isAbsBlock ? ' to Abs / Core' : ''}</h3>`;
+  bodyEl.innerHTML = '<h3>Add Machine</h3>';
   const list = document.createElement('div');
   list.style.cssText = 'max-height:50vh; overflow-y:auto; margin-top:12px;';
 

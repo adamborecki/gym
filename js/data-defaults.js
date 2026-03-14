@@ -918,7 +918,7 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "abs",
-          "name": "Abs / Core",
+          "name": "Other",
           "suggestions": [
             "ab_crunch_machine",
             "rotary_torso"
@@ -963,7 +963,7 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "abs",
-          "name": "Abs / Core",
+          "name": "Other",
           "suggestions": [
             "ab_crunch_machine",
             "rotary_torso"
@@ -1008,7 +1008,7 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "abs",
-          "name": "Abs / Core",
+          "name": "Other",
           "suggestions": [
             "ab_crunch_machine",
             "rotary_torso"
@@ -1040,7 +1040,7 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "abs",
-          "name": "Abs / Core",
+          "name": "Other",
           "suggestions": [
             "ab_crunch_machine",
             "rotary_torso"
