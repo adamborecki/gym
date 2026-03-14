@@ -234,32 +234,41 @@
             <span id="current-set-label"></span>
             <span id="target-rir-label" class="pill pill-sm"></span>
           </div>
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="set-weight">Weight</label>
-              <input type="number" id="set-weight" class="input-lg" inputmode="decimal" min="0" step="2.5" placeholder="0" onfocus="this.select()">
+
+          <!-- Phase 1: Set Done button (starts rest timer) -->
+          <div id="set-done-phase">
+            <button class="btn btn-primary btn-xl" id="btn-set-done">Set Done</button>
+          </div>
+
+          <!-- Phase 2: Data entry (visible after Set Done) -->
+          <div id="set-entry-phase" class="hidden">
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="set-weight">Weight</label>
+                <input type="number" id="set-weight" class="input-lg" inputmode="decimal" min="0" step="2.5" placeholder="0" onfocus="this.select()">
+              </div>
+              <div class="form-group flex-1">
+                <label for="set-reps">Reps <span id="set-rep-range" class="pill pill-sm hidden"></span></label>
+                <input type="number" id="set-reps" class="input-lg" inputmode="numeric" min="0" max="100" placeholder="0" onfocus="this.select()">
+              </div>
             </div>
-            <div class="form-group flex-1">
-              <label for="set-reps">Reps <span id="set-rep-range" class="pill pill-sm hidden"></span></label>
-              <input type="number" id="set-reps" class="input-lg" inputmode="numeric" min="0" max="100" placeholder="0" onfocus="this.select()">
+            <p class="form-label">RIR</p>
+            <div class="chip-row" id="rir-chips">
+              <button class="chip" data-rir="0">0</button>
+              <button class="chip" data-rir="1">1</button>
+              <button class="chip" data-rir="2">2</button>
+              <button class="chip" data-rir="3">3+</button>
             </div>
+            <p class="form-label">Quick Notes</p>
+            <div class="chip-row" id="note-chips">
+              <button class="chip" data-note="Form">Form</button>
+              <button class="chip" data-note="Pain">Pain</button>
+              <button class="chip" data-note="Machine">Machine</button>
+              <button class="chip" data-note="Grip">Grip</button>
+            </div>
+            <input type="text" id="set-custom-note" class="input-sm" placeholder="Custom note...">
+            <button class="btn btn-primary btn-lg" id="btn-log-set">Save Set</button>
           </div>
-          <p class="form-label">RIR</p>
-          <div class="chip-row" id="rir-chips">
-            <button class="chip" data-rir="0">0</button>
-            <button class="chip" data-rir="1">1</button>
-            <button class="chip" data-rir="2">2</button>
-            <button class="chip" data-rir="3">3+</button>
-          </div>
-          <p class="form-label">Quick Notes</p>
-          <div class="chip-row" id="note-chips">
-            <button class="chip" data-note="Form">Form</button>
-            <button class="chip" data-note="Pain">Pain</button>
-            <button class="chip" data-note="Machine">Machine</button>
-            <button class="chip" data-note="Grip">Grip</button>
-          </div>
-          <input type="text" id="set-custom-note" class="input-sm" placeholder="Custom note...">
-          <button class="btn btn-primary btn-lg" id="btn-log-set">Log Set</button>
         </div>
 
         <!-- Log Bike Session (shown for conditioning machines) -->
@@ -278,6 +287,7 @@
           </div>
           <input type="text" id="next-time-custom" class="input-sm" placeholder="Custom note...">
           <button class="btn btn-primary" id="btn-save-next-time">Save & Continue</button>
+          <button class="btn btn-ghost btn-lg" id="btn-another-set" style="margin-top:8px;">Log Another Set</button>
         </div>
       </div>
     </section>
@@ -366,14 +376,6 @@
         <button class="chip" id="rest-mode-toggle"></button>
       </div>
       <button class="btn btn-sm btn-ghost" id="btn-dismiss-rest">Ready →</button>
-    </div>
-  </div>
-
-  <!-- Backdate Overlay (bottom sheet, stays until tapped) -->
-  <div id="backdate-overlay" class="hidden">
-    <div id="backdate-sheet">
-      <p id="backdate-title">When did you finish?</p>
-      <div id="backdate-chips"></div>
     </div>
   </div>
 

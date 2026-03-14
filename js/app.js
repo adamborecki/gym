@@ -12,7 +12,7 @@ import { hideRestTimer, toggleRestMode } from './timer.js';
 import {
   enterWorkout, renderWorkout, renderMachineView,
   clearBikeForm, saveBikeLog,
-  logSet, saveNextTimeNote,
+  setDone, logSet, saveNextTimeNote, logAnotherSet,
   setupWorkoutGlobals,
 } from './workout.js';
 import {
@@ -106,7 +106,6 @@ function setupEventListeners() {
   // Machine view
   $('btn-back-machine').onclick = () => {
     hideRestTimer();
-    $('backdate-overlay').classList.add('hidden');
     renderWorkout();
     showView('workout');
   };
@@ -155,7 +154,9 @@ function setupEventListeners() {
     };
   });
 
-  // Log set
+  // Set Done → starts rest timer, then data entry
+  $('btn-set-done').onclick = setDone;
+  // Save Set → logs the set data
   $('btn-log-set').onclick = logSet;
 
   // Next time chips
@@ -170,6 +171,7 @@ function setupEventListeners() {
     };
   });
   $('btn-save-next-time').onclick = saveNextTimeNote;
+  $('btn-another-set').onclick = logAnotherSet;
 
   // Rest timer
   $('rest-mode-toggle').onclick = toggleRestMode;

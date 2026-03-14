@@ -15,7 +15,7 @@ export const App = {
   restMachineType: null,
   progressInterval: null,
   sessionStartTime: null,
-  backdateTimeout: null,
+  setDoneAt: null,       // timestamp when "Set Done" was tapped
   currentMachineId: null,
   currentBlockId: null,
   bikeReturnView: null,  // where to go back after bike log

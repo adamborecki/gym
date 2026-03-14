@@ -1067,49 +1067,12 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   animation: restPulse 1s ease-in-out 3;
 }
 
-/* ---------- Backdate Overlay (bottom sheet modal) ---------- */
-#backdate-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 95;
-  background: var(--overlay);
-  display: flex;
-  align-items: flex-end;
-  animation: fadeIn 200ms ease;
-}
-#backdate-overlay.hidden { display: none !important; }
-
-#backdate-sheet {
-  width: 100%;
-  background: var(--bg-card);
-  border-radius: 20px 20px 0 0;
-  padding: 24px 20px;
-  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  border-top: 3px solid var(--accent);
-  animation: slideUp 250ms ease;
-}
-
-#backdate-title {
-  font-size: 1rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 16px;
-  color: var(--text-secondary);
-}
-
-#backdate-sheet #backdate-chips {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-#backdate-sheet .chip {
-  padding: 14px 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  min-height: 52px;
-  border-radius: var(--radius);
+/* ---------- Set Done Phase ---------- */
+#set-done-phase {
+  padding: 12px 0;
   text-align: center;
 }
+#set-entry-phase.hidden { display: none; }
 
 @keyframes slideUp {
   from { transform: translateY(100%); }
@@ -1444,7 +1407,6 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 @supports (padding-top: env(safe-area-inset-top)) {
   #progress-bar { padding-top: env(safe-area-inset-top); }
   #rest-timer { padding-bottom: env(safe-area-inset-bottom); }
-  #backdate-prompt { padding-bottom: env(safe-area-inset-bottom); }
   body { padding-bottom: env(safe-area-inset-bottom); }
 }
 
