@@ -31,6 +31,7 @@ export function startRestTimer(machineType, offsetSec = 0) {
 
   // Show timer
   $('rest-timer').classList.remove('hidden');
+  document.body.classList.add('rest-timer-visible');
   $('rest-overtime').classList.add('hidden');
 
   updateRestDisplay();
@@ -90,6 +91,7 @@ export function stopRestTimer() {
 export function hideRestTimer() {
   stopRestTimer();
   $('rest-timer').classList.add('hidden');
+  document.body.classList.remove('rest-timer-visible');
 }
 
 export function toggleRestMode() {

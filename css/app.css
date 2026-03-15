@@ -994,6 +994,9 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 #rest-timer:not(.hidden) {
   transform: translateY(0);
 }
+body.rest-timer-visible .view-content {
+  padding-bottom: 220px;
+}
 
 #rest-timer-inner {
   max-width: 480px;
