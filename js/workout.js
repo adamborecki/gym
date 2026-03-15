@@ -798,6 +798,13 @@ function renderSetLogger(machineId) {
     $('set-reps').value = '';
   }
 
+  // Build preview text for Phase 1
+  const previewWeight = $('set-weight').value;
+  const previewParts = [];
+  if (previewWeight) previewParts.push(`${previewWeight} lbs`);
+  previewParts.push(`RIR ${targetRir}`);
+  $('set-preview').textContent = previewParts.join(' · ');
+
   // Reset to "Set Done" phase
   $('set-done-phase').classList.remove('hidden');
   $('set-entry-phase').classList.add('hidden');

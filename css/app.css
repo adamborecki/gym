@@ -1075,6 +1075,11 @@ body.rest-timer-visible .view-content {
   padding: 12px 0;
   text-align: center;
 }
+#set-preview {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
 #set-entry-phase.hidden { display: none; }
 
 @keyframes slideUp {
