@@ -895,14 +895,15 @@ export const DEFAULT_DATA = {
           "id": "primary",
           "name": "Primary Compound",
           "suggestions": [
-            "chest_press"
+            "incline_press"
           ]
         },
         {
           "id": "secondary",
-          "name": "Secondary",
+          "name": "Secondary Compound",
+          "completion": "any",
           "suggestions": [
-            "incline_press",
+            "chest_press",
             "shoulder_press"
           ]
         },
@@ -941,6 +942,7 @@ export const DEFAULT_DATA = {
         {
           "id": "primary",
           "name": "Primary Compound",
+          "completion": "any",
           "suggestions": [
             "lat_pulldown",
             "assisted_chin"
@@ -948,7 +950,7 @@ export const DEFAULT_DATA = {
         },
         {
           "id": "secondary",
-          "name": "Secondary",
+          "name": "Secondary Compound",
           "suggestions": [
             "seated_row"
           ]
