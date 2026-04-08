@@ -514,7 +514,13 @@ function isBlockComplete(block) {
     const allMachines = [...(block.suggestions || []), ...(App.session._ui.otherMachines || [])];
     return allMachines.some(mid => getMachineSets(mid).length > 0);
   }
-  // A block is "complete" if every machine has at least one set
+  // Choice-based blocks (e.g. compound primary/secondary with multiple options):
+  // complete if ANY listed machine has at least one set. Reflects that compound
+  // movements are interchangeable and fatigue/order shouldn't force redundant work.
+  if (block.completion === 'any') {
+    return block.suggestions.some(mid => getMachineSets(mid).length > 0);
+  }
+  // Default: a block is "complete" only if every machine has at least one set
   return block.suggestions.every(mid => getMachineSets(mid).length > 0);
 }
 

@@ -259,6 +259,13 @@ function init() {
     }
   });
 
+  // Always refresh built-in templates from defaults — templates aren't user-editable,
+  // so this lets users pick up structural changes (e.g. issue #36 compound regroup).
+  Object.entries(DEFAULT_DATA.templates).forEach(([id, def]) => {
+    App.data.templates[id] = deepClone(def);
+  });
+  saveData();
+
   // Setup event listeners
   setupEventListeners();
   setupSettingsListeners();
