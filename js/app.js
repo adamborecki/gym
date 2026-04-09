@@ -252,9 +252,14 @@ function init() {
     if (!m._setup) m._setup = {};
   });
 
-  // Always refresh machine tips from defaults (tips are static content, not user data)
+  // Seed any machines missing from user data (new machines added to DEFAULT_DATA
+  // in a later app version), then refresh tips from defaults since tips are static
+  // content, not user data.
   Object.entries(DEFAULT_DATA.machines).forEach(([id, def]) => {
-    if (App.data.machines[id]) {
+    if (!App.data.machines[id]) {
+      App.data.machines[id] = deepClone(def);
+      App.data.machines[id]._setup = {};
+    } else {
       App.data.machines[id].tips = def.tips;
     }
   });
