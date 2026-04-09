@@ -6,7 +6,7 @@ export const STORAGE_KEY = 'gymApp_v1_data';
 export const SESSION_KEY = 'gymApp_v1_activeSession';
 // Version: date-based (YYYY.MM.DD + build letter). Update on every code change.
 // Same day: increment letter (a→b→c). New day: reset to 'a'.
-export const APP_VERSION = 'v2026.04.09a';
+export const APP_VERSION = 'v2026.04.09b';
 
 export const REST_TARGETS = {
   compound:  { normal: 90, hurry: 60 }, // seconds
@@ -35,6 +35,7 @@ export const SEED_WEIGHTS = {
   triceps_extension_machine: 40,   // 2/14: 40 ×3×13
   lat_pulldown:              70,   // last logged 75 but note says drop to 70 for form
   seated_row:                75,   // 2/17: 75 ×3×10
+  mts_row:                   30,   // per-side starting weight (plate loaded)
   biceps_curl_machine:       25,   // 2/17: 25 ×3×12
   assisted_chin:             70,   // 2/17: 70 lb assist ×3×12 (higher = more assistance = easier)
   seated_leg_press:         180,   // 2/19: 180 ×3×13

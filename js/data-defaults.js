@@ -460,6 +460,11 @@ export const DEFAULT_DATA = {
           "type": "number"
         },
         {
+          "key": "grip",
+          "label": "Grip (neutral / over / under)",
+          "type": "text"
+        },
+        {
           "key": "notes",
           "label": "Setup Notes",
           "type": "text"
@@ -1084,7 +1089,7 @@ export const DEFAULT_DATA = {
             "seated_leg_press",
             "chest_press",
             "lat_pulldown",
-            "seated_row"
+            "mts_row"
           ]
         },
         {
