@@ -433,6 +433,56 @@ export const DEFAULT_DATA = {
       "familiarity": "learning",
       "lastUsedAt": null
     },
+    "mts_row": {
+      "id": "mts_row",
+      "name": "MTS Row",
+      "category": "pull",
+      "type": "compound",
+      "variants": [],
+      "repRange": {
+        "min": 8,
+        "max": 12
+      },
+      "rirPattern": [
+        3,
+        2,
+        1
+      ],
+      "setupFields": [
+        {
+          "key": "seat",
+          "label": "Seat",
+          "type": "number"
+        },
+        {
+          "key": "start",
+          "label": "Start/Range",
+          "type": "number"
+        },
+        {
+          "key": "grip",
+          "label": "Grip (neutral / over / under)",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Setup Notes",
+          "type": "text"
+        }
+      ],
+      "tips": {
+        "setup": "**Setup**\n\u2022 🪑 Seat so handles line up with your lower chest / upper abs at the finish.\n\u2022 🧱 Chest pad firm against your sternum \u2014 ribs quiet, shoulders relaxed.\n\u2022 🏗️ Load plates evenly on both sides; start light to dial in the groove.\n\u2022 ✋ Pick a grip: neutral = balanced lats, overhand = more upper back, underhand = more lats/biceps.",
+        "form": "**Execution**\n\u2022 🎯 Drive elbows back and down \u2014 think \u201celbow into back pocket.\u201d\n\u2022 🧱 Keep chest planted on the pad; don\u2019t push yourself off with the pull.\n\u2022 🤏 Pause briefly at peak contraction, squeeze mid-back.\n\u2022 🐢 Control the eccentric \u2014 let the arm stretch fully without dumping the weight.\n\n**Iso-lateral advantage**\n\u2022 ⚖️ Arms move independently \u2014 match reps to your weaker side.\n\u2022 Try alternating arms if you want a bigger anti-rotation / core demand.\n\n**Fix common issues**\n\u2022 Biceps dominating \u2192 thumbless grip; lead with the elbow, not the hand.\n\u2022 Shrugging at top \u2192 depress shoulder blades before you pull.\n\u2022 Chest lifting off pad \u2192 lighten load; stop pulling past end range.\n\n**Tempo**\n\u2022 \u23f1\ufe0f 1\u20132 sec pull, 1 sec squeeze, 2\u20133 sec return",
+        "mantra": [
+          "🧱 chest glued to pad",
+          "↩️ elbows to pockets",
+          "🤏 squeeze & stretch"
+        ],
+        "phasedCues": {}
+      },
+      "familiarity": "learning",
+      "lastUsedAt": null
+    },
     "biceps_curl_machine": {
       "id": "biceps_curl_machine",
       "name": "Biceps Curl (Machine)",
@@ -951,8 +1001,10 @@ export const DEFAULT_DATA = {
         {
           "id": "secondary",
           "name": "Secondary Compound",
+          "completion": "any",
           "suggestions": [
-            "seated_row"
+            "seated_row",
+            "mts_row"
           ]
         },
         {
@@ -1037,7 +1089,7 @@ export const DEFAULT_DATA = {
             "seated_leg_press",
             "chest_press",
             "lat_pulldown",
-            "seated_row"
+            "mts_row"
           ]
         },
         {
