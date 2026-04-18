@@ -270,14 +270,9 @@ export const DEFAULT_DATA = {
       ],
       "setupFields": [
         {
-          "key": "attachment",
-          "label": "Attachment",
-          "type": "text"
-        },
-        {
-          "key": "height",
-          "label": "Pulley Height",
-          "type": "text"
+          "key": "seat",
+          "label": "Seat",
+          "type": "number"
         },
         {
           "key": "notes",
@@ -286,8 +281,8 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "**Setup**\n\u2022 \ud83e\uddbe Elbows pinned to sides; shoulders relaxed and down.\n\u2022 Stand close enough that the cable pulls slightly upward at the top.\n\u2022 \ud83e\udd1d Thumbless or neutral grip \u2014 don\u2019t white-knuckle.",
-        "form": "**Execution**\n\u2022 \u2b07\ufe0f Extend down smoothly; stop just short of a hard lockout.\n\u2022 \u2b06\ufe0f Control the return \u2014 don\u2019t let elbows flare or drift forward.\n\u2022 Upper arms stay fixed throughout.\n\n**Fix common issues**\n\u2022 Forearms taking over \u2192 focus on keeping elbows fixed; wrists neutral.\n\u2022 Shoulders rising \u2192 consciously drop them before each rep.\n\u2022 Feeling it in chest \u2192 step back, keep elbows tight to sides.\n\n**Tempo**\n\u2022 \u23f1\ufe0f 1 sec down, 2 sec up",
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Adjust seat so handles reach about chest height when seated.\n\u2022 \ud83e\uddbe Sit upright, back against pad, elbows pinned to sides; shoulders relaxed and down.\n\u2022 \ud83e\udd1d Thumbless or neutral grip \u2014 don\u2019t white-knuckle.",
+        "form": "**Execution**\n\u2022 \u2b07\ufe0f Push handles down smoothly; stop just short of a hard lockout.\n\u2022 \u2b06\ufe0f Control the return \u2014 don\u2019t let elbows flare or drift forward.\n\u2022 Upper arms stay fixed throughout.\n\n**Fix common issues**\n\u2022 Forearms taking over \u2192 focus on keeping elbows fixed; wrists neutral.\n\u2022 Shoulders rising \u2192 consciously drop them before each rep.\n\u2022 Not feeling triceps \u2192 adjust seat height; keep elbows tucked.\n\n**Tempo**\n\u2022 \u23f1\ufe0f 1 sec down, 2 sec up",
         "mantra": [
           "📌 elbows pinned",
           "✋ wrists neutral",
