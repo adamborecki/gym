@@ -15,3 +15,9 @@
 - All data stored in localStorage
 - Mobile-first design, dark/light mode via `prefers-color-scheme`
 - Dev server: `python3 server.py` on port 8080
+
+## README
+
+- `README.md` is generated — edit `scripts/gen-readme.mjs`, not the README
+- Rerun `node scripts/gen-readme.mjs` after changing machines, templates, or `APP_VERSION`
+- Live app: https://adamborecki.github.io/gym/ (GitHub Pages, deploys from `main`)
