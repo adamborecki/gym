@@ -19,6 +19,28 @@ export function trackEvent(type, detail) {
   App.session.events.push({ type, detail: detail || null, at: isoNow() });
 }
 
+// Events that count as "starting to train" — the gap between session start and
+// the first of these is treated as stretch/warm-up time (issue #42).
+const FIRST_ACTION_TYPES = new Set(['machine_open', 'bike_open', 'stretch_logged', 'set_completed', 'bike_logged']);
+
+/**
+ * Minutes between session start and the first real action. If nothing has
+ * happened yet, the time elapsed so far. Returns null if under a minute.
+ */
+export function inferStretchMinutes(session) {
+  const events = session.events || [];
+  const startEv = events.find(e => e.type === 'session_start');
+  const startMs = new Date(startEv ? startEv.at : session.startedAt).getTime();
+  const endMs = firstActionMs(session) ?? Date.now();
+  const min = Math.round((endMs - startMs) / 60000);
+  return min >= 1 ? min : null;
+}
+
+function firstActionMs(session) {
+  const first = (session.events || []).find(e => FIRST_ACTION_TYPES.has(e.type));
+  return first ? new Date(first.at).getTime() : null;
+}
+
 // ============================================================
 // SESSION FLOW: Day Select → Time Goal → Warmup → Workout
 // ============================================================
@@ -102,6 +124,11 @@ function endSession() {
   s.endedAt = isoNow();
   trackEvent('session_end');
 
+  // Stretch time wasn't logged — keep the inferred estimate (issue #42)
+  if (!s.warmup.stretchMinutes) {
+    s.warmup.inferredStretchMin = inferStretchMinutes(s);
+  }
+
   // Calculate warmup duration (approximate: time from session start to first set or 5 min)
   if (s.sets.length > 0) {
     const firstSet = new Date(s.sets[0].loggedAt).getTime();
@@ -121,7 +148,8 @@ function endSession() {
   hideRestTimer();
   clearActiveSession();
 
-  // Show summary
+  // Show summary (session is over — clear it so the in-session chrome hides)
+  App.session = null;
   renderSessionSummary(sessionToSave);
   showView('session-summary');
 }
@@ -138,8 +166,7 @@ function discardSession() {
 // ============================================================
 // SESSION SUMMARY
 // ============================================================
-export function renderSessionSummary(session) {
-  const container = $('summary-content');
+export function renderSessionSummary(session, container = $('summary-content')) {
   const durationMs = session.endedAt
     ? new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime()
     : 0;
@@ -178,6 +205,23 @@ export function renderSessionSummary(session) {
     `;
   }
 
+  // Stretch: logged, or estimated from time before the first action (issue #42)
+  if (session.warmup.stretchMinutes) {
+    html += `
+      <div class="summary-stat">
+        <span class="summary-stat-label">Stretch</span>
+        <span class="summary-stat-value">${session.warmup.stretchMinutes} min</span>
+      </div>
+    `;
+  } else if (session.warmup.inferredStretchMin) {
+    html += `
+      <div class="summary-stat">
+        <span class="summary-stat-label">Stretch / warm-up (est.)</span>
+        <span class="summary-stat-value">~${session.warmup.inferredStretchMin} min</span>
+      </div>
+    `;
+  }
+
   // Setup/prep time (time before first set)
   if (session.warmup.durationSec > 0) {
     html += `
@@ -188,21 +232,8 @@ export function renderSessionSummary(session) {
     `;
   }
 
-  // Per-machine timing breakdown from events
-  const machineTimings = deriveMachineTimings(session);
-  if (machineTimings.length > 0) {
-    html += '<h3 style="margin-top:16px">Time per Machine</h3>';
-    machineTimings.forEach(({ machineId, durationMs: dur, setCount }) => {
-      const machine = App.data.machines[machineId];
-      const name = machine ? machine.name : machineId;
-      html += `
-        <div class="summary-stat">
-          <span class="summary-stat-label">${name}</span>
-          <span class="summary-stat-value">${formatDuration(dur)} · ${setCount} sets</span>
-        </div>
-      `;
-    });
-  }
+  // Timeline + per-machine timing breakdown from events (issue #17)
+  html += renderTimeline(session);
 
   // Next time notes
   const notes = session.nextTimeNotes || {};
@@ -222,72 +253,131 @@ export function renderSessionSummary(session) {
   }
 
   container.innerHTML = html;
+  attachTimelineHandlers(container);
 }
 
 // ============================================================
-// DERIVE MACHINE TIMINGS from events
+// TIMELINE — derived from events (issue #17)
 // ============================================================
-function deriveMachineTimings(session) {
+const MIN_SEGMENT_MS = 15000; // ignore quick peeks at a machine
+
+// Colour slot per workout block (see .tl-s1… in app.css)
+const BLOCK_SLOT = { primary: 1, fullbody: 1, secondary: 2, accessories: 3, abs: 4 };
+
+/**
+ * Walk the event log into machine segments. machine_open starts a segment;
+ * machine_exit / machine_done / the next machine_open / session_end closes it.
+ */
+export function deriveTimeline(session) {
   const events = session.events || [];
-  if (events.length === 0) return [];
+  const startMs = new Date(session.startedAt).getTime();
+  const endMs = session.endedAt ? new Date(session.endedAt).getTime() : Date.now();
 
-  // Walk events to compute time spent on each machine.
-  // machine_open starts the clock; machine_done or the next machine_open stops it.
-  const timings = {}; // machineId → total ms
-  let currentMachine = null;
-  let currentStart = null;
-
+  const segments = [];
+  let cur = null;
+  const close = (t) => {
+    if (cur && t - cur.start >= MIN_SEGMENT_MS) segments.push({ ...cur, end: t });
+    cur = null;
+  };
   for (const ev of events) {
     const t = new Date(ev.at).getTime();
-
-    if (ev.type === 'machine_open') {
-      // Close previous machine if still open
-      if (currentMachine && currentStart) {
-        if (!timings[currentMachine]) timings[currentMachine] = 0;
-        timings[currentMachine] += t - currentStart;
-      }
-      currentMachine = ev.detail?.machineId || null;
-      currentStart = t;
-    } else if (ev.type === 'machine_done') {
-      if (currentMachine && currentStart) {
-        if (!timings[currentMachine]) timings[currentMachine] = 0;
-        timings[currentMachine] += t - currentStart;
-      }
-      currentMachine = null;
-      currentStart = null;
-    } else if (ev.type === 'session_end') {
-      // Close any still-open machine
-      if (currentMachine && currentStart) {
-        if (!timings[currentMachine]) timings[currentMachine] = 0;
-        timings[currentMachine] += t - currentStart;
-      }
-      currentMachine = null;
-      currentStart = null;
-    }
-  }
-
-  // Build result array sorted by first appearance
-  const machineOrder = [];
-  for (const ev of events) {
     if (ev.type === 'machine_open' && ev.detail?.machineId) {
-      if (!machineOrder.includes(ev.detail.machineId)) {
-        machineOrder.push(ev.detail.machineId);
-      }
+      close(t);
+      cur = { machineId: ev.detail.machineId, start: t };
+    } else if (ev.type === 'machine_exit' || ev.type === 'machine_done' || ev.type === 'session_end') {
+      close(t);
     }
   }
+  close(endMs);
 
-  const setsByMachine = {};
-  (session.sets || []).forEach(s => {
-    setsByMachine[s.machineId] = (setsByMachine[s.machineId] || 0) + 1;
+  // Warm-up: session start → first action
+  const warmupEnd = firstActionMs(session);
+
+  // Per-machine totals, in order of first use
+  const machines = [];
+  const byId = {};
+  segments.forEach(seg => {
+    if (!byId[seg.machineId]) {
+      byId[seg.machineId] = { machineId: seg.machineId, durationMs: 0, firstOpen: seg.start };
+      machines.push(byId[seg.machineId]);
+    }
+    byId[seg.machineId].durationMs += seg.end - seg.start;
+  });
+  machines.forEach(m => {
+    const sets = (session.sets || []).filter(st => st.machineId === m.machineId);
+    m.setCount = sets.length;
+    // Setup/prep: opening the machine → first set finished
+    if (sets.length) {
+      const firstSet = new Date(sets[0].loggedAt).getTime();
+      if (firstSet > m.firstOpen) m.prepMs = firstSet - m.firstOpen;
+    }
   });
 
-  return machineOrder
-    .filter(mid => timings[mid] && timings[mid] > 0)
-    .map(mid => ({
-      machineId: mid,
-      durationMs: timings[mid],
-      setCount: setsByMachine[mid] || 0,
-    }));
+  return { startMs, endMs, warmupEnd, segments, machines };
+}
+
+function machineSlot(session, machineId) {
+  const template = App.data.templates[session.templateId];
+  const block = template?.blocks.find(b => (b.suggestions || []).includes(machineId) && b.id !== 'warmup');
+  return BLOCK_SLOT[block?.id] || 4;
+}
+
+function shortDuration(ms) {
+  const min = Math.round(ms / 60000);
+  return min < 1 ? `${Math.round(ms / 1000)}s` : `${min}m`;
+}
+
+function renderTimeline(session) {
+  const { startMs, endMs, warmupEnd, segments, machines } = deriveTimeline(session);
+  if (segments.length === 0) return '';
+  const total = Math.max(endMs - startMs, 1);
+  const pct = (t) => Math.min(Math.max((t - startMs) / total * 100, 0), 100);
+  const nameOf = (mid) => App.data.machines[mid]?.name || mid;
+
+  let bar = '';
+  if (warmupEnd && warmupEnd > startMs) {
+    bar += `<div class="tl-seg tl-warmup" style="left:0;width:${pct(warmupEnd)}%"
+      data-label="Warm-up · ${shortDuration(warmupEnd - startMs)}"></div>`;
+  }
+  segments.forEach(seg => {
+    bar += `<div class="tl-seg tl-s${machineSlot(session, seg.machineId)}"
+      style="left:${pct(seg.start)}%;width:${pct(seg.end) - pct(seg.start)}%"
+      data-label="${nameOf(seg.machineId)} · ${shortDuration(seg.end - seg.start)}"></div>`;
+  });
+  (session.sets || []).forEach(st => {
+    bar += `<div class="tl-tick" style="left:${pct(new Date(st.loggedAt).getTime())}%"></div>`;
+  });
+
+  let html = `
+    <h3 style="margin-top:16px">Timeline</h3>
+    <div class="timeline" role="img" aria-label="Session timeline by machine">${bar}</div>
+    <div class="timeline-axis"><span>0m</span><span>${shortDuration(total)}</span></div>
+    <div class="timeline-caption">Tap a block for details · ticks = sets</div>
+    <h3 style="margin-top:16px">Time per Machine</h3>
+  `;
+  machines.forEach(m => {
+    const prep = m.prepMs ? ` · ${shortDuration(m.prepMs)} prep` : '';
+    html += `
+      <div class="summary-stat">
+        <span class="summary-stat-label"><span class="tl-swatch tl-s${machineSlot(session, m.machineId)}"></span>${nameOf(m.machineId)}</span>
+        <span class="summary-stat-value">${formatDuration(m.durationMs)} · ${m.setCount} sets${prep}</span>
+      </div>
+    `;
+  });
+  return html;
+}
+
+function attachTimelineHandlers(container) {
+  const caption = container.querySelector('.timeline-caption');
+  if (!caption) return;
+  container.querySelectorAll('.tl-seg').forEach(seg => {
+    const show = () => {
+      container.querySelectorAll('.tl-seg').forEach(s => s.classList.toggle('tl-active', s === seg));
+      caption.textContent = seg.dataset.label;
+    };
+    seg.onclick = show;
+    seg.onmouseenter = show;
+  });
 }
 
 // ============================================================

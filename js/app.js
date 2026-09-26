@@ -10,15 +10,15 @@ import { App, loadData, saveData } from './state.js';
 import { showView, showToast, renderHome, speakText } from './ui.js';
 import { hideRestTimer, toggleRestMode } from './timer.js';
 import {
-  enterWorkout, renderWorkout, renderMachineView,
+  enterWorkout, renderWorkout, renderFormTab,
   clearBikeForm, saveBikeLog,
-  setDone, logSet, saveNextTimeNote, logAnotherSet,
+  setDone, adjustPreWeight, logSet, saveNextTimeNote, logAnotherSet,
   setupWorkoutGlobals,
 } from './workout.js';
 import {
   startNewSession, selectDayType, selectTimeGoal,
   handleStartWorkout, promptEndSession,
-  resumeSession, discardSavedSession, checkResumeSession,
+  resumeSession, discardSavedSession, checkResumeSession, trackEvent,
 } from './session.js';
 import { renderAnalytics } from './analytics.js';
 import { renderSettings, setupSettingsListeners } from './settings.js';
@@ -90,6 +90,7 @@ function setupEventListeners() {
 
   // Log Bike Session button in machine detail view
   $('btn-log-bike-session').onclick = () => {
+    trackEvent('bike_open');
     App.bikeReturnView = 'machine';
     clearBikeForm();
     showView('bike-log');
@@ -97,6 +98,7 @@ function setupEventListeners() {
 
   // Workout
   $('btn-quick-bike').onclick = () => {
+    trackEvent('bike_open');
     App.bikeReturnView = 'workout-return';
     clearBikeForm();
     showView('bike-log');
@@ -105,6 +107,7 @@ function setupEventListeners() {
 
   // Machine view
   $('btn-back-machine').onclick = () => {
+    trackEvent('machine_exit', { machineId: App.currentMachineId });
     hideRestTimer();
     renderWorkout();
     showView('workout');
@@ -126,7 +129,7 @@ function setupEventListeners() {
     if (!machine) return;
     machine.familiarity = machine.familiarity === 'familiar' ? 'learning' : 'familiar';
     saveData();
-    renderMachineView(App.currentMachineId);
+    renderFormTab(machine);
   };
 
   // TTS
@@ -156,6 +159,10 @@ function setupEventListeners() {
 
   // Set Done → starts rest timer, then data entry
   $('btn-set-done').onclick = setDone;
+  // Weight stepper before the set (issue #35)
+  $('weight-minus').onclick = () => adjustPreWeight(-5);
+  $('weight-plus').onclick = () => adjustPreWeight(5);
+  $('set-weight-pre').oninput = () => { $('set-weight').value = $('set-weight-pre').value; };
   // Save Set → logs the set data
   $('btn-log-set').onclick = logSet;
 
@@ -252,16 +259,17 @@ function init() {
     if (!m._setup) m._setup = {};
   });
 
-  // Seed any machines missing from user data (new machines added to DEFAULT_DATA
-  // in a later app version), then refresh tips from defaults since tips are static
-  // content, not user data.
+  // Refresh built-in machines from defaults (name, tips, setup fields, rep range
+  // are static content), keeping only the per-user fields: saved setup values,
+  // familiarity, and last-used time. Also seeds machines added in later versions.
   Object.entries(DEFAULT_DATA.machines).forEach(([id, def]) => {
-    if (!App.data.machines[id]) {
-      App.data.machines[id] = deepClone(def);
-      App.data.machines[id]._setup = {};
-    } else {
-      App.data.machines[id].tips = def.tips;
-    }
+    const existing = App.data.machines[id] || {};
+    App.data.machines[id] = {
+      ...deepClone(def),
+      _setup: existing._setup || {},
+      familiarity: existing.familiarity || def.familiarity,
+      lastUsedAt: existing.lastUsedAt ?? def.lastUsedAt,
+    };
   });
 
   // Always refresh built-in templates from defaults — templates aren't user-editable,
