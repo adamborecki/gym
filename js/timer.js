@@ -14,6 +14,7 @@ export function startRestTimer(machineType, offsetSec = 0) {
 
   App.restMachineType = machineType;
   App.restStartTime = Date.now() - (offsetSec * 1000);
+  App.restAlerted = false;
 
   const targets = REST_TARGETS[machineType];
   if (!targets) return;
@@ -63,9 +64,11 @@ function updateRestDisplay() {
     overtime.classList.remove('hidden');
     overtime.textContent = `+${formatTime(Math.floor(-remaining))}`;
 
-    // Alert on transition to done
-    if (remaining > -1 && remaining < 0) {
-      triggerRestAlert();
+    // Alert once when the target is reached. Skip if it's long past (e.g. the
+    // phone was locked and we're catching up) or already alerted this rest.
+    if (!App.restAlerted) {
+      App.restAlerted = true;
+      if (remaining > -3) triggerRestAlert();
     }
   }
 
@@ -96,86 +99,84 @@ export function hideRestTimer() {
 
 export function toggleRestMode() {
   App.restMode = App.restMode === 'hurry' ? 'normal' : 'hurry';
+  // Switching to a later target re-arms the alert
+  const targets = REST_TARGETS[App.restMachineType];
+  if (targets && App.restStartTime) {
+    const target = App.restMode === 'hurry' ? targets.hurry : targets.normal;
+    App.restAlerted = (Date.now() - App.restStartTime) / 1000 >= target;
+  }
   $('rest-mode-toggle').textContent = App.restMode === 'hurry' ? 'Switch: Normal' : 'Switch: Hurry';
   updateRestDisplay();
 }
 
 // ============================================================
-// REST TIMER AUDIO ALERT
+// REST TIMER AUDIO ALERT — noise swell (issue #12)
 // ============================================================
+const SWELL_SEC = 1.8;
+
+function getAudioCtx() {
+  if (!App.audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    App.audioCtx = new Ctx();
+  }
+  return App.audioCtx;
+}
+
+/** Call from a user gesture (e.g. Set Done) so iOS lets us play audio later. */
+export function unlockAudio() {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+  } catch (e) { /* audio not available */ }
+}
+
 function triggerRestAlert() {
   $('rest-timer').classList.add('rest-alert');
   setTimeout(() => $('rest-timer').classList.remove('rest-alert'), 3000);
-
-  // Try to play audio file first
-  tryPlayAudioFile().catch(() => {
-    // Fall back to generated noise
-    playNoiseAlert();
-  });
+  if (navigator.vibrate) navigator.vibrate([120, 80, 120]);
+  playNoiseSwell();
 }
 
-async function tryPlayAudioFile() {
-  const audio = new Audio('audio/alarm_swell.wav');
-  // Fade in/out with volume
-  audio.volume = 0;
-  await audio.play();
-  // Quick fade in
-  let vol = 0;
-  const fadeIn = setInterval(() => {
-    vol = Math.min(vol + 0.1, 0.8);
-    audio.volume = vol;
-    if (vol >= 0.8) clearInterval(fadeIn);
-  }, 50);
-  // Fade out near end
-  audio.ontimeupdate = () => {
-    if (audio.duration - audio.currentTime < 0.3) {
-      audio.volume = Math.max(audio.volume - 0.2, 0);
-    }
-  };
-}
-
-function playNoiseAlert() {
+/**
+ * Soft "whoosh": filtered noise that crescendos then decrescendos while a
+ * band-pass filter sweeps up and back down — noticeable without being a beep.
+ */
+function playNoiseSwell() {
   try {
-    if (!App.audioCtx) {
-      App.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    const ctx = App.audioCtx;
-    const duration = 0.5;
-    const sampleRate = ctx.sampleRate;
-    const length = sampleRate * duration;
-    const buffer = ctx.createBuffer(1, length, sampleRate);
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const length = Math.floor(ctx.sampleRate * SWELL_SEC);
+    const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
     const data = buffer.getChannelData(0);
-
-    // White noise
-    for (let i = 0; i < length; i++) {
-      data[i] = (Math.random() * 2 - 1) * 0.3;
-    }
-
-    // Fade envelope
-    const fadeLen = Math.floor(sampleRate * 0.05);
-    for (let i = 0; i < fadeLen; i++) {
-      const t = i / fadeLen;
-      data[i] *= t;
-      data[length - 1 - i] *= t;
-    }
+    for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
 
     const source = ctx.createBufferSource();
     source.buffer = buffer;
 
-    // Low-pass filter
+    const t0 = ctx.currentTime;
+    const peak = t0 + SWELL_SEC * 0.55;
+    const end = t0 + SWELL_SEC;
+
     const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 800;
+    filter.type = 'bandpass';
+    filter.Q.value = 1.2;
+    filter.frequency.setValueAtTime(300, t0);
+    filter.frequency.exponentialRampToValueAtTime(2400, peak);
+    filter.frequency.exponentialRampToValueAtTime(400, end);
 
     const gain = ctx.createGain();
-    gain.gain.value = 0.5;
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.9, peak);
+    gain.gain.exponentialRampToValueAtTime(0.0001, end);
 
     source.connect(filter);
     filter.connect(gain);
     gain.connect(ctx.destination);
-
-    source.start();
-    source.stop(ctx.currentTime + duration);
+    source.start(t0);
+    source.stop(end);
   } catch (e) {
     // Audio not available, silent fallback
   }

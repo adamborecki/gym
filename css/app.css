@@ -36,6 +36,10 @@
   --radius-sm: 8px;
   --radius-pill: 999px;
   --transition: 200ms ease;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -56,6 +60,10 @@
     --rest-bar-bg: #2a2a45;
     --toast-bg: #2a2a45;
     --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
   }
 }
 
@@ -404,6 +412,7 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 #progress-bar + #pill-row { top: 22px; }
 
 .progress-track {
+  position: relative;
   flex: 1;
   height: 5px;
   background: var(--rest-bar-bg);
@@ -421,6 +430,16 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 #progress-fill.pace-on { background: var(--accent); }
 #progress-fill.pace-behind { background: var(--warning); }
 #progress-fill.pace-over { background: var(--danger); }
+
+.progress-tick {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  margin-left: -1px;
+  background: var(--text);
+  opacity: 0.55;
+}
 
 #progress-time-readout {
   font-size: 0.65rem;
@@ -616,6 +635,12 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   margin-top: 0;
   text-align: center;
 }
+.warmup-hint {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-left: 6px;
+}
 .stretch-logged {
   display: flex;
   align-items: center;
@@ -768,6 +793,17 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   padding: 4px 0;
 }
 
+.familiar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 4px;
+}
+.familiar-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .mantra-sticky {
   display: flex;
   flex-direction: column;
@@ -833,6 +869,24 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   font-size: 0.8rem;
   color: var(--text-muted);
 }
+.set-row-setup {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.set-row-edit {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  width: 36px;
+  height: 32px;
+  margin: -6px -8px -6px 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.set-row-edit:active { background: var(--chip-bg); color: var(--text); }
 
 /* ---------- Set Logger ---------- */
 #set-logger {
@@ -1076,9 +1130,58 @@ body.rest-timer-visible .view-content {
   text-align: center;
 }
 #set-preview {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text-secondary);
   margin-bottom: 8px;
+}
+
+/* Weight stepper — adjust before starting the set (issue #35) */
+.weight-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.stepper-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.stepper-btn:active { background: var(--chip-bg); transform: scale(0.95); }
+.stepper-input {
+  width: 90px;
+  padding: 6px 4px;
+  border: none;
+  border-bottom: 2px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.stepper-input:focus { outline: none; border-bottom-color: var(--accent); }
+.stepper-unit {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-left: -6px;
+}
+#set-plan-hint {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  margin-bottom: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border);
 }
 #set-entry-phase.hidden { display: none; }
 
@@ -1403,7 +1506,62 @@ body.rest-timer-visible .view-content {
 .summary-stat:last-child { border-bottom: none; }
 .summary-stat-label { color: var(--text-secondary); }
 .summary-stat-value { font-weight: 700; }
-#summary-content h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+#summary-content h3,
+.day-summary-session h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.day-summary-session + .day-summary-session { margin-top: 16px; padding-top: 8px; border-top: 2px solid var(--border); }
+
+/* ---------- Session timeline (issue #17) ---------- */
+.timeline {
+  position: relative;
+  height: 28px;
+  background: var(--bg-card-alt);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.tl-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-right: 2px solid var(--bg-card); /* surface gap between segments */
+  cursor: pointer;
+}
+.tl-seg.tl-active { box-shadow: inset 0 0 0 2px var(--text); }
+.tl-warmup { background: var(--border); }
+.tl-s1 { background: var(--series-1); }
+.tl-s2 { background: var(--series-2); }
+.tl-s3 { background: var(--series-3); }
+.tl-s4 { background: var(--series-4); }
+.tl-tick {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 8px;
+  margin-left: -1px;
+  background: var(--bg-card);
+  pointer-events: none;
+}
+.timeline-axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.timeline-caption {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  min-height: 1.3em;
+}
+.tl-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
 
 /* ---------- Responsive (larger phones) ---------- */
 @media (min-width: 420px) {

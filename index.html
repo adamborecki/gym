@@ -15,7 +15,7 @@
 
   <!-- Session Progress Bar (visible during active session) -->
   <div id="progress-bar" class="hidden" aria-label="Session progress">
-    <div class="progress-track"><div id="progress-fill"></div></div>
+    <div class="progress-track"><div id="progress-fill"></div><div id="progress-ticks"></div></div>
     <div id="progress-time-readout"></div>
   </div>
 
@@ -212,15 +212,19 @@
         </div>
         <div id="tab-content-form" class="tab-content">
           <div id="form-text"></div>
+          <button class="form-expand-btn hidden" id="btn-form-expand">Show more</button>
           <div id="tts-form-row" class="tts-row hidden">
             <button class="btn btn-sm btn-ghost" id="btn-tts-form">🔊 Read Form</button>
+          </div>
+          <div class="familiar-row" id="familiar-row">
+            <button class="btn btn-sm btn-ghost" id="btn-toggle-familiar"></button>
+            <span class="familiar-hint" id="familiar-hint"></span>
           </div>
         </div>
         <div id="tab-content-history" class="tab-content">
           <div id="machine-history"></div>
         </div>
 
-        <button class="btn btn-sm btn-ghost" id="btn-toggle-familiar"></button>
 
         <!-- Mantra Sticky (always visible during set logging) -->
         <div id="machine-mantra-sticky" class="mantra-sticky"></div>
@@ -237,7 +241,14 @@
 
           <!-- Phase 1: Set Done button (starts rest timer) -->
           <div id="set-done-phase">
+            <div class="weight-stepper">
+              <button class="stepper-btn" id="weight-minus" aria-label="Decrease weight">&minus;</button>
+              <input type="number" id="set-weight-pre" class="stepper-input" inputmode="decimal" min="0" step="2.5" placeholder="0" onfocus="this.select()" aria-label="Weight">
+              <span class="stepper-unit">lbs</span>
+              <button class="stepper-btn" id="weight-plus" aria-label="Increase weight">+</button>
+            </div>
             <div id="set-preview"></div>
+            <div id="set-plan-hint" class="hidden"></div>
             <button class="btn btn-primary btn-xl" id="btn-set-done">Set Done</button>
           </div>
 

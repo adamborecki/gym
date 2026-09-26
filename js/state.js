@@ -13,6 +13,7 @@ export const App = {
   restStartTime: null,
   restMode: 'normal',
   restMachineType: null,
+  restAlerted: false,    // rest-done alert already fired for the current rest
   progressInterval: null,
   sessionStartTime: null,
   setDoneAt: null,       // timestamp when "Set Done" was tapped

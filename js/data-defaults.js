@@ -44,6 +44,12 @@ export const DEFAULT_DATA = {
           "type": "number"
         },
         {
+          "key": "handle",
+          "label": "Handle Position",
+          "type": "choice",
+          "options": ["1", "2", "3"]
+        },
+        {
           "key": "start",
           "label": "Start/Range",
           "type": "number"
@@ -60,7 +66,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🧱 chest up",
           "💪 elbows 30–45°",
-          "🚫 no lockout"
+          "🚫 no lockout",
+          "⏱️ 1s press · 2s lower"
         ],
         "phasedCues": {}
       },
@@ -108,7 +115,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "📐 upper-chest path",
           "🧱 ribs quiet",
-          "✋ wrists stacked"
+          "✋ wrists stacked",
+          "⏱️ 1s press · 2s lower"
         ],
         "phasedCues": {}
       },
@@ -156,7 +164,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🧱 ribs down",
           "🧘 no shrug",
-          "🎯 elbows under wrists"
+          "🎯 elbows under wrists",
+          "⏱️ 1s press · 2s lower"
         ],
         "phasedCues": {}
       },
@@ -201,7 +210,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🤗 hug barrel",
           "🧘 shoulders down",
-          "🐢 slow stretch"
+          "🐢 slow stretch",
+          "⏱️ 1s close · 2–3s open"
         ],
         "phasedCues": {}
       },
@@ -246,7 +256,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🧍 chest to pad",
           "🧘 neck long",
-          "🎯 elbows lead"
+          "🎯 elbows lead",
+          "⏱️ 2s out · 3s back"
         ],
         "phasedCues": {}
       },
@@ -255,7 +266,7 @@ export const DEFAULT_DATA = {
     },
     "triceps_pushdown": {
       "id": "triceps_pushdown",
-      "name": "Triceps Pushdown",
+      "name": "Triceps Pushdown (Machine)",
       "category": "push",
       "type": "isolation",
       "variants": [],
@@ -270,14 +281,14 @@ export const DEFAULT_DATA = {
       ],
       "setupFields": [
         {
-          "key": "attachment",
-          "label": "Attachment",
-          "type": "text"
+          "key": "seat",
+          "label": "Seat",
+          "type": "number"
         },
         {
-          "key": "height",
-          "label": "Pulley Height",
-          "type": "text"
+          "key": "start",
+          "label": "Start/Range",
+          "type": "number"
         },
         {
           "key": "notes",
@@ -286,12 +297,13 @@ export const DEFAULT_DATA = {
         }
       ],
       "tips": {
-        "setup": "**Setup**\n\u2022 \ud83e\uddbe Elbows pinned to sides; shoulders relaxed and down.\n\u2022 Stand close enough that the cable pulls slightly upward at the top.\n\u2022 \ud83e\udd1d Thumbless or neutral grip \u2014 don\u2019t white-knuckle.",
-        "form": "**Execution**\n\u2022 \u2b07\ufe0f Extend down smoothly; stop just short of a hard lockout.\n\u2022 \u2b06\ufe0f Control the return \u2014 don\u2019t let elbows flare or drift forward.\n\u2022 Upper arms stay fixed throughout.\n\n**Fix common issues**\n\u2022 Forearms taking over \u2192 focus on keeping elbows fixed; wrists neutral.\n\u2022 Shoulders rising \u2192 consciously drop them before each rep.\n\u2022 Feeling it in chest \u2192 step back, keep elbows tight to sides.\n\n**Tempo**\n\u2022 \u23f1\ufe0f 1 sec down, 2 sec up",
+        "setup": "**Setup**\n• 🪑 Seat height: handles start around lower-chest level with elbows bent ~90°.\n• 🧱 Back against the pad, chest up; feet flat on the floor or footrest.\n• 📌 Elbows tucked close to your sides — lined up with the machine's pivot if it has one.\n• 🤝 Neutral or slightly pronated grip, light hands — don't white-knuckle the handles.",
+        "form": "**Execution**\n• ⬇️ Press the handles down smoothly until arms are nearly straight; stop just short of a hard lockout.\n• ⬆️ Control the return up to ~90° — don't let the stack yank your elbows forward or up.\n• Upper arms stay pinned to your sides; only the forearms move.\n• 🧘 Shoulders stay down and back against the pad.\n\n**Fix common issues**\n• Leaning forward / using body weight → sit tall, back on pad, lighten the load.\n• Shoulders rolling forward or rising → reset posture and drop them before each rep.\n• Elbows flaring out → tuck them in; lower the weight if needed.\n• Feeling it in chest or shoulders → stay upright and shorten the top of the range.\n\n**Tempo**\n• ⏱️ 1 sec down, 2 sec up",
         "mantra": [
           "📌 elbows pinned",
-          "✋ wrists neutral",
-          "🐢 control up"
+          "🧱 back on pad",
+          "🐢 control up",
+          "⏱️ 1s down · 2s up"
         ],
         "phasedCues": {}
       },
@@ -336,7 +348,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "📌 upper arm still",
           "🐢 control",
-          "🚫 no slam"
+          "🚫 no slam",
+          "⏱️ 2s down · 2s up"
         ],
         "phasedCues": {}
       },
@@ -381,7 +394,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🪝 hands hooks",
           "⬇️ elbows to pockets",
-          "🧘 shoulders down"
+          "🧘 shoulders down",
+          "⏱️ 1–2s pull · 2s up"
         ],
         "phasedCues": {}
       },
@@ -426,7 +440,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🧱 tall chest",
           "↩️ elbows back",
-          "🧊 pause squeeze"
+          "🧊 pause squeeze",
+          "⏱️ 2s pull · 3s return"
         ],
         "phasedCues": {}
       },
@@ -461,8 +476,9 @@ export const DEFAULT_DATA = {
         },
         {
           "key": "grip",
-          "label": "Grip (neutral / over / under)",
-          "type": "text"
+          "label": "Grip",
+          "type": "choice",
+          "options": ["Neutral", "Overhand", "Underhand"]
         },
         {
           "key": "notes",
@@ -476,8 +492,31 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🧱 chest glued to pad",
           "↩️ elbows to pockets",
-          "🤏 squeeze & stretch"
+          "🤏 squeeze & stretch",
+          "⏱️ 1–2s pull · 2–3s return"
         ],
+        "phasedCues": {}
+      },
+      "familiarity": "learning",
+      "lastUsedAt": null
+    },
+    "mts_front_pulldown": {
+      "id": "mts_front_pulldown",
+      "name": "MTS Front Pulldown",
+      "category": "pull",
+      "type": "compound",
+      "variants": ["MTS"],
+      "repRange": { "min": 8, "max": 12 },
+      "rirPattern": [3, 2, 1],
+      "setupFields": [
+        { "key": "seat", "label": "Seat", "type": "number" },
+        { "key": "start", "label": "Start/Range", "type": "number" },
+        { "key": "notes", "label": "Setup Notes", "type": "text" }
+      ],
+      "tips": {
+        "setup": "**Setup**\n• 🪑 Seat so your thighs are snug under the pad and the handles are just reachable with arms fully extended.\n• 🧍 Sit tall, slight lean back from the hips; chest up.\n• ✋ Grip the handles with a light, hook-like grip — pull with the elbows, not the hands.",
+        "form": "**Execution**\n• ⬇️ Drive elbows down and slightly back toward your ribs until handles reach upper-chest level.\n• 🧘 Start each rep by pulling shoulders down away from ears, then pull.\n• 🤏 Brief squeeze at the bottom; feel the lats, not the biceps.\n• ⬆️ Control the return to a full stretch overhead without shrugging.\n\n**Iso-lateral advantage**\n• ⚖️ Arms move independently — match reps to your weaker side.\n• Try one arm at a time to feel each lat work.\n\n**Fix common issues**\n• Biceps dominating → thumbless grip; think elbows to back pockets.\n• Leaning way back / swinging → lighten the load, keep torso still.\n• Shoulders creeping up at the top → reset them down before the next rep.\n\n**Tempo**\n• ⏱️ 1–2 sec pull, 1 sec squeeze, 2–3 sec return",
+        "mantra": ["🧘 shoulders down first", "⬇️ elbows to ribs", "🪝 hands hooks", "⏱️ 1–2s pull · 2–3s up"],
         "phasedCues": {}
       },
       "familiarity": "learning",
@@ -521,7 +560,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "📌 upper arm fixed",
           "✋ wrists neutral",
-          "🐢 slow down"
+          "🐢 slow down",
+          "⏱️ 1s up · 2–3s down"
         ],
         "phasedCues": {}
       },
@@ -566,7 +606,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🧘 shoulders down",
           "⬆️ chest to bar",
-          "🪝 hands hooks"
+          "🪝 hands hooks",
+          "⏱️ 1–2s up · 2–3s down"
         ],
         "phasedCues": {}
       },
@@ -611,7 +652,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🦶 feet higher = knee friendly",
           "🧭 knees over toes",
-          "🚫 no lockout"
+          "🚫 no lockout",
+          "⏱️ 1–2s push · 3s down"
         ],
         "phasedCues": {}
       },
@@ -656,7 +698,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🦵 squeeze ham",
           "🧊 pause",
-          "🐢 control up"
+          "🐢 control up",
+          "⏱️ 1s curl · 3s return"
         ],
         "phasedCues": {}
       },
@@ -701,7 +744,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🐢 slow down",
           "🚫 no slam",
-          "🧭 knee comfy"
+          "🧭 knee comfy",
+          "⏱️ 1s up · 2–3s down"
         ],
         "phasedCues": {}
       },
@@ -746,7 +790,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🧍 tall torso",
           "🚫 no rocking",
-          "🧊 pause end range"
+          "🧊 pause end range",
+          "⏱️ 1s out · 2s in"
         ],
         "phasedCues": {}
       },
@@ -791,7 +836,8 @@ export const DEFAULT_DATA = {
         "mantra": [
           "🧍 tall torso",
           "🚫 no rocking",
-          "🧊 pause end range"
+          "🧊 pause end range",
+          "⏱️ 1s in · 2s out"
         ],
         "phasedCues": {}
       },
@@ -858,8 +904,8 @@ export const DEFAULT_DATA = {
       ],
       "tips": {
         "setup": "**Seat**: Adjust so the pad sits mid-chest. Feet flat on the floor or on the foot bar.",
-        "form": "**Execution**\n• Exhale and crunch forward — round the spine, don't just hinge at the hips.\n• Pause at peak contraction for 1 second.\n• Slow eccentric — 2-3 seconds back up.\n• Keep neck neutral — don't pull with your head.\n• Focus on ribs moving toward hips, not arms pulling.",
-        "mantra": ["💨 exhale", "🧊 pause", "🚫 no hip hinge"],
+        "form": "**Execution**\n• Exhale and crunch forward — round the spine, don't just hinge at the hips.\n• Pause at peak contraction for 1 second.\n• Slow eccentric — 2-3 seconds back up.\n• Keep neck neutral — don't pull with your head.\n• Focus on ribs moving toward hips, not arms pulling.\n\n**Tempo**\n• ⏱️ 1 sec crunch, 1 sec pause, 2–3 sec return",
+        "mantra": ["💨 exhale", "🧊 pause", "🚫 no hip hinge", "⏱️ 1s crunch · 2–3s up"],
         "phasedCues": {}
       },
       "familiarity": "learning",
@@ -879,8 +925,8 @@ export const DEFAULT_DATA = {
       ],
       "tips": {
         "setup": "**Seat**: Adjust so the pads are snug against your chest. Set range of motion to a comfortable rotation.\n\n**Note**: Do one set each direction — log each direction as a separate set.",
-        "form": "**Execution**\n• Rotate from the core — don't push with your arms.\n• Controlled tempo throughout — no momentum or jerking.\n• Pause at end range for 1 second.\n• Return slowly — the eccentric matters.\n• Keep hips and legs still — only your torso moves.",
-        "mantra": ["🔄 core rotates", "🧊 pause", "🦵 hips still"],
+        "form": "**Execution**\n• Rotate from the core — don't push with your arms.\n• Controlled tempo throughout — no momentum or jerking.\n• Pause at end range for 1 second.\n• Return slowly — the eccentric matters.\n• Keep hips and legs still — only your torso moves.\n\n**Tempo**\n• ⏱️ 1 sec rotate, 1 sec pause, 2 sec return",
+        "mantra": ["🔄 core rotates", "🧊 pause", "🦵 hips still", "⏱️ 1s turn · 2s return"],
         "phasedCues": {}
       },
       "familiarity": "learning",
@@ -900,8 +946,8 @@ export const DEFAULT_DATA = {
       ],
       "tips": {
         "setup": "**Attachment**: Rope attachment on high pulley. Kneel facing the machine, rope behind your head.",
-        "form": "**Execution**\n• Crunch down by rounding the spine — ribs toward hips.\n• Keep hips stationary — don't sit back.\n• Exhale hard at the bottom.\n• Slow eccentric — let the weight stretch you back up.\n• Arms stay fixed — the movement comes from your abs.",
-        "mantra": ["💨 exhale", "🧊 pause", "🦵 hips fixed"],
+        "form": "**Execution**\n• Crunch down by rounding the spine — ribs toward hips.\n• Keep hips stationary — don't sit back.\n• Exhale hard at the bottom.\n• Slow eccentric — let the weight stretch you back up.\n• Arms stay fixed — the movement comes from your abs.\n\n**Tempo**\n• ⏱️ 1 sec crunch, 1 sec pause, 2–3 sec return",
+        "mantra": ["💨 exhale", "🧊 pause", "🦵 hips fixed", "⏱️ 1s crunch · 2–3s up"],
         "phasedCues": {}
       },
       "familiarity": "learning",
@@ -920,8 +966,8 @@ export const DEFAULT_DATA = {
       ],
       "tips": {
         "setup": "**Setup**: Hang from a pull-up bar or use captain's chair / arm slings. Bodyweight exercise — log weight as 0 or add weight if using a dumbbell between feet.",
-        "form": "**Execution**\n• Raise legs by curling the pelvis up — don't just lift legs with hip flexors.\n• Control the descent — no swinging.\n• Bent knees = easier; straight legs = harder.\n• Exhale as you raise, inhale as you lower.\n• Minimize body swing — brace your core throughout.",
-        "mantra": ["💨 exhale", "🚫 no swing", "🦴 curl pelvis"],
+        "form": "**Execution**\n• Raise legs by curling the pelvis up — don't just lift legs with hip flexors.\n• Control the descent — no swinging.\n• Bent knees = easier; straight legs = harder.\n• Exhale as you raise, inhale as you lower.\n• Minimize body swing — brace your core throughout.\n\n**Tempo**\n• ⏱️ 1 sec up, 2–3 sec down",
+        "mantra": ["💨 exhale", "🚫 no swing", "🦴 curl pelvis", "⏱️ 1s up · 2–3s down"],
         "phasedCues": {}
       },
       "familiarity": "learning",
@@ -995,7 +1041,9 @@ export const DEFAULT_DATA = {
           "completion": "any",
           "suggestions": [
             "lat_pulldown",
-            "assisted_chin"
+            "mts_front_pulldown",
+            "assisted_chin",
+            "mts_row"
           ]
         },
         {

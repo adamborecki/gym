@@ -2,7 +2,8 @@
  * Gym App — Analytics (heatmap, weekly charts)
  */
 
-import { $, formatDuration, localDateStr } from './utils.js';
+import { $, localDateStr } from './utils.js';
+import { renderSessionSummary } from './session.js';
 import { App } from './state.js';
 
 // ============================================================
@@ -144,20 +145,15 @@ function showDaySummary(dateStr) {
   const container = $('day-summary');
   container.classList.remove('hidden');
 
-  let html = `<h3>${dateStr}</h3>`;
+  // Full session summary (timeline, per-machine time, notes) for each session that day
+  container.innerHTML = `<h3>${dateStr}</h3>`;
   sessions.forEach(s => {
-    const duration = s.endedAt
-      ? formatDuration(new Date(s.endedAt).getTime() - new Date(s.startedAt).getTime())
-      : '—';
-    html += `
-      <div class="summary-stat">
-        <span class="summary-stat-label">${s.dayType} — ${s.sets.length} sets</span>
-        <span class="summary-stat-value">${duration}</span>
-      </div>
-    `;
+    const block = document.createElement('div');
+    block.className = 'day-summary-session';
+    container.appendChild(block);
+    renderSessionSummary(s, block);
   });
-
-  container.innerHTML = html;
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function renderWeeklyCharts() {
