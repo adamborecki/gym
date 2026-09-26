@@ -255,7 +255,7 @@ export function renderWorkout() {
       otherMachines.forEach(machineId => {
         const machine = App.data.machines[machineId];
         if (!machine) return;
-        const setsForMachine = getMachineSets(machineId);
+        const setsForMachine = getMachineSets(machineId, block.id);
         const row = document.createElement('div');
         row.className = 'machine-row';
         row.onclick = () => openMachine(machineId, block.id);
@@ -500,7 +500,7 @@ function renderMachineBlock(body, block) {
     const machine = App.data.machines[machineId];
     if (!machine) return;
 
-    const setsForMachine = getMachineSets(machineId);
+    const setsForMachine = getMachineSets(machineId, block.id);
     const row = document.createElement('div');
     row.className = 'machine-row';
     row.onclick = () => openMachine(machineId, block.id);
@@ -527,7 +527,8 @@ function getBlockSets(block) {
   if (block.id === 'abs' && App.session._ui.otherMachines) {
     App.session._ui.otherMachines.forEach(m => ids.push(m));
   }
-  return App.session.sets.filter(s => ids.includes(s.machineId));
+  return App.session.sets.filter(s => ids.includes(s.machineId) &&
+    (!s.blockId || s.blockId === block.id));
 }
 
 function isBlockComplete(block) {
@@ -536,21 +537,28 @@ function isBlockComplete(block) {
   if (block.id === 'abs') {
     // Abs/Core is supplementary — "complete" if any machine has at least one set
     const allMachines = [...(block.suggestions || []), ...(App.session._ui.otherMachines || [])];
-    return allMachines.some(mid => getMachineSets(mid).length > 0);
+    return allMachines.some(mid => getMachineSets(mid, block.id).length > 0);
   }
   // Choice-based blocks (e.g. compound primary/secondary with multiple options):
   // complete if ANY listed machine has at least one set. Reflects that compound
   // movements are interchangeable and fatigue/order shouldn't force redundant work.
   if (block.completion === 'any') {
-    return block.suggestions.some(mid => getMachineSets(mid).length > 0);
+    return block.suggestions.some(mid => getMachineSets(mid, block.id).length > 0);
   }
   // Default: a block is "complete" only if every machine has at least one set
-  return block.suggestions.every(mid => getMachineSets(mid).length > 0);
+  return block.suggestions.every(mid => getMachineSets(mid, block.id).length > 0);
 }
 
-export function getMachineSets(machineId) {
+/**
+ * Sets for a machine this session. With a blockId, only sets logged from that
+ * block — a machine can be listed in more than one block (e.g. MTS Row is both
+ * a pull primary and secondary option), and a set should only count once.
+ * Sets without a blockId (logged before this was tracked) match any block.
+ */
+export function getMachineSets(machineId, blockId) {
   if (!App.session) return [];
-  return App.session.sets.filter(s => s.machineId === machineId);
+  return App.session.sets.filter(s => s.machineId === machineId &&
+    (blockId == null || !s.blockId || s.blockId === blockId));
 }
 
 function toggleBlock(blockId) {
@@ -813,7 +821,7 @@ function renderMantraSticky(machine) {
 
 function renderLoggedSets(machineId) {
   const container = $('logged-sets');
-  const sets = getMachineSets(machineId);
+  const sets = getMachineSets(machineId, App.currentBlockId);
   container.innerHTML = '';
 
   sets.forEach(s => {
@@ -886,13 +894,13 @@ function showEditSetModal(set) {
     const idx = App.session.sets.indexOf(set);
     if (idx === -1) return;
     App.session.sets.splice(idx, 1);
-    renumberSets(machineId);
+    renumberSets(machineId, set.blockId);
     overlay.classList.add('hidden');
     afterChange();
     refreshSetLoggerAfterDelete(machineId);
     showToast(`Set deleted`, () => {
       App.session.sets.splice(idx, 0, set);
-      renumberSets(machineId);
+      renumberSets(machineId, set.blockId);
       afterChange();
       refreshSetLoggerAfterDelete(machineId);
     });
@@ -915,8 +923,8 @@ function showEditSetModal(set) {
   overlay.classList.remove('hidden');
 }
 
-function renumberSets(machineId) {
-  getMachineSets(machineId).forEach((s, i) => { s.setNumber = i + 1; });
+function renumberSets(machineId, blockId) {
+  getMachineSets(machineId, blockId).forEach((s, i) => { s.setNumber = i + 1; });
 }
 
 function refreshSetLoggerAfterDelete(machineId) {
@@ -925,7 +933,7 @@ function refreshSetLoggerAfterDelete(machineId) {
   const inEntry = !$('set-logger').classList.contains('hidden') &&
     !$('set-entry-phase').classList.contains('hidden');
   if (inEntry) {
-    $('current-set-label').textContent = `Set ${getMachineSets(machineId).length + 1}`;
+    $('current-set-label').textContent = `Set ${getMachineSets(machineId, App.currentBlockId).length + 1}`;
   } else {
     renderSetLogger(machineId);
   }
@@ -935,7 +943,7 @@ function renderSetLogger(machineId) {
   const machine = App.data.machines[machineId];
   if (!machine || machine.type === 'conditioning') return;
 
-  const sets = getMachineSets(machineId);
+  const sets = getMachineSets(machineId, App.currentBlockId);
   const rirPattern = machine.rirPattern || [2, 1, 1];
 
   // Once the typical working sets are done, show next-time suggestion + option for more
@@ -954,7 +962,7 @@ function renderSetLogger(machineId) {
  */
 function showSetLoggerForNextSet(machineId) {
   const machine = App.data.machines[machineId];
-  const sets = getMachineSets(machineId);
+  const sets = getMachineSets(machineId, App.currentBlockId);
   const setNum = sets.length + 1;
   const rirPattern = machine.rirPattern || [2, 1, 1];
   const targetRir = rirPattern[Math.min(setNum, rirPattern.length) - 1];
@@ -1040,7 +1048,7 @@ function getLastSessionWeight(machineId) {
 
 function showNextTimeSuggestion(machineId) {
   const machine = App.data.machines[machineId];
-  const sets = getMachineSets(machineId);
+  const sets = getMachineSets(machineId, App.currentBlockId);
 
   $('set-logger').classList.add('hidden');
   $('next-time-suggestion').classList.remove('hidden');
@@ -1142,11 +1150,12 @@ export function logSet() {
   const custom = $('set-custom-note').value.trim();
   if (custom) notes.push(custom);
 
-  const sets = getMachineSets(machineId);
+  const sets = getMachineSets(machineId, App.currentBlockId);
   const setNumber = sets.length + 1;
 
   const setData = {
     machineId,
+    blockId: App.currentBlockId,
     setNumber,
     weight,
     reps,

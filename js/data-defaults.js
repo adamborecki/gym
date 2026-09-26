@@ -500,6 +500,28 @@ export const DEFAULT_DATA = {
       "familiarity": "learning",
       "lastUsedAt": null
     },
+    "mts_front_pulldown": {
+      "id": "mts_front_pulldown",
+      "name": "MTS Front Pulldown",
+      "category": "pull",
+      "type": "compound",
+      "variants": ["MTS"],
+      "repRange": { "min": 8, "max": 12 },
+      "rirPattern": [3, 2, 1],
+      "setupFields": [
+        { "key": "seat", "label": "Seat", "type": "number" },
+        { "key": "start", "label": "Start/Range", "type": "number" },
+        { "key": "notes", "label": "Setup Notes", "type": "text" }
+      ],
+      "tips": {
+        "setup": "**Setup**\n• 🪑 Seat so your thighs are snug under the pad and the handles are just reachable with arms fully extended.\n• 🧍 Sit tall, slight lean back from the hips; chest up.\n• ✋ Grip the handles with a light, hook-like grip — pull with the elbows, not the hands.",
+        "form": "**Execution**\n• ⬇️ Drive elbows down and slightly back toward your ribs until handles reach upper-chest level.\n• 🧘 Start each rep by pulling shoulders down away from ears, then pull.\n• 🤏 Brief squeeze at the bottom; feel the lats, not the biceps.\n• ⬆️ Control the return to a full stretch overhead without shrugging.\n\n**Iso-lateral advantage**\n• ⚖️ Arms move independently — match reps to your weaker side.\n• Try one arm at a time to feel each lat work.\n\n**Fix common issues**\n• Biceps dominating → thumbless grip; think elbows to back pockets.\n• Leaning way back / swinging → lighten the load, keep torso still.\n• Shoulders creeping up at the top → reset them down before the next rep.\n\n**Tempo**\n• ⏱️ 1–2 sec pull, 1 sec squeeze, 2–3 sec return",
+        "mantra": ["🧘 shoulders down first", "⬇️ elbows to ribs", "🪝 hands hooks", "⏱️ 1–2s pull · 2–3s up"],
+        "phasedCues": {}
+      },
+      "familiarity": "learning",
+      "lastUsedAt": null
+    },
     "biceps_curl_machine": {
       "id": "biceps_curl_machine",
       "name": "Biceps Curl (Machine)",
@@ -1019,7 +1041,9 @@ export const DEFAULT_DATA = {
           "completion": "any",
           "suggestions": [
             "lat_pulldown",
-            "assisted_chin"
+            "mts_front_pulldown",
+            "assisted_chin",
+            "mts_row"
           ]
         },
         {

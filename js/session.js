@@ -283,7 +283,7 @@ export function deriveTimeline(session) {
     const t = new Date(ev.at).getTime();
     if (ev.type === 'machine_open' && ev.detail?.machineId) {
       close(t);
-      cur = { machineId: ev.detail.machineId, start: t };
+      cur = { machineId: ev.detail.machineId, blockId: ev.detail.blockId, start: t };
     } else if (ev.type === 'machine_exit' || ev.type === 'machine_done' || ev.type === 'session_end') {
       close(t);
     }
@@ -298,7 +298,7 @@ export function deriveTimeline(session) {
   const byId = {};
   segments.forEach(seg => {
     if (!byId[seg.machineId]) {
-      byId[seg.machineId] = { machineId: seg.machineId, durationMs: 0, firstOpen: seg.start };
+      byId[seg.machineId] = { machineId: seg.machineId, blockId: seg.blockId, durationMs: 0, firstOpen: seg.start };
       machines.push(byId[seg.machineId]);
     }
     byId[seg.machineId].durationMs += seg.end - seg.start;
@@ -316,7 +316,8 @@ export function deriveTimeline(session) {
   return { startMs, endMs, warmupEnd, segments, machines };
 }
 
-function machineSlot(session, machineId) {
+function machineSlot(session, machineId, blockId) {
+  if (blockId && BLOCK_SLOT[blockId]) return BLOCK_SLOT[blockId];
   const template = App.data.templates[session.templateId];
   const block = template?.blocks.find(b => (b.suggestions || []).includes(machineId) && b.id !== 'warmup');
   return BLOCK_SLOT[block?.id] || 4;
@@ -340,7 +341,7 @@ function renderTimeline(session) {
       data-label="Warm-up · ${shortDuration(warmupEnd - startMs)}"></div>`;
   }
   segments.forEach(seg => {
-    bar += `<div class="tl-seg tl-s${machineSlot(session, seg.machineId)}"
+    bar += `<div class="tl-seg tl-s${machineSlot(session, seg.machineId, seg.blockId)}"
       style="left:${pct(seg.start)}%;width:${pct(seg.end) - pct(seg.start)}%"
       data-label="${nameOf(seg.machineId)} · ${shortDuration(seg.end - seg.start)}"></div>`;
   });
@@ -359,7 +360,7 @@ function renderTimeline(session) {
     const prep = m.prepMs ? ` · ${shortDuration(m.prepMs)} prep` : '';
     html += `
       <div class="summary-stat">
-        <span class="summary-stat-label"><span class="tl-swatch tl-s${machineSlot(session, m.machineId)}"></span>${nameOf(m.machineId)}</span>
+        <span class="summary-stat-label"><span class="tl-swatch tl-s${machineSlot(session, m.machineId, m.blockId)}"></span>${nameOf(m.machineId)}</span>
         <span class="summary-stat-value">${formatDuration(m.durationMs)} · ${m.setCount} sets${prep}</span>
       </div>
     `;
