@@ -795,6 +795,10 @@ function renderHistoryTab(machineId) {
     const nextTime = s.nextTimeNotes?.[machineId];
     const hasNotes = !!nextTime || machineSets.some(st => st.notes?.length);
 
+    // Where this lift fell in the workout (by first logged set) — earlier = fresher
+    const liftOrder = [...new Set(s.sets.map(st => st.machineId))];
+    const liftNum = liftOrder.indexOf(machineId) + 1;
+
     const entry = document.createElement('div');
     entry.className = 'history-session';
 
@@ -804,7 +808,9 @@ function renderHistoryTab(machineId) {
     head.className = 'history-session-head';
     head.setAttribute('aria-expanded', 'false');
     let headHtml = `<div class="history-session-date">
-      <span>${label}${hasNotes ? ' <span class="history-note-badge" title="Has notes">📝</span>' : ''}</span>
+      <span>${label}
+        <span class="history-lift-badge lift-${Math.min(liftNum, 4)}" title="Lift ${liftNum} of ${liftOrder.length} in this workout">${ordinal(liftNum)} lift</span>
+        ${hasNotes ? '<span class="history-note-badge" title="Has notes">📝</span>' : ''}</span>
       <span class="history-chevron" aria-hidden="true">▸</span>
     </div>`;
     machineSets.forEach(st => {
@@ -835,13 +841,20 @@ function renderHistoryTab(machineId) {
   });
 }
 
+function ordinal(n) {
+  const suffix = (n % 100 >= 11 && n % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
+  return `${n}${suffix}`;
+}
+
 /** Expanded view of one past session for a machine: notes, timing, full summary */
 function renderHistoryDetail(detail, session, machineId, machineSets) {
   const start = new Date(session.startedAt);
   const time = start.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   const day = session.dayType ? session.dayType.charAt(0).toUpperCase() + session.dayType.slice(1) : '';
   const onMachine = deriveTimeline(session).machines.find(m => m.machineId === machineId);
-  const meta = [day && `${day} day`, time, onMachine && `${formatDuration(onMachine.durationMs)} on machine`]
+  const liftOrder = [...new Set(session.sets.map(st => st.machineId))];
+  const liftOf = `lift ${liftOrder.indexOf(machineId) + 1} of ${liftOrder.length}`;
+  const meta = [day && `${day} day`, time, liftOf, onMachine && `${formatDuration(onMachine.durationMs)} on machine`]
     .filter(Boolean).join(' · ');
 
   let html = `<div class="history-detail-meta">${meta}</div>`;

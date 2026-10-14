@@ -855,6 +855,22 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 
 .history-note-badge { font-size: 0.8rem; }
 
+/* Lift order in the workout: 1st = freshest (green) → 4th+ = most fatigued */
+.history-lift-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  vertical-align: 1px;
+  color: #fff;
+}
+.history-lift-badge.lift-1 { background: #2e9d5b; }
+.history-lift-badge.lift-2 { background: #c99a1c; }
+.history-lift-badge.lift-3 { background: #d9772b; }
+.history-lift-badge.lift-4 { background: #8a8a99; }
+
 .history-chevron {
   display: inline-block;
   transition: transform 0.15s ease;

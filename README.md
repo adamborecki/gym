@@ -10,7 +10,7 @@ A single-focus gym app that replaces four separate apps with one: workout plan, 
 
 Open it on your phone and use **Add to Home Screen** for a full-screen, app-like experience. It deploys automatically from `main` via GitHub Pages.
 
-Current version: `v2026.10.14a`
+Current version: `v2026.10.14b`
 
 ## Features
 
