@@ -2,7 +2,7 @@
  * Gym App — Session Lifecycle (start, end, resume, summary)
  */
 
-import { $, generateId, isoNow, deepClone, formatDuration } from './utils.js';
+import { $, generateId, isoNow, deepClone, formatDuration, escapeHtml, formatNextTimeNote } from './utils.js';
 import { App, saveData, saveActiveSession, clearActiveSession, loadActiveSession } from './state.js';
 import { showView, showToast, showModal, renderHome } from './ui.js';
 import { hideRestTimer } from './timer.js';
@@ -246,7 +246,22 @@ export function renderSessionSummary(session, container = $('summary-content')) 
       html += `
         <div class="summary-stat">
           <span class="summary-stat-label">${name}</span>
-          <span class="summary-stat-value">${note.replace(/_/g, ' ')}</span>
+          <span class="summary-stat-value">${escapeHtml(formatNextTimeNote(note))}</span>
+        </div>
+      `;
+    });
+  }
+
+  // Per-set notes (quick-note chips + custom text), grouped by machine
+  const notedSets = (session.sets || []).filter(st => st.notes?.length);
+  if (notedSets.length > 0) {
+    html += '<h3 style="margin-top:16px">Set Notes</h3>';
+    notedSets.forEach(st => {
+      const name = App.data.machines[st.machineId]?.name || st.machineId;
+      html += `
+        <div class="summary-stat">
+          <span class="summary-stat-label">${name} · Set ${st.setNumber}</span>
+          <span class="summary-stat-value">${st.notes.map(escapeHtml).join(' · ')}</span>
         </div>
       `;
     });

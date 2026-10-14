@@ -3,11 +3,11 @@
  */
 
 import { TIME_GOALS, SEED_WEIGHTS, COUNTUP_SOFT_TARGET_MIN } from './config.js';
-import { $, $$, isoNow, renderMarkdown } from './utils.js';
+import { $, $$, isoNow, renderMarkdown, escapeHtml, formatNextTimeNote, formatDuration } from './utils.js';
 import { App, saveData, saveActiveSession } from './state.js';
 import { showView, showToast, showModal } from './ui.js';
 import { startRestTimer, hideRestTimer, unlockAudio } from './timer.js';
-import { trackEvent, inferStretchMinutes } from './session.js';
+import { trackEvent, inferStretchMinutes, deriveTimeline, renderSessionSummary } from './session.js';
 
 // ============================================================
 // PILL ROW
@@ -787,25 +787,96 @@ function renderHistoryTab(machineId) {
     return;
   }
 
-  let html = '';
+  container.innerHTML = '';
   relevant.forEach(s => {
     const date = new Date(s.startedAt);
     const label = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
     const machineSets = s.sets.filter(st => st.machineId === machineId);
+    const nextTime = s.nextTimeNotes?.[machineId];
+    const hasNotes = !!nextTime || machineSets.some(st => st.notes?.length);
 
-    html += `<div class="history-session">`;
-    html += `<div class="history-session-date">${label}</div>`;
+    const entry = document.createElement('div');
+    entry.className = 'history-session';
+
+    // Tappable header + set list; tapping toggles the detail panel
+    const head = document.createElement('button');
+    head.type = 'button';
+    head.className = 'history-session-head';
+    head.setAttribute('aria-expanded', 'false');
+    let headHtml = `<div class="history-session-date">
+      <span>${label}${hasNotes ? ' <span class="history-note-badge" title="Has notes">📝</span>' : ''}</span>
+      <span class="history-chevron" aria-hidden="true">▸</span>
+    </div>`;
     machineSets.forEach(st => {
-      html += `<div class="history-set-row">Set ${st.setNumber}: ${st.weight} lbs &times; ${st.reps}`;
-      if (st.rir != null && st.rir !== '') html += ` <span class="history-rir">RIR ${st.rir}</span>`;
+      headHtml += `<div class="history-set-row">Set ${st.setNumber}: ${st.weight} lbs &times; ${st.reps}`;
+      if (st.rir != null && st.rir !== '') headHtml += ` <span class="history-rir">RIR ${st.rir}</span>`;
       const setup = setupLabel(machineId, st.setup);
-      if (setup) html += ` <span class="history-rir">· ${setup}</span>`;
-      html += `</div>`;
+      if (setup) headHtml += ` <span class="history-rir">· ${setup}</span>`;
+      headHtml += `</div>`;
     });
-    html += `</div>`;
-  });
+    head.innerHTML = headHtml;
 
-  container.innerHTML = html;
+    const detail = document.createElement('div');
+    detail.className = 'history-detail hidden';
+
+    head.onclick = () => {
+      const open = detail.classList.toggle('hidden') === false;
+      head.setAttribute('aria-expanded', String(open));
+      entry.classList.toggle('expanded', open);
+      if (open && !detail.dataset.rendered) {
+        renderHistoryDetail(detail, s, machineId, machineSets);
+        detail.dataset.rendered = '1';
+      }
+    };
+
+    entry.appendChild(head);
+    entry.appendChild(detail);
+    container.appendChild(entry);
+  });
+}
+
+/** Expanded view of one past session for a machine: notes, timing, full summary */
+function renderHistoryDetail(detail, session, machineId, machineSets) {
+  const start = new Date(session.startedAt);
+  const time = start.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const day = session.dayType ? session.dayType.charAt(0).toUpperCase() + session.dayType.slice(1) : '';
+  const onMachine = deriveTimeline(session).machines.find(m => m.machineId === machineId);
+  const meta = [day && `${day} day`, time, onMachine && `${formatDuration(onMachine.durationMs)} on machine`]
+    .filter(Boolean).join(' · ');
+
+  let html = `<div class="history-detail-meta">${meta}</div>`;
+
+  // Per-set notes (quick-note chips + custom text)
+  const noted = machineSets.filter(st => st.notes?.length);
+  html += '<div class="history-detail-label">Set notes</div>';
+  if (noted.length) {
+    noted.forEach(st => {
+      html += `<div class="history-detail-note"><span class="history-rir">Set ${st.setNumber}</span> ${st.notes.map(escapeHtml).join(' · ')}</div>`;
+    });
+  } else {
+    html += '<div class="history-detail-empty">None</div>';
+  }
+
+  const nextTime = session.nextTimeNotes?.[machineId];
+  html += '<div class="history-detail-label">Next time</div>';
+  html += nextTime
+    ? `<div class="history-detail-note">${escapeHtml(formatNextTimeNote(nextTime))}</div>`
+    : '<div class="history-detail-empty">None</div>';
+
+  html += '<button type="button" class="btn btn-sm btn-ghost history-full-btn">Show full session</button>';
+  html += '<div class="history-full-session hidden"></div>';
+  detail.innerHTML = html;
+
+  const fullBtn = detail.querySelector('.history-full-btn');
+  const full = detail.querySelector('.history-full-session');
+  fullBtn.onclick = () => {
+    const open = full.classList.toggle('hidden') === false;
+    fullBtn.textContent = open ? 'Hide full session' : 'Show full session';
+    if (open && !full.dataset.rendered) {
+      renderSessionSummary(session, full);
+      full.dataset.rendered = '1';
+    }
+  };
 }
 
 function renderMantraSticky(machine) {

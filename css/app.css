@@ -822,15 +822,78 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 }
 
 .history-session {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  overflow: hidden;
 }
 
+.history-session-head {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.history-session-head:active { opacity: 0.7; }
+
 .history-session-date {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-weight: 600;
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-bottom: 4px;
 }
+
+.history-note-badge { font-size: 0.8rem; }
+
+.history-chevron {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+.history-session.expanded .history-chevron { transform: rotate(90deg); }
+
+.history-detail {
+  padding: 4px 12px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.history-detail-meta {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 8px 0 4px;
+}
+
+.history-detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.history-detail-note {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.history-detail-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.history-full-btn { margin-top: 12px; }
+
+.history-full-session { margin-top: 8px; }
 
 .history-set-row {
   line-height: 1.7;
@@ -1505,9 +1568,11 @@ body.rest-timer-visible .view-content {
 }
 .summary-stat:last-child { border-bottom: none; }
 .summary-stat-label { color: var(--text-secondary); }
-.summary-stat-value { font-weight: 700; }
+.summary-stat-value { font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+.summary-stat-label + .summary-stat-value { margin-left: 12px; }
 #summary-content h3,
-.day-summary-session h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.day-summary-session h3,
+.history-full-session h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 .day-summary-session + .day-summary-session { margin-top: 16px; padding-top: 8px; border-top: 2px solid var(--border); }
 
 /* ---------- Session timeline (issue #17) ---------- */

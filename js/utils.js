@@ -65,3 +65,20 @@ export function stripMarkdown(text) {
     .replace(/^[\s]*-\s+/gm, '')       // dashes
     .trim();
 }
+
+/** Escape user-entered text before inserting into innerHTML */
+export function escapeHtml(text) {
+  return String(text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Display text for a next-time note ('weight_up' → 'Weight up', custom text as-is) */
+export function formatNextTimeNote(note) {
+  if (!note) return '';
+  const presets = { again: 'Again', weight_up: 'Weight up', focus_form: 'Focus form' };
+  return presets[note] || note;
+}
