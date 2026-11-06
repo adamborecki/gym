@@ -38,7 +38,7 @@ export function inferStretchMinutes(session) {
 
 // A session with no activity for this long is treated as forgotten: ending it
 // trims endedAt back to the last real activity instead of "now".
-const STALE_SESSION_MS = 2 * 60 * 60 * 1000;
+const STALE_SESSION_MS = 4 * 60 * 60 * 1000;
 
 /** Timestamp (ms) of the last thing the user actually did in the session. */
 export function lastActivityMs(session) {
