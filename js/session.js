@@ -2,7 +2,7 @@
  * Gym App — Session Lifecycle (start, end, resume, summary)
  */
 
-import { $, generateId, isoNow, deepClone, formatDuration, escapeHtml, formatNextTimeNote } from './utils.js';
+import { $, generateId, isoNow, deepClone, formatDuration, formatElapsed, escapeHtml, formatNextTimeNote } from './utils.js';
 import { App, saveData, saveActiveSession, clearActiveSession, loadActiveSession } from './state.js';
 import { showView, showToast, showModal, renderHome } from './ui.js';
 import { hideRestTimer } from './timer.js';
@@ -34,6 +34,30 @@ export function inferStretchMinutes(session) {
   const endMs = firstActionMs(session) ?? Date.now();
   const min = Math.round((endMs - startMs) / 60000);
   return min >= 1 ? min : null;
+}
+
+// A session with no activity for this long is treated as forgotten: ending it
+// trims endedAt back to the last real activity instead of "now".
+const STALE_SESSION_MS = 2 * 60 * 60 * 1000;
+
+/** Timestamp (ms) of the last thing the user actually did in the session. */
+export function lastActivityMs(session) {
+  const times = [new Date(session.startedAt).getTime()];
+  (session.events || []).forEach(e => { if (e.type !== 'session_end') times.push(new Date(e.at).getTime()); });
+  (session.sets || []).forEach(st => times.push(new Date(st.loggedAt).getTime()));
+  (session.bikeLogs || []).forEach(b => b.loggedAt && times.push(new Date(b.loggedAt).getTime()));
+  if (session.warmup?.bikeLog?.loggedAt) times.push(new Date(session.warmup.bikeLog.loggedAt).getTime());
+  return Math.max(...times.filter(Number.isFinite));
+}
+
+/** Last-activity time if the session looks forgotten, else null. */
+function staleEndMs(session) {
+  const last = lastActivityMs(session);
+  return Date.now() - last > STALE_SESSION_MS ? last : null;
+}
+
+function isEmptySession(s) {
+  return s.sets.length === 0 && (!s.bikeLogs || s.bikeLogs.length === 0) && !s.warmup.bikeLog;
 }
 
 function firstActionMs(session) {
@@ -102,9 +126,9 @@ export function handleStartWorkout() {
 export function promptEndSession() {
   const s = App.session;
   const setCount = s.sets.length;
-  const elapsed = formatDuration(Date.now() - new Date(s.startedAt).getTime());
+  const startMs = new Date(s.startedAt).getTime();
 
-  if (setCount === 0 && (!s.bikeLogs || s.bikeLogs.length === 0) && !s.warmup.bikeLog) {
+  if (isEmptySession(s)) {
     // Empty session
     showModal('Discard Session?', 'You haven\'t logged anything yet.', [
       { label: 'Cancel', class: 'btn-ghost' },
@@ -113,16 +137,30 @@ export function promptEndSession() {
     return;
   }
 
-  showModal('End Session?', `You've done ${setCount} sets in ${elapsed}.`, [
+  // Forgot to stop? Default to ending at the last activity, not now.
+  const staleEnd = staleEndMs(s);
+  if (staleEnd) {
+    showModal('End Session?',
+      `No activity for ${formatElapsed(Date.now() - staleEnd)} — looks like you forgot to stop. ` +
+      `Ending at your last activity: ${setCount} sets in ${formatElapsed(staleEnd - startMs)}.`, [
+      { label: 'Cancel', class: 'btn-ghost' },
+      { label: 'End Now', class: 'btn-ghost', action: () => endSession() },
+      { label: 'End at Last Activity', class: 'btn-primary', action: () => endSession(staleEnd) },
+    ]);
+    return;
+  }
+
+  showModal('End Session?', `You've done ${setCount} sets in ${formatElapsed(Date.now() - startMs)}.`, [
     { label: 'Cancel', class: 'btn-ghost' },
-    { label: 'End Session', class: 'btn-primary', action: endSession },
+    { label: 'End Session', class: 'btn-primary', action: () => endSession() },
   ]);
 }
 
-function endSession() {
+function endSession(endMs = Date.now()) {
   const s = App.session;
-  s.endedAt = isoNow();
-  trackEvent('session_end');
+  s.endedAt = new Date(endMs).toISOString();
+  if (!s.events) s.events = [];
+  s.events.push({ type: 'session_end', detail: null, at: s.endedAt });
 
   // Stretch time wasn't logged — keep the inferred estimate (issue #42)
   if (!s.warmup.stretchMinutes) {
@@ -404,9 +442,30 @@ export function checkResumeSession() {
   if (!saved || saved.endedAt) return;
 
   // Show resume prompt
-  const elapsed = formatDuration(Date.now() - new Date(saved.startedAt).getTime());
-  $('resume-info').textContent = `${saved.dayType.charAt(0).toUpperCase() + saved.dayType.slice(1)} day, started ${elapsed} ago. ${saved.sets.length} sets logged.`;
+  const day = saved.dayType.charAt(0).toUpperCase() + saved.dayType.slice(1);
+  const startMs = new Date(saved.startedAt).getTime();
+  const staleEnd = staleEndMs(saved);
+  const canFinish = staleEnd && !isEmptySession(saved);
+  let info = `${day} day, started ${formatElapsed(Date.now() - startMs)} ago. ${saved.sets.length} sets logged.`;
+  if (staleEnd) {
+    info += ` Last activity ${formatElapsed(Date.now() - staleEnd)} ago — looks like you forgot to stop it.`;
+    if (canFinish) info += ` "End" saves it as a ${formatElapsed(staleEnd - startMs)} session.`;
+  }
+  $('resume-info').textContent = info;
+  $('btn-finish-saved-session').classList.toggle('hidden', !canFinish);
+  // When stale, ending is the expected choice — make it the primary button
+  $('btn-resume-session').classList.toggle('btn-primary', !canFinish);
+  $('btn-resume-session').classList.toggle('btn-ghost', !!canFinish);
   $('resume-overlay').classList.remove('hidden');
+}
+
+/** End a forgotten saved session at its last activity, without resuming it. */
+export function finishSavedSession() {
+  const saved = loadActiveSession();
+  if (!saved) return;
+  App.session = saved;
+  $('resume-overlay').classList.add('hidden');
+  endSession(lastActivityMs(saved));
 }
 
 export function resumeSession() {
