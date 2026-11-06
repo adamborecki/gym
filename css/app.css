@@ -3,6 +3,11 @@
    Dark mode: auto-detect via prefers-color-scheme
    ============================================================ */
 
+/* ---------- No double-tap zoom ----------
+   iOS Safari ignores user-scalable=no; touch-action: manipulation disables
+   double-tap-to-zoom (and the 300ms tap delay) on everything. */
+html, body, * { touch-action: manipulation; }
+
 /* ---------- CSS Variables ---------- */
 :root {
   /* Light mode defaults */
@@ -1351,6 +1356,7 @@ body.rest-timer-visible .view-content {
 
 #modal-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
 }

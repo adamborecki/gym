@@ -18,7 +18,7 @@ import {
 import {
   startNewSession, selectDayType, selectTimeGoal,
   handleStartWorkout, promptEndSession,
-  resumeSession, discardSavedSession, checkResumeSession, trackEvent,
+  resumeSession, discardSavedSession, finishSavedSession, checkResumeSession, trackEvent,
 } from './session.js';
 import { renderAnalytics } from './analytics.js';
 import { renderSettings, setupSettingsListeners } from './settings.js';
@@ -200,6 +200,7 @@ function setupEventListeners() {
   // Resume session
   $('btn-resume-session').onclick = resumeSession;
   $('btn-discard-session').onclick = discardSavedSession;
+  $('btn-finish-saved-session').onclick = finishSavedSession;
 }
 
 // ============================================================

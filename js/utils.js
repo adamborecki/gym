@@ -24,6 +24,16 @@ export function formatDuration(ms) {
   return `${min}m ${sec}s`;
 }
 
+/** Human-friendly elapsed time: "45s", "12m", "1h 05m", "2d 3h". */
+export function formatElapsed(ms) {
+  const totalMin = Math.floor(Math.max(ms, 0) / 60000);
+  if (totalMin < 1) return `${Math.floor(Math.max(ms, 0) / 1000)}s`;
+  if (totalMin < 60) return `${totalMin}m`;
+  const h = Math.floor(totalMin / 60), m = totalMin % 60;
+  if (h < 24) return `${h}h ${String(m).padStart(2, '0')}m`;
+  return `${Math.floor(h / 24)}d ${h % 24}h`;
+}
+
 export function $(id) { return document.getElementById(id); }
 export function $$(sel) { return document.querySelectorAll(sel); }
 
