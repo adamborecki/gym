@@ -4,7 +4,7 @@
  * All data stored locally in localStorage
  */
 
-import { APP_VERSION, DEFAULT_COUNTDOWN_MIN } from './config.js';
+import { APP_VERSION, DEFAULT_COUNTDOWN_MIN, SESSIONS_BACKUP_KEY } from './config.js';
 import { $, $$, deepClone, stripMarkdown } from './utils.js';
 import { App, loadData, saveData } from './state.js';
 import { showView, showToast, renderHome, speakText } from './ui.js';
@@ -23,6 +23,7 @@ import {
 import { renderAnalytics } from './analytics.js';
 import { renderSettings, setupSettingsListeners } from './settings.js';
 import { DEFAULT_DATA } from './data-defaults.js';
+import { repairSessions } from './repair.js';
 
 // ============================================================
 // EVENT LISTENERS
@@ -277,6 +278,18 @@ function init() {
   Object.entries(DEFAULT_DATA.templates).forEach(([id, def]) => {
     App.data.templates[id] = deepClone(def);
   });
+
+  // Split workouts merged by the old Resume flow / trim multi-day durations.
+  // The untouched history is kept under a backup key first.
+  const repair = repairSessions(App.data.sessions || []);
+  if (repair.changed) {
+    try {
+      if (!localStorage.getItem(SESSIONS_BACKUP_KEY)) {
+        localStorage.setItem(SESSIONS_BACKUP_KEY, JSON.stringify(App.data.sessions));
+      }
+    } catch (e) { /* backup is best-effort */ }
+    App.data.sessions = repair.sessions;
+  }
   saveData();
 
   // Setup event listeners
@@ -292,6 +305,9 @@ function init() {
 
   // Check for incomplete session
   checkResumeSession();
+  if (repair.changed) {
+    showToast(`Repaired ${repair.changed} past workout${repair.changed === 1 ? '' : 's'} (merged days / long durations)`);
+  }
 
   // App left open in the background (no reload): auto-save a forgotten session
   // when it comes back to the foreground.

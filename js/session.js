@@ -3,6 +3,7 @@
  */
 
 import { $, generateId, isoNow, deepClone, formatDuration, formatElapsed, escapeHtml, formatNextTimeNote } from './utils.js';
+import { STALE_SESSION_MS } from './config.js';
 import { App, saveData, saveActiveSession, clearActiveSession, loadActiveSession } from './state.js';
 import { showView, showToast, showModal, renderHome } from './ui.js';
 import { hideRestTimer } from './timer.js';
@@ -36,9 +37,6 @@ export function inferStretchMinutes(session) {
   return min >= 1 ? min : null;
 }
 
-// A session with no activity for this long is treated as forgotten: ending it
-// trims endedAt back to the last real activity instead of "now".
-const STALE_SESSION_MS = 4 * 60 * 60 * 1000;
 
 /** Timestamp (ms) of the last thing the user actually did in the session. */
 export function lastActivityMs(session) {
