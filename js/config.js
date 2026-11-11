@@ -4,9 +4,15 @@
 
 export const STORAGE_KEY = 'gymApp_v1_data';
 export const SESSION_KEY = 'gymApp_v1_activeSession';
+// Copy of session history taken before the one-time repair in repair.js
+export const SESSIONS_BACKUP_KEY = 'gymApp_v1_sessionsBackup_preRepair';
 // Version: date-based (YYYY.MM.DD + build letter). Update on every code change.
 // Same day: increment letter (a→b→c). New day: reset to 'a'.
-export const APP_VERSION = 'v2026.11.06b';
+export const APP_VERSION = 'v2026.11.11b';
+
+// A session with no activity for this long is treated as forgotten: it's saved
+// ending at its last activity, and a later gap this long marks a separate workout.
+export const STALE_SESSION_MS = 4 * 60 * 60 * 1000;
 
 export const REST_TARGETS = {
   compound:  { normal: 90, hurry: 60 }, // seconds

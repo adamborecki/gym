@@ -2,7 +2,7 @@
  * Gym App — Settings Page & Data Export
  */
 
-import { STORAGE_KEY, SESSION_KEY } from './config.js';
+import { STORAGE_KEY, SESSION_KEY, SESSIONS_BACKUP_KEY } from './config.js';
 import { $, deepClone } from './utils.js';
 import { App, saveData } from './state.js';
 import { showView, showToast, showModal, renderHome } from './ui.js';
@@ -51,6 +51,7 @@ export function setupSettingsListeners() {
         { label: 'Reset Everything', class: 'btn-danger', action: () => {
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(SESSION_KEY);
+          localStorage.removeItem(SESSIONS_BACKUP_KEY);
           window.location.reload();
         }},
       ]);
@@ -72,6 +73,7 @@ export function setupSettingsListeners() {
         { label: 'Reset Everything', class: 'btn-danger', action: () => {
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(SESSION_KEY);
+          localStorage.removeItem(SESSIONS_BACKUP_KEY);
           window.location.reload();
         }},
       ]);
