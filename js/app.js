@@ -18,7 +18,7 @@ import {
 import {
   startNewSession, selectDayType, selectTimeGoal,
   handleStartWorkout, promptEndSession,
-  resumeSession, discardSavedSession, finishSavedSession, checkResumeSession, trackEvent,
+  resumeSession, discardSavedSession, checkResumeSession, autoFinishStaleSession, trackEvent,
 } from './session.js';
 import { renderAnalytics } from './analytics.js';
 import { renderSettings, setupSettingsListeners } from './settings.js';
@@ -200,7 +200,6 @@ function setupEventListeners() {
   // Resume session
   $('btn-resume-session').onclick = resumeSession;
   $('btn-discard-session').onclick = discardSavedSession;
-  $('btn-finish-saved-session').onclick = finishSavedSession;
 }
 
 // ============================================================
@@ -293,6 +292,13 @@ function init() {
 
   // Check for incomplete session
   checkResumeSession();
+
+  // App left open in the background (no reload): auto-save a forgotten session
+  // when it comes back to the foreground.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') autoFinishStaleSession();
+  });
+  window.addEventListener('pageshow', (e) => { if (e.persisted) autoFinishStaleSession(); });
 }
 
 // Start the app

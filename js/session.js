@@ -441,31 +441,47 @@ export function checkResumeSession() {
   const saved = loadActiveSession();
   if (!saved || saved.endedAt) return;
 
-  // Show resume prompt
-  const day = saved.dayType.charAt(0).toUpperCase() + saved.dayType.slice(1);
-  const startMs = new Date(saved.startedAt).getTime();
-  const staleEnd = staleEndMs(saved);
-  const canFinish = staleEnd && !isEmptySession(saved);
-  let info = `${day} day, started ${formatElapsed(Date.now() - startMs)} ago. ${saved.sets.length} sets logged.`;
-  if (staleEnd) {
-    info += ` Last activity ${formatElapsed(Date.now() - staleEnd)} ago — looks like you forgot to stop it.`;
-    if (canFinish) info += ` "End" saves it as a ${formatElapsed(staleEnd - startMs)} session.`;
+  // Forgotten session with something logged: save it now, ending at the last
+  // activity. Never offer to resume it — resuming would fold today's workout
+  // into the old session (and file it under the old date).
+  if (staleEndMs(saved) && !isEmptySession(saved)) {
+    App.session = saved;
+    autoFinishStaleSession();
+    return;
   }
-  $('resume-info').textContent = info;
-  $('btn-finish-saved-session').classList.toggle('hidden', !canFinish);
-  // When stale, ending is the expected choice — make it the primary button
-  $('btn-resume-session').classList.toggle('btn-primary', !canFinish);
-  $('btn-resume-session').classList.toggle('btn-ghost', !!canFinish);
+
+  // Show resume prompt
+  const day = capitalize(saved.dayType);
+  const startMs = new Date(saved.startedAt).getTime();
+  $('resume-info').textContent =
+    `${day} day, started ${formatElapsed(Date.now() - startMs)} ago. ${saved.sets.length} sets logged.`;
   $('resume-overlay').classList.remove('hidden');
 }
 
-/** End a forgotten saved session at its last activity, without resuming it. */
-export function finishSavedSession() {
-  const saved = loadActiveSession();
-  if (!saved) return;
-  App.session = saved;
+/**
+ * If the in-progress session has been idle past the stale threshold, save it
+ * ending at its last activity and show the summary. Covers both a cold start
+ * (via checkResumeSession) and the app being left open in the background.
+ * Returns true if it ended the session.
+ */
+export function autoFinishStaleSession() {
+  const s = App.session;
+  if (!s || s.endedAt || isEmptySession(s)) return false;
+  const staleEnd = staleEndMs(s);
+  if (!staleEnd) return false;
+
+  // Close any prompt that would act on the session we're about to end
+  $('modal-overlay').classList.add('hidden');
   $('resume-overlay').classList.add('hidden');
-  endSession(lastActivityMs(saved));
+
+  const when = new Date(s.startedAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  endSession(staleEnd);
+  showToast(`Saved your unfinished ${capitalize(s.dayType)} workout from ${when}`);
+  return true;
+}
+
+function capitalize(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
 
 export function resumeSession() {
@@ -480,7 +496,20 @@ export function resumeSession() {
 }
 
 export function discardSavedSession() {
-  clearActiveSession();
-  App.session = null;
+  const saved = loadActiveSession();
+  const doDiscard = () => {
+    clearActiveSession();
+    App.session = null;
+    $('resume-overlay').classList.add('hidden');
+  };
+  if (!saved || isEmptySession(saved)) { doDiscard(); return; }
+
+  // Logged work is about to be deleted for good — confirm first
   $('resume-overlay').classList.add('hidden');
+  const n = saved.sets.length;
+  showModal('Delete this workout?',
+    `This permanently deletes ${n} logged set${n === 1 ? '' : 's'}. To keep them, tap Resume and then End Session.`, [
+    { label: 'Keep', class: 'btn-ghost', action: () => $('resume-overlay').classList.remove('hidden') },
+    { label: 'Delete', class: 'btn-danger', action: doDiscard },
+  ]);
 }

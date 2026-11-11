@@ -63,7 +63,12 @@ export function renderMarkdown(text) {
     // Strip leading tabs (from template literals)
     .replace(/^\t+/gm, '');
 
-  return window.marked.parse(processed);
+  // marked.js loads from a CDN; if it didn't (bad gym signal), fall back to
+  // plain text rather than throwing — a throw here breaks opening a machine.
+  if (window.marked?.parse) return window.marked.parse(processed);
+  return processed.split('\n')
+    .map(line => escapeHtml(line.replace(/^#+\s*/, '').replace(/\*\*/g, '')))
+    .join('<br>');
 }
 
 /** Strip markdown formatting for TTS plain text */
