@@ -6,9 +6,11 @@ export const STORAGE_KEY = 'gymApp_v1_data';
 export const SESSION_KEY = 'gymApp_v1_activeSession';
 // Copy of session history taken before the one-time repair in repair.js
 export const SESSIONS_BACKUP_KEY = 'gymApp_v1_sessionsBackup_preRepair';
+// Copy of session history taken before splitting MTS Incline Press out of Incline Chest Press
+export const MTS_SPLIT_BACKUP_KEY = 'gymApp_v1_sessionsBackup_preMtsInclineSplit';
 // Version: date-based (YYYY.MM.DD + build letter). Update on every code change.
 // Same day: increment letter (a→b→c). New day: reset to 'a'.
-export const APP_VERSION = 'v2026.11.11b';
+export const APP_VERSION = 'v2026.11.12a';
 
 // A session with no activity for this long is treated as forgotten: it's saved
 // ending at its last activity, and a later gap this long marks a separate workout.
@@ -34,6 +36,7 @@ export const DEFAULT_COUNTDOWN_MIN = 45;
 export const SEED_WEIGHTS = {
   chest_press:               40,   // 2/25: 40 ×3×10
   incline_press:             20,   // 2/19: 20 ×3×12
+  mts_incline_press:         50,   // MTS stack: whole 5 lb steps (45/50/55)
   shoulder_press:            30,   // 2/28: 30 ×3×9
   pec_fly:                   55,   // 2/25: 55 ×3×13
   rear_delt:                 45,   // 2/25: 45 ×3×12
