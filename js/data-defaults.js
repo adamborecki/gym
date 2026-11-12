@@ -123,6 +123,28 @@ export const DEFAULT_DATA = {
       "familiarity": "learning",
       "lastUsedAt": null
     },
+    "mts_incline_press": {
+      "id": "mts_incline_press",
+      "name": "MTS Incline Press",
+      "category": "push",
+      "type": "compound",
+      "variants": ["MTS"],
+      "repRange": { "min": 8, "max": 12 },
+      "rirPattern": [3, 2, 1],
+      "setupFields": [
+        { "key": "seat", "label": "Seat", "type": "number" },
+        { "key": "start", "label": "Start/Range", "type": "number" },
+        { "key": "notes", "label": "Setup Notes", "type": "text" }
+      ],
+      "tips": {
+        "setup": "**Setup**\n\u2022 \ud83e\ude91 Seat so the handles start at upper-chest level, just below the collarbones.\n\u2022 \ud83e\uddb6 Feet flat; back and head on the pad.\n\u2022 \ud83c\udfaf Neutral wrists \u2014 knuckles up, wrists stacked over elbows.\n\u2022 \u2696\ufe0f Weights go in clean 5 lb jumps (45, 50, 55\u2026).",
+        "form": "**Press path**\n\u2022 \u2197\ufe0f Press up and slightly in along the machine\u2019s arc \u2014 don\u2019t over-arch to get range.\n\u2022 \ud83d\udccc Elbows a bit forward of your shoulders (scapular plane).\n\u2022 \ud83e\uddf1 Ribs down; shoulders stay back on the pad.\n\n**Iso-lateral arms**\n\u2022 \u2696\ufe0f Each side moves on its own \u2014 match reps to the weaker side.\n\u2022 \ud83d\udc40 Watch for one arm finishing ahead of the other.\n\n**If clavicle or front shoulder is irritated**\n\u2022 Shorten the bottom of the rep slightly.\n\u2022 Tuck elbows a touch more.\n\n**Tempo**\n\u2022 \u23f1\ufe0f 2 sec lower, 1 sec press",
+        "mantra": ["📐 upper-chest path", "⚖️ arms even", "✋ wrists stacked", "⏱️ 1s press · 2s lower"],
+        "phasedCues": {}
+      },
+      "familiarity": "learning",
+      "lastUsedAt": null
+    },
     "shoulder_press": {
       "id": "shoulder_press",
       "name": "Shoulder Press",
@@ -990,8 +1012,10 @@ export const DEFAULT_DATA = {
         {
           "id": "primary",
           "name": "Primary Compound",
+          "completion": "any",
           "suggestions": [
-            "incline_press"
+            "incline_press",
+            "mts_incline_press"
           ]
         },
         {

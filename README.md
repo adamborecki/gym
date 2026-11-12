@@ -10,7 +10,7 @@ A single-focus gym app that replaces four separate apps with one: workout plan, 
 
 Open it on your phone and use **Add to Home Screen** for a full-screen, app-like experience. It deploys automatically from `main` via GitHub Pages.
 
-Current version: `v2026.11.11b`
+Current version: `v2026.11.12a`
 
 ## Features
 
@@ -30,7 +30,7 @@ Current version: `v2026.11.11b`
 
 | Block | Machines |
 |---|---|
-| Primary Compound | Incline Chest Press |
+| Primary Compound | Incline Chest Press **or** MTS Incline Press _(any one completes the block)_ |
 | Secondary Compound | Chest Press **or** Shoulder Press _(any one completes the block)_ |
 | Accessories | Pec Fly, Rear Delt (Reverse Fly), Triceps Pushdown (Machine), Triceps Extension (Machine) |
 | Other | Ab Crunch Machine, Rotary Torso |
@@ -68,6 +68,7 @@ Every workout also starts with a warm-up (stretch and bike) and ends with an **O
 |---|---|---|---|
 | Chest Press | push | compound | 8–12 |
 | Incline Chest Press | push | compound | 8–12 |
+| MTS Incline Press | push | compound | 8–12 |
 | Shoulder Press | push | compound | 8–12 |
 | Pec Fly | push | isolation | 10–15 |
 | Rear Delt (Reverse Fly) | push | isolation | 12–20 |

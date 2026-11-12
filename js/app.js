@@ -4,9 +4,9 @@
  * All data stored locally in localStorage
  */
 
-import { APP_VERSION, DEFAULT_COUNTDOWN_MIN, SESSIONS_BACKUP_KEY } from './config.js';
+import { APP_VERSION, DEFAULT_COUNTDOWN_MIN, SESSIONS_BACKUP_KEY, MTS_SPLIT_BACKUP_KEY, SESSION_KEY } from './config.js';
 import { $, $$, deepClone, stripMarkdown } from './utils.js';
-import { App, loadData, saveData } from './state.js';
+import { App, loadData, saveData, loadActiveSession } from './state.js';
 import { showView, showToast, renderHome, speakText } from './ui.js';
 import { hideRestTimer, toggleRestMode } from './timer.js';
 import {
@@ -23,7 +23,7 @@ import {
 import { renderAnalytics } from './analytics.js';
 import { renderSettings, setupSettingsListeners } from './settings.js';
 import { DEFAULT_DATA } from './data-defaults.js';
-import { repairSessions } from './repair.js';
+import { repairSessions, splitMtsIncline } from './repair.js';
 
 // ============================================================
 // EVENT LISTENERS
@@ -248,6 +248,7 @@ function adjustCountdownTime(deltaMin) {
 // INITIALIZATION
 // ============================================================
 function init() {
+  const startupNotes = [];
   // Load or initialize data
   App.data = loadData();
   if (!App.data) {
@@ -279,6 +280,18 @@ function init() {
     App.data.templates[id] = deepClone(def);
   });
 
+  // One-time: MTS Incline Press sets were logged under Incline Chest Press.
+  // Tell them apart by weight (see repair.js) and move them over.
+  if (!App.data.migrations?.mtsInclineSplit) {
+    try {
+      if (!localStorage.getItem(MTS_SPLIT_BACKUP_KEY)) localStorage.setItem(MTS_SPLIT_BACKUP_KEY, JSON.stringify(App.data.sessions || []));
+    } catch (e) { /* best-effort */ }
+    const split = splitMtsIncline(App.data, loadActiveSession());
+    if (split.activeChanged) localStorage.setItem(SESSION_KEY, JSON.stringify(split.activeSession));
+    App.data.migrations = { ...(App.data.migrations || {}), mtsInclineSplit: true };
+    if (split.sessionsChanged) startupNotes.push(`Moved MTS sets from ${split.sessionsChanged} workout${split.sessionsChanged === 1 ? '' : 's'} to MTS Incline Press`);
+  }
+
   // Split workouts merged by the old Resume flow / trim multi-day durations.
   // The untouched history is kept under a backup key first.
   const repair = repairSessions(App.data.sessions || []);
@@ -306,8 +319,9 @@ function init() {
   // Check for incomplete session
   checkResumeSession();
   if (repair.changed) {
-    showToast(`Repaired ${repair.changed} past workout${repair.changed === 1 ? '' : 's'} (merged days / long durations)`);
+    startupNotes.push(`Repaired ${repair.changed} past workout${repair.changed === 1 ? '' : 's'} (merged days / long durations)`);
   }
+  startupNotes.forEach(n => showToast(n));
 
   // App left open in the background (no reload): auto-save a forgotten session
   // when it comes back to the foreground.

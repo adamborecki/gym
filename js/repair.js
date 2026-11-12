@@ -125,3 +125,73 @@ function repairOne(s) {
     };
   });
 }
+
+// ============================================================
+// One-time split: MTS Incline Press used to be logged as Incline Chest Press.
+// The two stacks are easy to tell apart by weight: the MTS goes in whole
+// 5 lb steps (45, 50, 55…), the selectorized incline is 12 + 5k (12, 17, 22…).
+// ============================================================
+const OLD_INCLINE = 'incline_press';
+const MTS_INCLINE = 'mts_incline_press';
+const isMtsWeight = (w) => Number(w) > 0 && Number(w) % 5 === 0;
+
+/** Returns a new session with MTS sets moved, or null if nothing to move. */
+export function splitMtsInclineSession(s) {
+  const sets = s?.sets || [];
+  const toMove = sets.filter(x => x.machineId === OLD_INCLINE && isMtsWeight(x.weight));
+  if (toMove.length === 0) return null;
+  const allMoved = toMove.length === sets.filter(x => x.machineId === OLD_INCLINE).length;
+
+  const newSets = sets.map(x => (toMove.includes(x) ? { ...x, machineId: MTS_INCLINE } : x));
+  if (!allMoved) {
+    // Mixed session: renumber both machines per block
+    const counts = {};
+    newSets.forEach((x, i) => {
+      if (x.machineId !== OLD_INCLINE && x.machineId !== MTS_INCLINE) return;
+      const key = `${x.machineId}|${x.blockId || ''}`;
+      counts[key] = (counts[key] || 0) + 1;
+      newSets[i] = { ...x, setNumber: counts[key] };
+    });
+  }
+
+  const events = (s.events || []).map(e => {
+    if (e.detail?.machineId !== OLD_INCLINE) return e;
+    // Whole session was MTS → every incline event was MTS. Mixed → only sets we can tell by weight.
+    const move = allMoved || (e.type === 'set_completed' && isMtsWeight(e.detail.weight));
+    return move ? { ...e, detail: { ...e.detail, machineId: MTS_INCLINE } } : e;
+  });
+
+  const nextTimeNotes = { ...(s.nextTimeNotes || {}) };
+  if (allMoved && OLD_INCLINE in nextTimeNotes) {
+    nextTimeNotes[MTS_INCLINE] = nextTimeNotes[OLD_INCLINE];
+    delete nextTimeNotes[OLD_INCLINE];
+  }
+
+  return { ...s, sets: newSets, events, nextTimeNotes };
+}
+
+/**
+ * Apply the split to saved history (and the in-progress session, if any).
+ * Mutates `data` / returns the updated active session. Returns counts.
+ */
+export function splitMtsIncline(data, activeSession) {
+  let sessionsChanged = 0;
+  data.sessions = (data.sessions || []).map(s => {
+    const fixed = splitMtsInclineSession(s);
+    if (fixed) sessionsChanged++;
+    return fixed || s;
+  });
+  const active = activeSession ? (splitMtsInclineSession(activeSession) || activeSession) : activeSession;
+
+  // lastUsedAt follows the most recent set on each machine
+  const latest = (mid) => {
+    const all = [...data.sessions, ...(active ? [active] : [])]
+      .flatMap(s => (s.sets || []).filter(x => x.machineId === mid).map(x => x.loggedAt));
+    return all.length ? all.sort().at(-1) : null;
+  };
+  if (sessionsChanged || active !== activeSession) {
+    if (data.machines[MTS_INCLINE]) data.machines[MTS_INCLINE].lastUsedAt = latest(MTS_INCLINE);
+    if (data.machines[OLD_INCLINE]) data.machines[OLD_INCLINE].lastUsedAt = latest(OLD_INCLINE);
+  }
+  return { sessionsChanged, activeSession: active, activeChanged: active !== activeSession };
+}
