@@ -8,6 +8,12 @@
    double-tap-to-zoom (and the 300ms tap delay) on everything. */
 html, body, * { touch-action: manipulation; }
 
+/* iOS also zooms into a text field under 16px when it's tapped (iOS only) */
+@supports (-webkit-touch-callout: none) {
+  .input-sm, .stretch-log-row .input-sm { font-size: 16px; }
+}
+
+
 /* ---------- CSS Variables ---------- */
 :root {
   /* Light mode defaults */
