@@ -24,6 +24,7 @@ import { renderAnalytics } from './analytics.js';
 import { renderSettings, setupSettingsListeners } from './settings.js';
 import { DEFAULT_DATA } from './data-defaults.js';
 import { repairSessions, splitMtsIncline } from './repair.js';
+import { installNoDoubleTapZoom } from './no-zoom.js';
 
 // ============================================================
 // EVENT LISTENERS
@@ -306,6 +307,7 @@ function init() {
   saveData();
 
   // Setup event listeners
+  installNoDoubleTapZoom();
   setupEventListeners();
   setupSettingsListeners();
   setupWorkoutGlobals();
