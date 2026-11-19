@@ -767,6 +767,70 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
 }
 .machine-custom-tags .pill { white-space: normal; }
 
+/* Section heading inside a machine list (Add Machine picker, My Machines) */
+.picker-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 12px 0 4px;
+}
+
+/* Gym chips on the day-select screen */
+.gym-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 12px;
+}
+.gym-picker-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.gym-picker .chip-row { margin: 0; }
+
+/* Settings → My Machines */
+.my-machine-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.my-machine-text { min-width: 0; }
+.my-machine-name {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.my-machine-sub {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.my-machine-action {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.my-machines-empty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 4px 0 8px;
+}
+
 /* Create / edit custom machine form (inside the modal) */
 .machine-edit-form {
   max-height: 60vh;

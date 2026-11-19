@@ -3,7 +3,8 @@
  */
 
 import { $, generateId, isoNow, deepClone, formatDuration, formatElapsed, escapeHtml, formatNextTimeNote } from './utils.js';
-import { STALE_SESSION_MS } from './config.js';
+import { STALE_SESSION_MS, HOME_GYM } from './config.js';
+import { knownGyms } from './custom-machines.js';
 import { App, saveData, saveActiveSession, clearActiveSession, loadActiveSession } from './state.js';
 import { showView, showToast, showModal, renderHome } from './ui.js';
 import { hideRestTimer } from './timer.js';
@@ -67,7 +68,62 @@ function firstActionMs(session) {
 // SESSION FLOW: Day Select → Time Goal → Warmup → Workout
 // ============================================================
 export function startNewSession() {
+  App.sessionGym = null;  // home gym unless another is picked
+  renderGymPicker();
   showView('day-select');
+}
+
+/**
+ * Gym chips on the day-select screen. The home gym is the default, so a normal
+ * session needs no extra tap. The choice tags the session and puts that gym's
+ * machines first in Add Machine — every machine stays available either way.
+ */
+function renderGymPicker() {
+  const row = $('gym-chips');
+  row.innerHTML = '';
+  const addChip = (label, active, onclick) => {
+    const chip = document.createElement('button');
+    chip.className = `chip${active ? ' chip-active' : ''}`;
+    chip.textContent = label;
+    chip.onclick = onclick;
+    row.appendChild(chip);
+  };
+  const pick = (gym) => { App.sessionGym = gym; renderGymPicker(); };
+
+  const gyms = knownGyms();
+  if (App.sessionGym && !gyms.includes(App.sessionGym)) gyms.push(App.sessionGym);
+  addChip(HOME_GYM, !App.sessionGym, () => pick(null));
+  gyms.forEach(g => addChip(g, App.sessionGym === g, () => pick(g)));
+  addChip('+ Other', false, () => {
+    $('modal-body').innerHTML = `
+      <h3>Other Gym</h3>
+      <div class="form-group" style="margin-top:12px;">
+        <label for="other-gym-name">Gym name</label>
+        <input type="text" id="other-gym-name" class="input-lg" placeholder="e.g. Hotel gym" maxlength="30" autocomplete="off">
+      </div>
+    `;
+    const actions = $('modal-actions');
+    actions.innerHTML = '';
+    const close = () => $('modal-overlay').classList.add('hidden');
+    const btn = (label, cls, fn) => {
+      const b = document.createElement('button');
+      b.className = `btn ${cls}`;
+      b.textContent = label;
+      b.onclick = fn;
+      actions.appendChild(b);
+    };
+    btn('Cancel', 'btn-ghost', close);
+    btn('Use', 'btn-primary', () => {
+      const name = $('other-gym-name').value.trim();
+      if (!name) { showToast('Enter a gym name'); return; }
+      close();
+      // Reuse an existing gym's spelling; the home gym's name means "home"
+      const same = (g) => g.toLowerCase() === name.toLowerCase();
+      pick(same(HOME_GYM) ? null : (knownGyms().find(same) || name));
+    });
+    $('modal-overlay').classList.remove('hidden');
+    setTimeout(() => $('other-gym-name').focus(), 100);
+  });
 }
 
 export function selectDayType(dayType) {
@@ -77,6 +133,7 @@ export function selectDayType(dayType) {
     startedAt: isoNow(),
     endedAt: null,
     dayType,
+    gym: App.sessionGym || null,  // null = home gym
     timeGoal: null,
     templateId: `${dayType}_default`,
     warmup: { stretchMinutes: null, bikeLog: null, durationSec: 0 },
@@ -222,6 +279,10 @@ export function renderSessionSummary(session, container = $('summary-content')) 
       <span class="summary-stat-label">Day Type</span>
       <span class="summary-stat-value">${session.dayType.charAt(0).toUpperCase() + session.dayType.slice(1)}</span>
     </div>
+    ${session.gym ? `<div class="summary-stat">
+      <span class="summary-stat-label">Gym</span>
+      <span class="summary-stat-value">📍 ${escapeHtml(session.gym)}</span>
+    </div>` : ''}
     <div class="summary-stat">
       <span class="summary-stat-label">Total Sets</span>
       <span class="summary-stat-value">${totalSets}</span>

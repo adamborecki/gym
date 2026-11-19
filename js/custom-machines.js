@@ -59,6 +59,15 @@ export function syncCustomMachines(data) {
   });
 }
 
+/** Gym names seen so far: tags on custom machines plus gyms of past sessions */
+export function knownGyms() {
+  const names = [
+    ...Object.values(App.data.machines).filter(m => !m.archived).map(m => m.gym),
+    ...(App.data.sessions || []).map(s => s.gym),
+  ];
+  return [...new Set(names.filter(Boolean))].sort();
+}
+
 function hasHistory(machineId) {
   return (App.data.sessions || []).some(s => s.sets?.some(st => st.machineId === machineId));
 }
@@ -74,12 +83,12 @@ function newMachineId(name) {
  * Create (machine = null) or edit a custom machine.
  * onSaved(machine, created) / onDeleted(machine) let the caller re-render.
  */
-export function showCustomMachineModal({ machine = null, onSaved, onDeleted } = {}) {
+export function showCustomMachineModal({ machine = null, defaults = {}, onSaved, onDeleted } = {}) {
   const overlay = $('modal-overlay');
   const bodyEl = $('modal-body');
   const actionsEl = $('modal-actions');
   const editing = !!machine;
-  const gyms = [...new Set(Object.values(App.data.machines).map(m => m.gym).filter(Boolean))].sort();
+  const gyms = knownGyms();
 
   bodyEl.innerHTML = `
     <h3>${editing ? 'Edit Machine' : 'New Machine'}</h3>
@@ -128,7 +137,7 @@ export function showCustomMachineModal({ machine = null, onSaved, onDeleted } = 
 
   $('cm-name').value = machine?.name || '';
   $('cm-base').value = (machine?.basedOn && DEFAULT_DATA.machines[machine.basedOn]) ? machine.basedOn : '';
-  $('cm-gym').value = machine?.gym || '';
+  $('cm-gym').value = (editing ? machine.gym : defaults.gym) || '';
   setType(machine?.type || 'isolation');
   setReps(machine?.repRange || { min: 10, max: 15 });
 
@@ -198,6 +207,56 @@ export function showCustomMachineModal({ machine = null, onSaved, onDeleted } = 
   if (!editing) setTimeout(() => $('cm-name').focus(), 100);
 }
 
+/**
+ * "My Machines" in Settings: every custom machine (tap to edit), a button to
+ * create one, and deleted machines that can be restored.
+ */
+export function renderMyMachines() {
+  const list = $('my-machines-list');
+  const rerender = () => renderMyMachines();
+  const custom = Object.values(App.data.machines).filter(isCustomMachine)
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const active = custom.filter(m => !m.archived);
+  const deleted = custom.filter(m => m.archived);
+
+  $('btn-new-machine').onclick = () => showCustomMachineModal({ onSaved: rerender });
+  list.innerHTML = active.length ? '' : '<p class="my-machines-empty">No custom machines yet.</p>';
+
+  const addRow = (machine, action, onAction) => {
+    const base = machine.basedOn && DEFAULT_DATA.machines[machine.basedOn];
+    const sub = [machine.gym && `📍 ${machine.gym}`, base && `Like ${base.name}`,
+      `${machine.repRange.min}–${machine.repRange.max} reps`].filter(Boolean).join(' · ');
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'my-machine-row';
+    row.innerHTML = `
+      <span class="my-machine-text">
+        <span class="my-machine-name">${escapeHtml(machine.name)}</span>
+        <span class="my-machine-sub">${escapeHtml(sub)}</span>
+      </span>
+      <span class="my-machine-action">${action}</span>
+    `;
+    row.onclick = onAction;
+    list.appendChild(row);
+  };
+
+  active.forEach(m => addRow(m, '&#9998;', () =>
+    showCustomMachineModal({ machine: m, onSaved: rerender, onDeleted: rerender })));
+
+  if (deleted.length) {
+    const label = document.createElement('div');
+    label.className = 'picker-section-label';
+    label.textContent = 'Deleted';
+    list.appendChild(label);
+    deleted.forEach(m => addRow(m, 'Restore', () => {
+      delete m.archived;
+      saveData();
+      showToast(`${escapeHtml(m.name)} restored`);
+      rerender();
+    }));
+  }
+}
+
 function confirmDelete(machine, onDeleted) {
   if (App.session?.sets?.some(st => st.machineId === machine.id)) {
     showToast('Delete its sets from this workout first');
@@ -216,9 +275,12 @@ function confirmDelete(machine, onDeleted) {
         if (kept) machine.archived = true;
         else delete App.data.machines[machine.id];
         saveData();
-        const others = App.session?._ui?.otherMachines;
-        if (others?.includes(machine.id)) {
-          App.session._ui.otherMachines = others.filter(id => id !== machine.id);
+        // Take it out of the current workout's added machines (any block)
+        const ui = App.session?._ui;
+        if (ui) {
+          const without = (ids) => (ids || []).filter(id => id !== machine.id);
+          ui.otherMachines = without(ui.otherMachines);
+          Object.keys(ui.addedMachines || {}).forEach(b => { ui.addedMachines[b] = without(ui.addedMachines[b]); });
           saveActiveSession();
         }
         showToast('Machine deleted');
