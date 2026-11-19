@@ -25,6 +25,7 @@ import { renderSettings, setupSettingsListeners } from './settings.js';
 import { DEFAULT_DATA } from './data-defaults.js';
 import { repairSessions, splitMtsIncline } from './repair.js';
 import { installNoDoubleTapZoom } from './no-zoom.js';
+import { syncCustomMachines } from './custom-machines.js';
 
 // ============================================================
 // EVENT LISTENERS
@@ -274,6 +275,9 @@ function init() {
       lastUsedAt: existing.lastUsedAt ?? def.lastUsedAt,
     };
   });
+
+  // Custom machines based on a built-in borrow its tips/setup fields — re-pull them
+  syncCustomMachines(App.data);
 
   // Always refresh built-in templates from defaults — templates aren't user-editable,
   // so this lets users pick up structural changes (e.g. issue #36 compound regroup).

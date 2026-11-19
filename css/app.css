@@ -750,6 +750,46 @@ h3 { font-size: 1.125rem; font-weight: 600; margin: 20px 0 10px; }
   line-height: 1.5;
 }
 
+/* Custom machine: gym / based-on tags + Edit button under the title */
+.machine-custom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 2px 0 8px;
+}
+.machine-custom-row.hidden { display: none; }
+.machine-custom-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.machine-custom-tags .pill { white-space: normal; }
+
+/* Create / edit custom machine form (inside the modal) */
+.machine-edit-form {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 0 2px;
+}
+.machine-edit-form .input-lg {
+  font-size: 1rem;
+  min-height: 46px;
+  padding: 10px 12px;
+}
+.form-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-top: 6px;
+}
+.form-optional {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
 /* Assisted chin inversion note */
 .machine-inversion-note {
   display: inline-flex;

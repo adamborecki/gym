@@ -8,6 +8,7 @@ import { App, saveData, saveActiveSession } from './state.js';
 import { showView, showToast, showModal } from './ui.js';
 import { startRestTimer, hideRestTimer, unlockAudio } from './timer.js';
 import { trackEvent, inferStretchMinutes, deriveTimeline, renderSessionSummary } from './session.js';
+import { isCustomMachine, machineLabel, showCustomMachineModal } from './custom-machines.js';
 
 // ============================================================
 // PILL ROW
@@ -261,7 +262,7 @@ export function renderWorkout() {
         row.onclick = () => openMachine(machineId, block.id);
         row.innerHTML = `
           <div>
-            <span class="machine-row-name">${machine.name}</span>
+            <span class="machine-row-name">${escapeHtml(machine.name)}</span>
             <span class="machine-row-sets">${setsForMachine.length > 0 ? `${setsForMachine.length} sets` : ''}</span>
           </div>
           <div>
@@ -365,7 +366,7 @@ function showAddMachineToOtherModal(blockId) {
 
   const isAbsBlock = blockId === 'abs';
   const available = Object.values(App.data.machines)
-    .filter(m => m.type !== 'conditioning' && !usedIds.has(m.id))
+    .filter(m => m.type !== 'conditioning' && !m.archived && !usedIds.has(m.id))
     .sort((a, b) => {
       // For abs block, show core machines first
       if (isAbsBlock) {
@@ -396,23 +397,25 @@ function showAddMachineToOtherModal(blockId) {
     const btn = document.createElement('button');
     btn.className = 'btn btn-ghost';
     btn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px;';
-    btn.textContent = machine.name;
+    btn.textContent = machineLabel(machine);
     btn.onclick = () => addMachineAndClose(machine.id);
     list.appendChild(btn);
   });
 
-  // Custom machine creation for abs block
-  if (isAbsBlock) {
-    const customBtn = document.createElement('button');
-    customBtn.className = 'btn btn-ghost';
-    customBtn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px; font-style:italic;';
-    customBtn.textContent = '+ Create Custom...';
-    customBtn.onclick = () => {
-      overlay.classList.add('hidden');
-      showCreateCustomCoreModal();
-    };
-    list.appendChild(customBtn);
-  }
+  // Create a custom machine (blank, or based on a built-in one)
+  const customBtn = document.createElement('button');
+  customBtn.className = 'btn btn-ghost';
+  customBtn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px; font-style:italic;';
+  customBtn.textContent = '+ Create Custom...';
+  customBtn.onclick = () => showCustomMachineModal({
+    onSaved: (machine) => {
+      if (!App.session._ui.otherMachines) App.session._ui.otherMachines = [];
+      if (!App.session._ui.otherMachines.includes(machine.id)) App.session._ui.otherMachines.push(machine.id);
+      saveActiveSession();
+      renderWorkout();
+    },
+  });
+  list.appendChild(customBtn);
 
   bodyEl.appendChild(list);
 
@@ -424,70 +427,6 @@ function showAddMachineToOtherModal(blockId) {
   actionsEl.appendChild(cancelBtn);
 
   overlay.classList.remove('hidden');
-}
-
-function showCreateCustomCoreModal() {
-  const overlay = $('modal-overlay');
-  const bodyEl = $('modal-body');
-  const actionsEl = $('modal-actions');
-
-  bodyEl.innerHTML = `
-    <h3>Create Core Machine</h3>
-    <div class="form-group" style="margin-top:12px;">
-      <label for="custom-core-name">Machine Name</label>
-      <input type="text" id="custom-core-name" class="input-lg" placeholder="e.g. Ab Wheel" maxlength="40">
-    </div>
-  `;
-
-  actionsEl.innerHTML = '';
-  const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'btn btn-ghost';
-  cancelBtn.textContent = 'Cancel';
-  cancelBtn.onclick = () => overlay.classList.add('hidden');
-
-  const createBtn = document.createElement('button');
-  createBtn.className = 'btn btn-primary';
-  createBtn.textContent = 'Create';
-  createBtn.onclick = () => {
-    const name = $('custom-core-name').value.trim();
-    if (!name) { showToast('Enter a name'); return; }
-
-    const id = 'custom_core_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-    if (App.data.machines[id]) {
-      showToast('Machine already exists');
-      return;
-    }
-
-    App.data.machines[id] = {
-      id,
-      name,
-      category: 'core',
-      type: 'isolation',
-      variants: [],
-      repRange: { min: 10, max: 15 },
-      rirPattern: [2, 1, 1],
-      setupFields: [{ key: 'notes', label: 'Notes', type: 'text' }],
-      tips: { setup: '', form: '', mantra: [], phasedCues: {} },
-      familiarity: 'learning',
-      lastUsedAt: null,
-    };
-    saveData();
-
-    if (!App.session._ui.otherMachines) App.session._ui.otherMachines = [];
-    App.session._ui.otherMachines.push(id);
-    saveActiveSession();
-
-    overlay.classList.add('hidden');
-    renderWorkout();
-    showToast(`${name} created`);
-  };
-
-  actionsEl.appendChild(cancelBtn);
-  actionsEl.appendChild(createBtn);
-  overlay.classList.remove('hidden');
-
-  // Focus the input
-  setTimeout(() => $('custom-core-name').focus(), 100);
 }
 
 function renderMachineBlock(body, block) {
@@ -508,7 +447,7 @@ function renderMachineBlock(body, block) {
     const hasCheck = setsForMachine.length > 0;
     row.innerHTML = `
       <div>
-        <span class="machine-row-name">${machine.name}</span>
+        <span class="machine-row-name">${escapeHtml(machine.name)}</span>
         <span class="machine-row-sets">${setsForMachine.length > 0 ? `${setsForMachine.length} sets` : ''}</span>
       </div>
       <div>
@@ -589,6 +528,25 @@ export function renderMachineView(machineId) {
 
   $('machine-name').textContent = machine.name;
 
+  // Custom machines: gym / based-on tags and an Edit button
+  const custom = isCustomMachine(machine);
+  $('machine-custom-row').classList.toggle('hidden', !custom);
+  if (custom) {
+    const base = machine.basedOn && App.data.machines[machine.basedOn];
+    $('machine-custom-tags').innerHTML =
+      (machine.gym ? `<span class="pill pill-sm">📍 ${escapeHtml(machine.gym)}</span>` : '') +
+      (base ? `<span class="pill pill-sm">Like ${escapeHtml(base.name)}</span>` : '');
+    $('btn-edit-machine').onclick = () => showCustomMachineModal({
+      machine,
+      onSaved: () => refreshMachineAfterEdit(machineId),
+      onDeleted: () => {
+        hideRestTimer();
+        renderWorkout();
+        showView('workout');
+      },
+    });
+  }
+
   // Hide top rep range pill — it's now shown inline in the set logger (issue #5)
   $('machine-rep-range').classList.add('hidden');
 
@@ -600,7 +558,7 @@ export function renderMachineView(machineId) {
     inversionNote.className = 'machine-inversion-note hidden';
     $('machine-name').parentElement.insertBefore(inversionNote, $('machine-rep-range').nextSibling);
   }
-  if (machineId === 'assisted_chin') {
+  if (machineId === 'assisted_chin' || machine.basedOn === 'assisted_chin') {
     inversionNote.textContent = '⚠️ Higher weight = more assistance = easier';
     inversionNote.classList.remove('hidden');
   } else {
@@ -642,6 +600,29 @@ export function renderMachineView(machineId) {
     $('btn-log-bike-session').classList.remove('hidden');
   } else {
     $('btn-log-bike-session').classList.add('hidden');
+  }
+}
+
+/**
+ * Re-render the machine view after an edit without disturbing a set in
+ * progress: the open tab and anything typed in the set logger are kept.
+ */
+function refreshMachineAfterEdit(machineId) {
+  const activeTab = document.querySelector('.tab.active')?.dataset.tab || 'setup';
+  const midEntry = !$('set-logger').classList.contains('hidden') &&
+    !$('set-entry-phase').classList.contains('hidden');
+  const typed = midEntry ? { weight: $('set-weight').value, reps: $('set-reps').value } : null;
+
+  renderMachineView(machineId);
+
+  $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === activeTab));
+  $$('.tab-content').forEach(t => t.classList.remove('active'));
+  $(`tab-content-${activeTab}`).classList.add('active');
+  if (typed && !$('set-logger').classList.contains('hidden')) {
+    $('set-done-phase').classList.add('hidden');
+    $('set-entry-phase').classList.remove('hidden');
+    $('set-weight').value = typed.weight;
+    $('set-reps').value = typed.reps;
   }
 }
 
