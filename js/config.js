@@ -10,7 +10,10 @@ export const SESSIONS_BACKUP_KEY = 'gymApp_v1_sessionsBackup_preRepair';
 export const MTS_SPLIT_BACKUP_KEY = 'gymApp_v1_sessionsBackup_preMtsInclineSplit';
 // Version: date-based (YYYY.MM.DD + build letter). Update on every code change.
 // Same day: increment letter (a→b→c). New day: reset to 'a'.
-export const APP_VERSION = 'v2026.11.12b';
+export const APP_VERSION = 'v2026.11.19b';
+
+// The gym the built-in machines belong to; sessions default to it
+export const HOME_GYM = 'PF';
 
 // A session with no activity for this long is treated as forgotten: it's saved
 // ending at its last activity, and a later gap this long marks a separate workout.

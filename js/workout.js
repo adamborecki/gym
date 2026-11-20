@@ -8,6 +8,7 @@ import { App, saveData, saveActiveSession } from './state.js';
 import { showView, showToast, showModal } from './ui.js';
 import { startRestTimer, hideRestTimer, unlockAudio } from './timer.js';
 import { trackEvent, inferStretchMinutes, deriveTimeline, renderSessionSummary } from './session.js';
+import { isCustomMachine, machineLabel, showCustomMachineModal } from './custom-machines.js';
 
 // ============================================================
 // PILL ROW
@@ -22,6 +23,9 @@ export function updatePillRow() {
 
   // Day type pill
   html += `<span class="pill pill-${s.dayType}">${s.dayType.charAt(0).toUpperCase() + s.dayType.slice(1)}</span>`;
+
+  // Gym pill (only when away from the home gym)
+  if (s.gym) html += `<span class="pill">📍 ${escapeHtml(s.gym)}</span>`;
 
   // Time goal pill
   if (typeof s.timeGoal === 'string') {
@@ -249,10 +253,9 @@ export function renderWorkout() {
       renderMachineBlock(body, block);
     }
 
-    // Abs/Core block: also render session-added machines + "Add Machine" row
-    if (block.id === 'abs') {
-      const otherMachines = s._ui.otherMachines || [];
-      otherMachines.forEach(machineId => {
+    // Every lifting block: also render session-added machines + "Add Machine" row
+    if (block.id !== 'warmup') {
+      addedMachines(block.id).forEach(machineId => {
         const machine = App.data.machines[machineId];
         if (!machine) return;
         const setsForMachine = getMachineSets(machineId, block.id);
@@ -261,7 +264,7 @@ export function renderWorkout() {
         row.onclick = () => openMachine(machineId, block.id);
         row.innerHTML = `
           <div>
-            <span class="machine-row-name">${machine.name}</span>
+            <span class="machine-row-name">${escapeHtml(machine.name)}</span>
             <span class="machine-row-sets">${setsForMachine.length > 0 ? `${setsForMachine.length} sets` : ''}</span>
           </div>
           <div>
@@ -274,7 +277,7 @@ export function renderWorkout() {
 
       const addRow = document.createElement('div');
       addRow.className = 'machine-row';
-      addRow.onclick = () => showAddMachineToOtherModal('abs');
+      addRow.onclick = () => showAddMachineModal(block);
       addRow.innerHTML = `
         <span class="machine-row-name">+ Add Machine</span>
         <span class="block-chevron">&#9654;</span>
@@ -353,28 +356,49 @@ function renderWarmupBlock(body, block) {
   }
 }
 
-function showAddMachineToOtherModal(blockId) {
-  // Collect all machine IDs already in this workout's template blocks
+/**
+ * Machines added to a block this session, beyond the template's suggestions.
+ * The "Other" (abs) block keeps its original storage key.
+ */
+function addedMachines(blockId) {
+  const ui = App.session._ui;
+  if (blockId === 'abs') return ui.otherMachines || (ui.otherMachines = []);
+  if (!ui.addedMachines) ui.addedMachines = {};
+  return ui.addedMachines[blockId] || (ui.addedMachines[blockId] = []);
+}
+
+function showAddMachineModal(block) {
+  const blockId = block.id;
+  // Skip machines already in this workout's template blocks or added to this block
   const template = App.data.templates[App.session.templateId];
   const usedIds = new Set();
   template.blocks.forEach(b => {
     (b.suggestions || []).forEach(m => usedIds.add(m));
   });
-  // Also exclude already-added other machines
-  (App.session._ui.otherMachines || []).forEach(m => usedIds.add(m));
+  addedMachines(blockId).forEach(m => usedIds.add(m));
 
-  const isAbsBlock = blockId === 'abs';
+  const gym = App.session.gym || null;
+  const blockIds = new Set(block.suggestions || []);
+  const byName = (a, b) => a.name.localeCompare(b.name);
   const available = Object.values(App.data.machines)
-    .filter(m => m.type !== 'conditioning' && !usedIds.has(m.id))
-    .sort((a, b) => {
-      // For abs block, show core machines first
-      if (isAbsBlock) {
-        const aCore = a.category === 'core' ? 0 : 1;
-        const bCore = b.category === 'core' ? 0 : 1;
-        if (aCore !== bCore) return aCore - bCore;
-      }
-      return a.name.localeCompare(b.name);
-    });
+    .filter(m => m.type !== 'conditioning' && !m.archived && !usedIds.has(m.id));
+
+  // Every machine is offered at every gym; the order just puts the likely ones
+  // first: this gym's machines (stand-ins for this block's lifts on top), then
+  // your other custom machines, then the built-ins.
+  const custom = available.filter(isCustomMachine);
+  const here = gym ? custom.filter(m => m.gym === gym) : [];
+  here.sort((a, b) => (blockIds.has(b.basedOn) - blockIds.has(a.basedOn)) || byName(a, b));
+  const mine = custom.filter(m => !here.includes(m)).sort(byName);
+  const builtIn = available.filter(m => !isCustomMachine(m)).sort((a, b) => {
+    // In the Other block, show core machines first
+    if (blockId === 'abs') {
+      const aCore = a.category === 'core' ? 0 : 1;
+      const bCore = b.category === 'core' ? 0 : 1;
+      if (aCore !== bCore) return aCore - bCore;
+    }
+    return byName(a, b);
+  });
 
   const overlay = $('modal-overlay');
   const bodyEl = $('modal-body');
@@ -385,34 +409,45 @@ function showAddMachineToOtherModal(blockId) {
   list.style.cssText = 'max-height:50vh; overflow-y:auto; margin-top:12px;';
 
   function addMachineAndClose(machineId) {
-    if (!App.session._ui.otherMachines) App.session._ui.otherMachines = [];
-    App.session._ui.otherMachines.push(machineId);
+    const added = addedMachines(blockId);
+    if (!added.includes(machineId)) added.push(machineId);
     saveActiveSession();
     overlay.classList.add('hidden');
     renderWorkout();
   }
 
-  available.forEach(machine => {
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-ghost';
-    btn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px;';
-    btn.textContent = machine.name;
-    btn.onclick = () => addMachineAndClose(machine.id);
-    list.appendChild(btn);
+  // Create a custom machine (blank, or based on a built-in one)
+  const customBtn = document.createElement('button');
+  customBtn.className = 'btn btn-ghost';
+  customBtn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px; font-style:italic;';
+  customBtn.textContent = '+ Create Custom...';
+  customBtn.onclick = () => showCustomMachineModal({
+    defaults: { gym },
+    onSaved: (machine) => addMachineAndClose(machine.id),
   });
+  list.appendChild(customBtn);
 
-  // Custom machine creation for abs block
-  if (isAbsBlock) {
-    const customBtn = document.createElement('button');
-    customBtn.className = 'btn btn-ghost';
-    customBtn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px; font-style:italic;';
-    customBtn.textContent = '+ Create Custom...';
-    customBtn.onclick = () => {
-      overlay.classList.add('hidden');
-      showCreateCustomCoreModal();
-    };
-    list.appendChild(customBtn);
-  }
+  const sections = [
+    [gym ? `At ${gym}` : '', here],
+    ['My machines', mine],
+    ['Built-in', builtIn],
+  ].filter(([, machines]) => machines.length);
+  sections.forEach(([title, machines]) => {
+    if (sections.length > 1) {
+      const label = document.createElement('div');
+      label.className = 'picker-section-label';
+      label.textContent = title;
+      list.appendChild(label);
+    }
+    machines.forEach(machine => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost';
+      btn.style.cssText = 'width:100%; text-align:left; margin-bottom:6px;';
+      btn.textContent = machineLabel(machine);
+      btn.onclick = () => addMachineAndClose(machine.id);
+      list.appendChild(btn);
+    });
+  });
 
   bodyEl.appendChild(list);
 
@@ -424,70 +459,6 @@ function showAddMachineToOtherModal(blockId) {
   actionsEl.appendChild(cancelBtn);
 
   overlay.classList.remove('hidden');
-}
-
-function showCreateCustomCoreModal() {
-  const overlay = $('modal-overlay');
-  const bodyEl = $('modal-body');
-  const actionsEl = $('modal-actions');
-
-  bodyEl.innerHTML = `
-    <h3>Create Core Machine</h3>
-    <div class="form-group" style="margin-top:12px;">
-      <label for="custom-core-name">Machine Name</label>
-      <input type="text" id="custom-core-name" class="input-lg" placeholder="e.g. Ab Wheel" maxlength="40">
-    </div>
-  `;
-
-  actionsEl.innerHTML = '';
-  const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'btn btn-ghost';
-  cancelBtn.textContent = 'Cancel';
-  cancelBtn.onclick = () => overlay.classList.add('hidden');
-
-  const createBtn = document.createElement('button');
-  createBtn.className = 'btn btn-primary';
-  createBtn.textContent = 'Create';
-  createBtn.onclick = () => {
-    const name = $('custom-core-name').value.trim();
-    if (!name) { showToast('Enter a name'); return; }
-
-    const id = 'custom_core_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-    if (App.data.machines[id]) {
-      showToast('Machine already exists');
-      return;
-    }
-
-    App.data.machines[id] = {
-      id,
-      name,
-      category: 'core',
-      type: 'isolation',
-      variants: [],
-      repRange: { min: 10, max: 15 },
-      rirPattern: [2, 1, 1],
-      setupFields: [{ key: 'notes', label: 'Notes', type: 'text' }],
-      tips: { setup: '', form: '', mantra: [], phasedCues: {} },
-      familiarity: 'learning',
-      lastUsedAt: null,
-    };
-    saveData();
-
-    if (!App.session._ui.otherMachines) App.session._ui.otherMachines = [];
-    App.session._ui.otherMachines.push(id);
-    saveActiveSession();
-
-    overlay.classList.add('hidden');
-    renderWorkout();
-    showToast(`${name} created`);
-  };
-
-  actionsEl.appendChild(cancelBtn);
-  actionsEl.appendChild(createBtn);
-  overlay.classList.remove('hidden');
-
-  // Focus the input
-  setTimeout(() => $('custom-core-name').focus(), 100);
 }
 
 function renderMachineBlock(body, block) {
@@ -508,7 +479,7 @@ function renderMachineBlock(body, block) {
     const hasCheck = setsForMachine.length > 0;
     row.innerHTML = `
       <div>
-        <span class="machine-row-name">${machine.name}</span>
+        <span class="machine-row-name">${escapeHtml(machine.name)}</span>
         <span class="machine-row-sets">${setsForMachine.length > 0 ? `${setsForMachine.length} sets` : ''}</span>
       </div>
       <div>
@@ -523,10 +494,8 @@ function renderMachineBlock(body, block) {
 function getBlockSets(block) {
   if (!App.session) return [];
   const ids = [...(block.suggestions || [])];
-  // For the Other block, also include session-added machines
-  if (block.id === 'abs' && App.session._ui.otherMachines) {
-    App.session._ui.otherMachines.forEach(m => ids.push(m));
-  }
+  // Also include machines added to this block during the session
+  if (block.id !== 'warmup') ids.push(...addedMachines(block.id));
   return App.session.sets.filter(s => ids.includes(s.machineId) &&
     (!s.blockId || s.blockId === block.id));
 }
@@ -534,19 +503,18 @@ function getBlockSets(block) {
 function isBlockComplete(block) {
   if (!block.suggestions || block.suggestions.length === 0) return true;
   if (block.id === 'warmup') return !!(App.session.warmup.bikeLog || App.session.warmup.stretchMinutes);
-  if (block.id === 'abs') {
-    // Abs/Core is supplementary — "complete" if any machine has at least one set
-    const allMachines = [...(block.suggestions || []), ...(App.session._ui.otherMachines || [])];
-    return allMachines.some(mid => getMachineSets(mid, block.id).length > 0);
+  const added = addedMachines(block.id);
+  const done = (mid) => getMachineSets(mid, block.id).length > 0;
+  // Abs/Core is supplementary, and choice-based blocks (compound primary/secondary
+  // with interchangeable options) are complete once ANY machine — listed or
+  // added — has at least one set.
+  if (block.id === 'abs' || block.completion === 'any') {
+    return [...block.suggestions, ...added].some(done);
   }
-  // Choice-based blocks (e.g. compound primary/secondary with multiple options):
-  // complete if ANY listed machine has at least one set. Reflects that compound
-  // movements are interchangeable and fatigue/order shouldn't force redundant work.
-  if (block.completion === 'any') {
-    return block.suggestions.some(mid => getMachineSets(mid, block.id).length > 0);
-  }
-  // Default: a block is "complete" only if every machine has at least one set
-  return block.suggestions.every(mid => getMachineSets(mid, block.id).length > 0);
+  // Default: every listed machine needs a set — or an added stand-in based on
+  // it does (e.g. another gym's version of the same lift)
+  return block.suggestions.every(mid => done(mid) ||
+    added.some(a => App.data.machines[a]?.basedOn === mid && done(a)));
 }
 
 /**
@@ -589,6 +557,25 @@ export function renderMachineView(machineId) {
 
   $('machine-name').textContent = machine.name;
 
+  // Custom machines: gym / based-on tags and an Edit button
+  const custom = isCustomMachine(machine);
+  $('machine-custom-row').classList.toggle('hidden', !custom);
+  if (custom) {
+    const base = machine.basedOn && App.data.machines[machine.basedOn];
+    $('machine-custom-tags').innerHTML =
+      (machine.gym ? `<span class="pill pill-sm">📍 ${escapeHtml(machine.gym)}</span>` : '') +
+      (base ? `<span class="pill pill-sm">Like ${escapeHtml(base.name)}</span>` : '');
+    $('btn-edit-machine').onclick = () => showCustomMachineModal({
+      machine,
+      onSaved: () => refreshMachineAfterEdit(machineId),
+      onDeleted: () => {
+        hideRestTimer();
+        renderWorkout();
+        showView('workout');
+      },
+    });
+  }
+
   // Hide top rep range pill — it's now shown inline in the set logger (issue #5)
   $('machine-rep-range').classList.add('hidden');
 
@@ -600,7 +587,7 @@ export function renderMachineView(machineId) {
     inversionNote.className = 'machine-inversion-note hidden';
     $('machine-name').parentElement.insertBefore(inversionNote, $('machine-rep-range').nextSibling);
   }
-  if (machineId === 'assisted_chin') {
+  if (machineId === 'assisted_chin' || machine.basedOn === 'assisted_chin') {
     inversionNote.textContent = '⚠️ Higher weight = more assistance = easier';
     inversionNote.classList.remove('hidden');
   } else {
@@ -642,6 +629,29 @@ export function renderMachineView(machineId) {
     $('btn-log-bike-session').classList.remove('hidden');
   } else {
     $('btn-log-bike-session').classList.add('hidden');
+  }
+}
+
+/**
+ * Re-render the machine view after an edit without disturbing a set in
+ * progress: the open tab and anything typed in the set logger are kept.
+ */
+function refreshMachineAfterEdit(machineId) {
+  const activeTab = document.querySelector('.tab.active')?.dataset.tab || 'setup';
+  const midEntry = !$('set-logger').classList.contains('hidden') &&
+    !$('set-entry-phase').classList.contains('hidden');
+  const typed = midEntry ? { weight: $('set-weight').value, reps: $('set-reps').value } : null;
+
+  renderMachineView(machineId);
+
+  $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === activeTab));
+  $$('.tab-content').forEach(t => t.classList.remove('active'));
+  $(`tab-content-${activeTab}`).classList.add('active');
+  if (typed && !$('set-logger').classList.contains('hidden')) {
+    $('set-done-phase').classList.add('hidden');
+    $('set-entry-phase').classList.remove('hidden');
+    $('set-weight').value = typed.weight;
+    $('set-reps').value = typed.reps;
   }
 }
 
@@ -854,7 +864,7 @@ function renderHistoryDetail(detail, session, machineId, machineSets) {
   const onMachine = deriveTimeline(session).machines.find(m => m.machineId === machineId);
   const liftOrder = [...new Set(session.sets.map(st => st.machineId))];
   const liftOf = `lift ${liftOrder.indexOf(machineId) + 1} of ${liftOrder.length}`;
-  const meta = [day && `${day} day`, time, liftOf, onMachine && `${formatDuration(onMachine.durationMs)} on machine`]
+  const meta = [day && `${day} day`, session.gym && `📍 ${escapeHtml(session.gym)}`, time, liftOf, onMachine && `${formatDuration(onMachine.durationMs)} on machine`]
     .filter(Boolean).join(' · ');
 
   let html = `<div class="history-detail-meta">${meta}</div>`;

@@ -46,6 +46,10 @@
       <div class="view-content">
         <button class="btn-back" id="btn-back-day">&larr;</button>
         <h2>Choose Day Type</h2>
+        <div class="gym-picker">
+          <span class="gym-picker-label">Gym</span>
+          <div class="chip-row" id="gym-chips"></div>
+        </div>
         <div class="choice-grid">
           <button class="btn btn-choice" data-day="push">
             <span class="choice-emoji">💪</span>
@@ -194,6 +198,10 @@
       <div class="view-content">
         <button class="btn-back" id="btn-back-machine">&larr;</button>
         <h2 id="machine-name"></h2>
+        <div id="machine-custom-row" class="machine-custom-row hidden">
+          <span id="machine-custom-tags" class="machine-custom-tags"></span>
+          <button class="btn btn-sm btn-ghost" id="btn-edit-machine">&#9998; Edit</button>
+        </div>
         <div id="machine-rep-range" class="pill"></div>
 
         <!-- Tabs -->
@@ -342,6 +350,13 @@
               <button class="chip" data-rest-mode="hurry" id="setting-rest-hurry">Hurry</button>
             </div>
           </div>
+        </div>
+        <div class="settings-group">
+          <div class="setting-row">
+            <span>My Machines</span>
+            <button class="btn btn-ghost btn-sm" id="btn-new-machine">+ New</button>
+          </div>
+          <div id="my-machines-list"></div>
         </div>
         <div class="settings-group">
           <div class="setting-row">

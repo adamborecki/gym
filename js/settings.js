@@ -7,6 +7,7 @@ import { $, deepClone } from './utils.js';
 import { App, saveData } from './state.js';
 import { showView, showToast, showModal, renderHome } from './ui.js';
 import { DEFAULT_DATA } from './data-defaults.js';
+import { renderMyMachines } from './custom-machines.js';
 
 // ============================================================
 // SETTINGS
@@ -18,6 +19,8 @@ export function renderSettings() {
   // Rest mode
   $('setting-rest-normal').classList.toggle('chip-active', prefs.restModeDefault !== 'hurry');
   $('setting-rest-hurry').classList.toggle('chip-active', prefs.restModeDefault === 'hurry');
+
+  renderMyMachines();
 }
 
 export function setupSettingsListeners() {
